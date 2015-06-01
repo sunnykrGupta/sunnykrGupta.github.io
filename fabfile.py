@@ -49,6 +49,9 @@ def cf_upload():
           '-K {cloudfiles_api_key} '
           'upload -c {cloudfiles_container} .'.format(**env))
 
+def showpid():
+    local('lsof -i :8000')
+
 @hosts(production)
 def publish():
     local('ghp-import output')
