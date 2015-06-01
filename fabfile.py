@@ -51,6 +51,7 @@ def cf_upload():
 
 @hosts(production)
 def publish():
-    local('pelican content -o output -s pelicanconf.py')
     local('ghp-import output')
-    local('git push https://github.com/sunnykrGupta/sunnykrGupta.github.io.git gh-pages:master')
+    local('git checkout master')
+    local('git merge gh-pages')
+    local('git push -all')
