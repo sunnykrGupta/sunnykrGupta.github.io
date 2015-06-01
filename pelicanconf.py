@@ -4,7 +4,7 @@ from __future__ import unicode_literals
 
 AUTHOR = u'Sunny KUMAR'
 SITENAME = u'Daemon Blog'
-SITEURL = ''
+SITEURL = 'http://sunnykrGupta.github.io'
 THEME = "/home/lautner/CodeCave/pelican-svbhack"
 
 TIMEZONE = 'Asia/Calcutta'
