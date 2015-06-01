@@ -4,7 +4,7 @@ from __future__ import unicode_literals
 
 AUTHOR = u'Sunny KUMAR'
 SITENAME = u'Daemon Blog'
-SITEURL = 'http://localhost:8000'
+SITEURL = ''
 THEME = "/home/lautner/CodeCave/pelican-svbhack"
 
 TIMEZONE = 'Asia/Calcutta'
