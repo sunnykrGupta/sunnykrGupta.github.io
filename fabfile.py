@@ -54,7 +54,6 @@ def showpid():
 
 @hosts(production)
 def publish():
+    local('pelican content -o output -s pelicanconf.py')
     local('ghp-import output')
-    local('git checkout master')
-    local('git merge gh-pages')
-    local('git push -all')
+    local('git push origin gh-pages:master')
