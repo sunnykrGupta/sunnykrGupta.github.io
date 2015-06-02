@@ -13,6 +13,10 @@ DEFAULT_LANG = u'en'
 
 PATH = 'content'
 
+PLUGIN_PATH = '/home/lautner/CodeCave/pelican-plugins'
+PLUGINS = ['share_post']
+
+DELETE_OUTPUT_DIRECTORY = "True"
 
 # Feed generation is usually not desired when developing
 FEED_ALL_ATOM = None
@@ -21,6 +25,9 @@ TRANSLATION_FEED_ATOM = None
 
 #to use Google Analytics, set this var to your UA-XYZ code
 #GOOGLE_ANALYTICS=
+
+#Set the disqus Sitename here. Goto
+DISQUS_SITENAME='sunnydaemon'
 
 STATIC_PATHS = ['images']
 
