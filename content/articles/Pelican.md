@@ -13,7 +13,7 @@ a very interesting method as you can write your content purely in your favourite
 
 #### Installation's :
 
-How to setup Pelican?? [Go ahead](http://ntanjerome.org/blog/how-to-setup-github-user-page-with-pelican).
+How to setup Pelican?? [Go ahead](http://ntanjerome.org/blog/how-to-setup-github-user-page-with-pelican). and detailed explanation of [pelican structure](http://seanazlin.com/creating-a-blog-on-GitHub-dot-io-with-Python.html).
 
 Variety of themes available [Click](https://github.com/getpelican/pelican-themes).
 

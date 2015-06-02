@@ -48,41 +48,51 @@ aside div#user_meta ul li {
   display: inline;
   line-height: 3em;
 }
-aside div#user_meta ul li a {
-  border: 2px solid #eeeeee;
-  border-radius: 15px;
-  -moz-border-radius: 15px;
-  -webkit-border-radius: 15px;
-  color: #999999;
-}
-aside div#user_meta ul a img{
-  height: 30px;
-  width: 30px;
-  margin: 2px;
-}
 
-aside div#user_meta ul a img:hover{
-  opacity: 0.7;
-}
-
+/*-------------*/
 main header {
   padding: 40px;
   border-top: #eeeeee 1px solid;
   border-bottom: #eeeeee 1px solid;
 }
 main header p {
-  float: left;
-  width: 300px;
+  width: 100%;
   font-weight: bold;
   font-size: 12px;
   text-transform: uppercase;
 }
-main header nav{
-  margin-top: 4px;
-  font-weight: bold;
-  font-size: 16px;
-  text-transform: uppercase;
+
+main header nav a {
+  transition: border 0.5s ease;
+  border: 2px solid #eeeeee;
+  border-radius: 15px;
+  -moz-border-radius: 15px;
+  -webkit-border-radius: 15px;
+  color: #999999;
 }
+
+main header nav a#twitter:hover {
+  border: 2px solid #fff;
+}
+main header nav a#github:hover {
+  border: 2px solid #fff;
+}
+main header nav a#linkedin:hover {
+  border: 2px solid #fff;
+}
+main header nav a#googleplus:hover {
+  border: 2px solid #fff;
+}
+main header nav a#mail:hover {
+  border: 2px solid #fff;
+}
+
+main header nav a img{
+  height: 40px;
+  width: 40px;
+  margin: 5px;
+}
+
 main article {
   max-width: 640px;
   padding: 40px;
@@ -169,9 +179,7 @@ main div#ending_message {
     max-width: 192px;
     text-align: right;
   }
-  aside div#user_meta ul li {
-    display: block;
-  }
+
   main {
     width: 75%;
     position: absolute;
@@ -180,6 +188,7 @@ main div#ending_message {
     overflow-x: hidden;
     overflow-y: hidden;
   }
+
   main article {
     max-width: 640px;
   }

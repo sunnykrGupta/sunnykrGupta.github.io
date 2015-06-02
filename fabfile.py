@@ -56,4 +56,4 @@ def showpid():
 def publish():
     local('pelican content -o output -s pelicanconf.py')
     local('ghp-import output')
-    local('git push origin gh-pages:master')
+    local('git push -f origin gh-pages:master')
