@@ -7,4 +7,4 @@ I am Computer Science Undergrad, just finished college. I like to work with new 
 
 For the last one year, i have been getting my hands dirty around Data Science domains like Data Mining, Data Analysis etc to understand the power and exploring the possibilities around Data. Check out my [Linkedin](http://www.linkedin.com/in/sunnyO4) and if you are looking for candidates like me, then ping me anytime. I would love to hear from you.  ;)
 
-![resume](../images/resume.png "resume here")[RESUME Here](https://www.dropbox.com/s/43u5dp4muv0ry69/O4_resume_1.1.pdf?dl=0)
+![resume](../images/resume.png "resume here")[RESUME Here](https://www.dropbox.com/s/e88pq3w9hz41966/O4_resume_1.1.pdf?dl=0)

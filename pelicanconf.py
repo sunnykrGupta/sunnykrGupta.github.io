@@ -4,7 +4,7 @@ from __future__ import unicode_literals
 
 AUTHOR = u'Sunny KUMAR'
 SITENAME = u'Daemon Blog'
-SITEURL = 'http://localhost:8000'
+SITEURL = 'http://sunnykrGupta.github.io'
 THEME = "/home/lautner/CodeCave/pelican-svbhack"
 
 TIMEZONE = 'Asia/Calcutta'
@@ -56,4 +56,5 @@ DEFAULT_PAGINATION = 10
 
 # Uncomment following line if you want document-relative URLs when developing
 #RELATIVE_URLS = True
-DISPLAY_RECENT_POSTS_ON_SIDEBAR=True
+
+#DISPLAY_RECENT_POSTS_ON_SIDEBAR=True
