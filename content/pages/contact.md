@@ -3,7 +3,7 @@ Date: 2015-06-01 17:40
 
 ----------------------------
 
-Drop a mail to me anytime on **sunnygupta.kr@gmail.com** ![email](|filename|../images/mail.png "Drop Mail")
+Drop a mail to me anytime at **sunnygupta.kr@gmail.com** ![email](|filename|../images/mail.png "Drop Mail")
 
 -----------------------------
 New Delhi (INDIA) -> Jammu (INDIA) -> **I live here now** 

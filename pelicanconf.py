@@ -49,7 +49,7 @@ SOCIAL = (
             ('twitter', 'https://twitter.com/sunnyLaGupta'),
             ('linkedin', 'https://linkedin.com/in/sunnyO4'),
             ('googleplus', 'https://plus.google.com/+SunnyGuptaLa4'),
-            ('mail', 'mailto:sunnylautner4@gmail.com'),
+            ('mail', 'mailto:sunnygupta.kr@gmail.com'),
         )
 
 DEFAULT_PAGINATION = 10
