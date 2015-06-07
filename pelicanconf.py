@@ -24,7 +24,7 @@ CATEGORY_FEED_ATOM = None
 TRANSLATION_FEED_ATOM = None
 
 #to use Google Analytics, set this var to your UA-XYZ code
-GOOGLE_ANALYTICS="UA-63829769-1"
+GOOGLE_ANALYTICS="UA-63834161-1"
 
 #Set the disqus Sitename here. Goto
 DISQUS_SITENAME='sunnydaemon'
