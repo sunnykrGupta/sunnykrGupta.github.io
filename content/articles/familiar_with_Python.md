@@ -4,7 +4,6 @@ Category: Python
 Tags: python
 Author: Sunny Kr Gupta
 
-### Python :
 
 Python is a powerful scripting language.
 
@@ -17,7 +16,7 @@ Python is a powerful scripting language.
 - Know a bit more about django architecture [5][8]
 - Write you first api using tastypie[6][7]
 
-Footnotes:
+#### Footnotes:
 >[1]: http://en.wikipedia.org/wiki/REST
 
 >[2]: [What makes python awesome](http://www.youtube.com/watch?v=u1sVfGEBKWQ).

@@ -5,9 +5,7 @@ Tags: Geopy, Geocoder, Python, GoogleV3, Yandex, Geonames
 Author: Sunny Kr Gupta
 
 
-# A Practical Guide to Geopy
-
-During my final major academic project, i was working with [Twitter](http://twitter.com) data (ie. tweets). I did some research and found out approximately only 1% of all Tweets published on Twitter are geolocated (ie. have location information). This is a very small portion of the Tweets, and i needed almost every tweets location to segregate data country-wise. 
+During my final major academic project, i was working with [Twitter](http://twitter.com) data (ie. tweets). I did some research and found out approximately only 1% of all Tweets published on Twitter are geolocated (ie. have location information). This is a very small portion of the Tweets, and i needed almost every tweets location to segregate data country-wise.
   - How to resolve a string location to determine country ("Banagher", "Ipoh" etc )
   - How to resolve a Coordinate into country. ('4.581' - '101.082' etc)
 
@@ -19,7 +17,7 @@ There comes a [Geopy](http://geopy.readthedocs.org/) to rescue us to this proble
 Geocoding is the process of converting addresses (like "1600 Amphitheatre Parkway, Mountain View, CA") into geographic coordinates (like latitude 37.423021 and longitude 122.083739) or reverse.
 
 #####Available Geocoder APIs
-There are several Geocoding service provided by different Map APIs, populars are listed below: 
+There are several Geocoding service provided by different Map APIs, populars are listed below:
  - [Google Maps Geocoding V3 API](https://developers.google.com/maps/documentation/geolocation/intro) (2500 per-day)
  - [Geonames](http://www.geonames.org/about.html) (30000 per-day | 2000 per-hour)
  - [Nominatim - Open Street Map](http://wiki.openstreetmap.org/wiki/Nominatim) (refer Usage Docs)
@@ -38,7 +36,7 @@ $ pip install geopy
 ```
 
 ####Geocoding
-To query a location using string using `Google MAP V3`. To acquire key you need to register your app on google developer console. 
+To query a location using string using `Google MAP V3`. To acquire key you need to register your app on google developer console.
 ```python
 from geopy.geocoders import GoogleV3
 import json
@@ -60,7 +58,7 @@ Gocoders have different service api classes, here i have used `GoogleV3`, then a
         "bounds": {
             "northeast": {
                 "lat": 38.995548, "lng": -76.909393
-            }, 
+            },
             "southwest": {
                 "lat": 38.8031495, "lng": -77.11974}
         },
@@ -70,22 +68,22 @@ Gocoders have different service api classes, here i have used `GoogleV3`, then a
     "address_components": [
         {
             "long_name": "Washington",
-            "types": ["locality", "political"], 
+            "types": ["locality", "political"],
             "short_name": "D.C."
         },
         {
             "long_name": "District of Columbia",
-            "types": ["administrative_area_level_1", "political"], 
+            "types": ["administrative_area_level_1", "political"],
             "short_name": "DC"
         },
-        { 
+        {
             "long_name": "United States",
-            "types": ["country", "political"], 
+            "types": ["country", "political"],
             "short_name": "US"
         }
     ],
-    "place_id": "ChIJW-T2Wt7Gt4kRKl2I1CJFUsI", 
-    "formatted_address": "Washington, DC, USA", 
+    "place_id": "ChIJW-T2Wt7Gt4kRKl2I1CJFUsI",
+    "formatted_address": "Washington, DC, USA",
     "types": ["locality", "political"]
 }
 Washington, DC, USA
@@ -107,7 +105,7 @@ Potsdamer Platz, Mitte, Berlin, 10117, Deutschland, European Union
 >>> print((location.latitude, location.longitude))
 (52.5094982, 13.3765983)
 ```
-Similarly we can use other Geocoder APIs too, `Nominatim` as openstreet map, `Yandex` for Yandex Map, `GeoNames` as Geonames Geocoder etc. 
+Similarly we can use other Geocoder APIs too, `Nominatim` as openstreet map, `Yandex` for Yandex Map, `GeoNames` as Geonames Geocoder etc.
 
 Geopy code for `GeoNames` and `Yandex` :
 
@@ -136,7 +134,7 @@ else:
     print location
 ```
 
-So simple right! for using other Geocoder Map APIs , refer to full documentation of [Geopy](http://geopy.readthedocs.org/en/latest/#). I hope you understands the working of Geocoder APIs and power of Geopy. 
+So simple right! for using other Geocoder Map APIs , refer to full documentation of [Geopy](http://geopy.readthedocs.org/en/latest/#). I hope you understands the working of Geocoder APIs and power of Geopy.
 </br>Comment below if you come across any problem and give feedback. Thanks you all! Have a good day!
 
 
