@@ -4,16 +4,23 @@ from __future__ import unicode_literals
 
 AUTHOR = u'Sunny KUMAR'
 SITENAME = u'Daemon Blog'
+
+#Production Mode
 SITEURL = 'http://sunnykrGupta.github.io'
-THEME = "/home/lautner/CodeCave/pelican-svbhack"
+
+#Devel Mode, always give absolute URL
+#SITEURL = 'http://localhost:8000'
+
+THEME = "/home/daemonsl/Dropbox/boxSpace/CodeCave/pelican-svbhack"
 
 TIMEZONE = 'Asia/Calcutta'
-
 DEFAULT_LANG = u'en'
 
 PATH = 'content'
 
-PLUGIN_PATH = '/home/lautner/CodeCave/pelican-plugins'
+#We are using share_post plugin to enable share feature in blog
+# Download : https://github.com/getpelican/pelican-plugins
+PLUGIN_PATHS = ['/home/daemonsl/Dropbox/boxSpace/CodeCave/pelican-plugins']
 PLUGINS = ['share_post']
 
 DELETE_OUTPUT_DIRECTORY = "True"
@@ -38,7 +45,7 @@ USER_LOGO_URL=SITEURL+'/images/logo.jpg'
 #DISQUS_SITENAME=
 
 # some text rendered right below the logo
-TAGLINE="Data Science Enthusiast, Programmer, Optimist, Footballer :D"
+TAGLINE="Data Engineer, DevOps on Kubernetes, SysAdmin, Programmer, Optimist, Footballer :D"
 
 # set this to True if you want to enable the Internet Defense League code
 INTERNET_DEFENSE_LEAGUE=True
@@ -46,9 +53,9 @@ INTERNET_DEFENSE_LEAGUE=True
 # Social widget
 SOCIAL = (
             ('github', 'https://github.com/sunnykrGupta'),
-            ('twitter', 'https://twitter.com/sunnyLaGupta'),
-            ('linkedin', 'https://linkedin.com/in/sunnyO4'),
-            ('googleplus', 'https://plus.google.com/+SunnyGuptaLa4'),
+            ('twitter', 'https://twitter.com/Sunny_KrGupta'),
+            ('linkedin', 'https://www.linkedin.com/in/sunnykrgupta/'),
+            ('googleplus', 'https://plus.google.com/u/0/+SunnyKrGUPTA'),
             ('mail', 'mailto:sunnygupta.kr@gmail.com'),
         )
 

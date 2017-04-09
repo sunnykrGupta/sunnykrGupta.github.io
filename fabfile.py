@@ -24,19 +24,19 @@ def clean():
 def build():
     local('pelican -s pelicanconf.py')
 
+def serve():
+    local('cd {deploy_path} && python -m SimpleHTTPServer'.format(**env))
+
+def buildnserve():
+    build()
+    serve()
+
 def rebuild():
     clean()
     build()
 
 def regenerate():
     local('pelican -r -s pelicanconf.py')
-
-def serve():
-    local('cd {deploy_path} && python -m SimpleHTTPServer'.format(**env))
-
-def reserve():
-    build()
-    serve()
 
 def preview():
     local('pelican -s publishconf.py')
@@ -52,8 +52,12 @@ def cf_upload():
 def showpid():
     local('lsof -i :8000')
 
+def killserver():
+    local('pkill -9 -f SimpleHTTPServer')
+
+
 @hosts(production)
 def publish():
     local('pelican content -o output -s pelicanconf.py')
     local('ghp-import output')
-    local('git push -f origin gh-pages:master')
+    local('git push origin gh-pages:master')
