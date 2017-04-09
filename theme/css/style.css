@@ -1,0 +1,255 @@
+body {
+  margin: 0;
+  padding: 0;
+  background-color: #ffffff;
+  color: #171717;
+  font-family: 'PT Sans', sans-serif;
+  font-size: 18px;
+}
+a {
+  color: #000000;
+  text-decoration: none;
+}
+hr {
+  color: #eeeeee;
+  background-color: #eeeeee;
+  height: 1px;
+  border: none;
+}
+img {
+  max-width: 100%;
+}
+
+aside div a#user_meta_logo img{
+  border-radius: 8%;
+  padding: 5px;
+  height: 170px;
+  width: 170px;
+}
+
+aside div#user_meta {
+  padding: 40px;
+  text-align: center;
+}
+aside div#user_meta h3 {
+  margin: 15px 0 15px 0;
+}
+aside div#user_meta p {
+  margin: 0 0 15px 0;
+  font-size: 14px;
+}
+aside div#user_meta ul {
+  margin: 30px 0 0 0;
+  padding-left: 0;
+  font-size: 16px;
+  list-style-type: none;
+}
+aside div#user_meta ul li {
+  display: inline;
+  line-height: 3em;
+}
+
+#right-feed{
+  border-left: #eeeeee 1px solid;
+  position: fixed;
+  width: 250px;
+  height: 100%;
+  overflow: hidden;
+  top: 0px;
+  right: 0;
+  padding: 5px;
+}
+
+}
+/*-------------*/
+main header {
+  padding: 30px;
+  border-top: #eeeeee 1px solid;
+  border-bottom: #eeeeee 1px solid;
+}
+main header p {
+  width: 100%;
+  font-weight: bold;
+  font-size: 12px;
+  text-transform: uppercase;
+}
+
+main header nav a {
+  transition: border 0.5s ease;
+  border: 2px solid #eeeeee;
+  border-radius: 15px;
+  -moz-border-radius: 15px;
+  -webkit-border-radius: 15px;
+  color: #999999;
+}
+
+main header nav a#twitter:hover {
+  border: 2px solid #fff;
+}
+main header nav a#github:hover {
+  border: 2px solid #fff;
+}
+main header nav a#linkedin:hover {
+  border: 2px solid #fff;
+}
+main header nav a#googleplus:hover {
+  border: 2px solid #fff;
+}
+main header nav a#mail:hover {
+  border: 2px solid #fff;
+}
+
+main header nav a img{
+  height: 40px;
+  width: 40px;
+  margin: 10px;
+}
+
+main article {
+    max-width: 60%;
+    padding: 20px;
+}
+main article div.article_text {
+  line-height: 1.375em;
+}
+main article div.article_text a {
+  text-decoration: underline;
+}
+main article div.article_text code {
+  margin: 2px;
+  padding: 0;
+  color: #000000;
+  font-size: 14px;
+  font-family: 'PT Mono', monospace;
+  background: #eeeeee;
+}
+main article div.article_text pre {
+  margin: 22px 2px 22px 2px;
+  padding: 2px;
+  color: #000000;
+  border-left: 3px solid #0e94ec;
+  font-size: 14px;
+  font-family: 'PT Mono', monospace;
+  background: #eeeeee;
+  line-height: 1.125em;
+  overflow-x: auto;
+}
+main article div.article_text blockquote {
+  margin: 22px 2px 22px 2px;
+  padding-left: 40px;
+  color: #3D3D3D;
+  font-style: italic;
+}
+main article div.gist {
+  line-height: .875em;
+}
+main article div.article_meta {
+  font-size: 12px;
+  color: #999999;
+}
+main footer {
+  border-top: #eeeeee 1px solid;
+  padding: 40px;
+}
+main footer a.button_accent {
+  padding: 10px;
+  border: 2px solid #0e94ec;
+  border-radius: 20px;
+  -moz-border-radius: 20px;
+  -webkit-border-radius: 20px;
+  text-transform: uppercase;
+  color: #0e94ec;
+  font-size: 18px;
+}
+main footer a.button_accent:hover {
+  color: #ffffff;
+  background-color: #0e94ec;
+}
+main footer a.button_accent:active {
+  color: #ffffff;
+  background-color: #0e94ec;
+}
+main div#ending_message {
+  border-top: #eeeeee 1px solid;
+  padding: 0 40px 0 40px;
+  color: #999999;
+  font-size: 10px;
+}
+
+@media screen and (min-width: 1024px) {
+  aside {
+    width: 22%;
+    height: 100%;
+    position: fixed;
+    top: 0;
+    left: 0;
+    border-right: #eeeeee 1px solid;
+  }
+
+  main header{
+    margin: 30px;
+  }
+
+  aside h3 {
+    margin: 10px 0 0 0;
+  }
+  aside div#user_meta {
+    max-width: 192px;
+    text-align: right;
+  }
+
+  main {
+    width: 75%;
+    position: absolute;
+    top: 0;
+    left: 25%;
+    overflow-x: hidden;
+    overflow-y: hidden;
+  }
+
+  main article {
+    max-width: 60%;
+    padding: 20px;
+  }
+  main header {
+    margin-top: 20px;
+    border-top: 0;
+  }
+}
+
+@media screen and (max-width: 900px) {
+  main header{
+    margin: 30px;
+  }
+
+  main article {
+    max-width: 640px;
+    padding: 40px;
+  }
+  main header nav a img{
+    height: 25px;
+    width: 25px;
+    margin: 7px;
+  }
+
+  #right-feed{
+    display: none;
+  }
+}
+
+@media screen and (max-width: 1024px) {
+  main header{
+    margin: 30px;
+  }
+
+  #right-feed{
+    display: none;
+  }
+}
+
+/* ------------ Article.html ---------------*/
+section #post-share-links a img{
+  height: 30px;
+  width: 30px;
+  margin-right: 5px;
+}

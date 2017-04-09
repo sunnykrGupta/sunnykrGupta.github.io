@@ -1,0 +1,204 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom"><title>Daemon Blog - Sunny Kr Gupta</title><link href="http://sunnykrGupta.github.io/" rel="alternate"></link><link href="http://sunnykrGupta.github.io/feeds/sunny-kr-gupta.atom.xml" rel="self"></link><id>http://sunnykrGupta.github.io/</id><updated>2015-07-19T01:31:31+05:30</updated><entry><title>A Practical Guide to Geopy</title><link href="http://sunnykrGupta.github.io/a-practical-guide-to-geopy.html" rel="alternate"></link><published>2015-07-19T01:31:31+05:30</published><updated>2015-07-19T01:31:31+05:30</updated><author><name>Sunny Kr Gupta</name></author><id>tag:sunnykrgupta.github.io,2015-07-19:/a-practical-guide-to-geopy.html</id><summary type="html">&lt;p&gt;During my final major academic project, i was working with &lt;a href="http://twitter.com"&gt;Twitter&lt;/a&gt; data (ie. tweets). I did some research and found out approximately only 1% of all Tweets published on Twitter are geolocated (ie. have location information). This is a very small portion of the Tweets, and i needed almost every …&lt;/p&gt;</summary><content type="html">&lt;p&gt;During my final major academic project, i was working with &lt;a href="http://twitter.com"&gt;Twitter&lt;/a&gt; data (ie. tweets). I did some research and found out approximately only 1% of all Tweets published on Twitter are geolocated (ie. have location information). This is a very small portion of the Tweets, and i needed almost every tweets location to segregate data country-wise.
+  - How to resolve a string location to determine country ("Banagher", "Ipoh" etc )
+  - How to resolve a Coordinate into country. ('4.581' - '101.082' etc)&lt;/p&gt;
+&lt;p&gt;There comes a &lt;a href="http://geopy.readthedocs.org/"&gt;Geopy&lt;/a&gt; to rescue us to this problem.&lt;/p&gt;
+&lt;h4&gt;Geopy&lt;/h4&gt;
+&lt;blockquote&gt;
+&lt;p&gt;Geopy makes it easy for Python developers to locate the coordinates of addresses, cities, countries, and landmarks across the globe using third-party geocoders and other data sources.&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;p&gt;Geocoding is the process of converting addresses (like "1600 Amphitheatre Parkway, Mountain View, CA") into geographic coordinates (like latitude 37.423021 and longitude 122.083739) or reverse.&lt;/p&gt;
+&lt;h5&gt;Available Geocoder APIs&lt;/h5&gt;
+&lt;p&gt;There are several Geocoding service provided by different Map APIs, populars are listed below:
+ - &lt;a href="https://developers.google.com/maps/documentation/geolocation/intro"&gt;Google Maps Geocoding V3 API&lt;/a&gt; (2500 per-day)
+ - &lt;a href="http://www.geonames.org/about.html"&gt;Geonames&lt;/a&gt; (30000 per-day | 2000 per-hour)
+ - &lt;a href="http://wiki.openstreetmap.org/wiki/Nominatim"&gt;Nominatim - Open Street Map&lt;/a&gt; (refer Usage Docs)
+ - &lt;a href="https://tech.yandex.com/maps/doc/geocoder/desc/concepts/About-docpage/"&gt;Yandex Map API&lt;/a&gt;  (25,000 per-day)
+ - &lt;a href="https://msdn.microsoft.com/en-us/library/ff428643.aspx"&gt;Bing  Map API (Microsoft)&lt;/a&gt; (refer Usage Docs)
+ - &lt;a href="https://developer.yahoo.com/boss/geo/"&gt;Yahoo BOSS Finder&lt;/a&gt; (refer Usage Docs)&lt;/p&gt;
+&lt;blockquote&gt;
+&lt;p&gt;Note : Geocoder APIs may have request limts on per-day or per-IP or others. Increasing those limts can result in blacklisting. At the time of writing this post, limits are mentioned in brackets above.&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;h4&gt;Installation&lt;/h4&gt;
+&lt;hr&gt;
+&lt;p&gt;Open your favorite Terminal and run these commands. Install using &lt;code&gt;pip&lt;/code&gt; with:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="nv"&gt;$ &lt;/span&gt;pip install geopy
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;h4&gt;Geocoding&lt;/h4&gt;
+&lt;p&gt;To query a location using string using &lt;code&gt;Google MAP V3&lt;/code&gt;. To acquire key you need to register your app on google developer console.&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="kn"&gt;from&lt;/span&gt; &lt;span class="nn"&gt;geopy.geocoders&lt;/span&gt; &lt;span class="kn"&gt;import&lt;/span&gt; &lt;span class="n"&gt;GoogleV3&lt;/span&gt;
+&lt;span class="kn"&gt;import&lt;/span&gt; &lt;span class="nn"&gt;json&lt;/span&gt;
+&lt;span class="n"&gt;geolocator&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;GoogleV3&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;api_key&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="s"&gt;&amp;#39;AIzaSyCxk0i1WQokYRgUxAZieq&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;span class="n"&gt;location&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;geolocator&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;geocode&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s"&gt;&amp;quot;Washington&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;language&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="s"&gt;&amp;#39;en&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;span class="k"&gt;if&lt;/span&gt; &lt;span class="n"&gt;location&lt;/span&gt; &lt;span class="o"&gt;!=&lt;/span&gt; &lt;span class="bp"&gt;None&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;
+    &lt;span class="k"&gt;print&lt;/span&gt; &lt;span class="n"&gt;json&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;dumps&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;location&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;raw&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;indent&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="mi"&gt;4&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+    &lt;span class="k"&gt;print&lt;/span&gt; &lt;span class="n"&gt;location&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;address&lt;/span&gt;
+&lt;span class="k"&gt;else&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;
+    &lt;span class="k"&gt;print&lt;/span&gt; &lt;span class="s"&gt;&amp;quot;No location!&amp;quot;&lt;/span&gt; &lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;location&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;Gocoders have different service api classes, here i have used &lt;code&gt;GoogleV3&lt;/code&gt;, then an object is created named &lt;code&gt;geolocator&lt;/code&gt; to query and saved results of my query string "Washington" in &lt;code&gt;location&lt;/code&gt;. If query string doesnt contain valid place name or city, it throws &lt;code&gt;None&lt;/code&gt;. Now lets see what we got after this script:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="p"&gt;{&lt;/span&gt;
+    &lt;span class="nt"&gt;&amp;quot;geometry&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt;
+        &lt;span class="nt"&gt;&amp;quot;location_type&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="s2"&gt;&amp;quot;APPROXIMATE&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+        &lt;span class="nt"&gt;&amp;quot;bounds&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt;
+            &lt;span class="nt"&gt;&amp;quot;northeast&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt;
+                &lt;span class="nt"&gt;&amp;quot;lat&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="mf"&gt;38.995548&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="nt"&gt;&amp;quot;lng&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="mf"&gt;-76.909393&lt;/span&gt;
+            &lt;span class="p"&gt;},&lt;/span&gt;
+            &lt;span class="nt"&gt;&amp;quot;southwest&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt;
+                &lt;span class="nt"&gt;&amp;quot;lat&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="mf"&gt;38.8031495&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="nt"&gt;&amp;quot;lng&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="mf"&gt;-77.11974&lt;/span&gt;&lt;span class="p"&gt;}&lt;/span&gt;
+        &lt;span class="p"&gt;},&lt;/span&gt;
+        &lt;span class="nt"&gt;&amp;quot;location&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt;
+            &lt;span class="nt"&gt;&amp;quot;lat&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="mf"&gt;38.9071923&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="nt"&gt;&amp;quot;lng&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="mf"&gt;-77.0368707&lt;/span&gt;&lt;span class="p"&gt;}&lt;/span&gt;
+        &lt;span class="p"&gt;},&lt;/span&gt;
+    &lt;span class="nt"&gt;&amp;quot;address_components&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="p"&gt;[&lt;/span&gt;
+        &lt;span class="p"&gt;{&lt;/span&gt;
+            &lt;span class="nt"&gt;&amp;quot;long_name&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="s2"&gt;&amp;quot;Washington&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+            &lt;span class="nt"&gt;&amp;quot;types&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="s2"&gt;&amp;quot;locality&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="s2"&gt;&amp;quot;political&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;],&lt;/span&gt;
+            &lt;span class="nt"&gt;&amp;quot;short_name&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="s2"&gt;&amp;quot;D.C.&amp;quot;&lt;/span&gt;
+        &lt;span class="p"&gt;},&lt;/span&gt;
+        &lt;span class="p"&gt;{&lt;/span&gt;
+            &lt;span class="nt"&gt;&amp;quot;long_name&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="s2"&gt;&amp;quot;District of Columbia&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+            &lt;span class="nt"&gt;&amp;quot;types&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="s2"&gt;&amp;quot;administrative_area_level_1&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="s2"&gt;&amp;quot;political&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;],&lt;/span&gt;
+            &lt;span class="nt"&gt;&amp;quot;short_name&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="s2"&gt;&amp;quot;DC&amp;quot;&lt;/span&gt;
+        &lt;span class="p"&gt;},&lt;/span&gt;
+        &lt;span class="p"&gt;{&lt;/span&gt;
+            &lt;span class="nt"&gt;&amp;quot;long_name&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="s2"&gt;&amp;quot;United States&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+            &lt;span class="nt"&gt;&amp;quot;types&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="s2"&gt;&amp;quot;country&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="s2"&gt;&amp;quot;political&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;],&lt;/span&gt;
+            &lt;span class="nt"&gt;&amp;quot;short_name&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="s2"&gt;&amp;quot;US&amp;quot;&lt;/span&gt;
+        &lt;span class="p"&gt;}&lt;/span&gt;
+    &lt;span class="p"&gt;],&lt;/span&gt;
+    &lt;span class="nt"&gt;&amp;quot;place_id&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="s2"&gt;&amp;quot;ChIJW-T2Wt7Gt4kRKl2I1CJFUsI&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+    &lt;span class="nt"&gt;&amp;quot;formatted_address&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="s2"&gt;&amp;quot;Washington, DC, USA&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+    &lt;span class="nt"&gt;&amp;quot;types&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="s2"&gt;&amp;quot;locality&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="s2"&gt;&amp;quot;political&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;]&lt;/span&gt;
+&lt;span class="p"&gt;}&lt;/span&gt;
+&lt;span class="err"&gt;Washington,&lt;/span&gt; &lt;span class="err"&gt;DC,&lt;/span&gt; &lt;span class="err"&gt;USA&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;So, you can see its a format of data returned from Google Map API, so we need to extract the information we are looking for from this resulted data. Easy huh! You can see lattitude. longitude , Country name, District name, and other place information.
+&lt;/br&gt;
+You can query a string of coordinate too, in above code replace the geolocator lines with follows and run:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="n"&gt;location&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;geolocator&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;reverse&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s"&gt;&amp;quot;52.509669, 13.376294&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;You can see the raw JSON output as result. See below, if you want formatted address, use &lt;code&gt;location.address&lt;/code&gt; , &lt;code&gt;location.latitude&lt;/code&gt;, &lt;code&gt;location.longitude&lt;/code&gt; gives you coordinates of place and &lt;code&gt;location.raw&lt;/code&gt; gives you the result like we saw above in JSON format, that contains lots of other information.&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="o"&gt;&amp;gt;&amp;gt;&amp;gt;&lt;/span&gt; &lt;span class="k"&gt;print&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;location&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;address&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;span class="n"&gt;Potsdamer&lt;/span&gt; &lt;span class="n"&gt;Platz&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;Mitte&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;Berlin&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="mi"&gt;10117&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;Deutschland&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;European&lt;/span&gt; &lt;span class="n"&gt;Union&lt;/span&gt;
+&lt;span class="o"&gt;&amp;gt;&amp;gt;&amp;gt;&lt;/span&gt; &lt;span class="k"&gt;print&lt;/span&gt;&lt;span class="p"&gt;((&lt;/span&gt;&lt;span class="n"&gt;location&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;latitude&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;location&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;longitude&lt;/span&gt;&lt;span class="p"&gt;))&lt;/span&gt;
+&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="mf"&gt;52.5094982&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="mf"&gt;13.3765983&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;Similarly we can use other Geocoder APIs too, &lt;code&gt;Nominatim&lt;/code&gt; as openstreet map, &lt;code&gt;Yandex&lt;/code&gt; for Yandex Map, &lt;code&gt;GeoNames&lt;/code&gt; as Geonames Geocoder etc.&lt;/p&gt;
+&lt;p&gt;Geopy code for &lt;code&gt;GeoNames&lt;/code&gt; and &lt;code&gt;Yandex&lt;/code&gt; :&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="kn"&gt;from&lt;/span&gt; &lt;span class="nn"&gt;geopy.geocoders&lt;/span&gt; &lt;span class="kn"&gt;import&lt;/span&gt; &lt;span class="n"&gt;GeoNames&lt;/span&gt;
+&lt;span class="kn"&gt;import&lt;/span&gt; &lt;span class="nn"&gt;json&lt;/span&gt;
+&lt;span class="n"&gt;geolocator&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;GeoNames&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;username&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="s"&gt;&amp;#39;Ur_user_NAME&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;  &lt;span class="c"&gt;# Register at Geonames&lt;/span&gt;
+&lt;span class="n"&gt;location&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;geolocator&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;geocode&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s"&gt;&amp;quot;冥府&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;timeout&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="mi"&gt;10&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;span class="k"&gt;if&lt;/span&gt; &lt;span class="n"&gt;location&lt;/span&gt; &lt;span class="o"&gt;!=&lt;/span&gt; &lt;span class="bp"&gt;None&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;
+        &lt;span class="n"&gt;json&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;dump&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;location&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;raw&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;f&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+    &lt;span class="k"&gt;print&lt;/span&gt; &lt;span class="n"&gt;location&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;address&lt;/span&gt;
+&lt;span class="k"&gt;else&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;
+    &lt;span class="k"&gt;print&lt;/span&gt; &lt;span class="s"&gt;&amp;quot;No location!&amp;quot;&lt;/span&gt; &lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;location&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="kn"&gt;from&lt;/span&gt; &lt;span class="nn"&gt;geopy.geocoders&lt;/span&gt; &lt;span class="kn"&gt;import&lt;/span&gt; &lt;span class="n"&gt;Yandex&lt;/span&gt;
+&lt;span class="kn"&gt;import&lt;/span&gt; &lt;span class="nn"&gt;json&lt;/span&gt;
+&lt;span class="n"&gt;geolocator&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;Yandex&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;lang&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="s"&gt;&amp;#39;en_US&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;span class="n"&gt;location&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;geolocator&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;geocode&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s"&gt;&amp;quot;بغداد، العراق&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;timeout&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="mi"&gt;10&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;span class="k"&gt;if&lt;/span&gt; &lt;span class="n"&gt;location&lt;/span&gt; &lt;span class="o"&gt;!=&lt;/span&gt; &lt;span class="bp"&gt;None&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;
+    &lt;span class="k"&gt;print&lt;/span&gt; &lt;span class="n"&gt;json&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;dumps&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;location&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;raw&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;indent&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="mi"&gt;4&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+    &lt;span class="k"&gt;print&lt;/span&gt; &lt;span class="n"&gt;location&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;address&lt;/span&gt;
+    &lt;span class="k"&gt;print&lt;/span&gt; &lt;span class="n"&gt;location&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;latitude&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="s"&gt;&amp;quot; -&amp;gt; &amp;quot;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;location&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;longitude&lt;/span&gt;
+&lt;span class="k"&gt;else&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;
+    &lt;span class="k"&gt;print&lt;/span&gt; &lt;span class="n"&gt;location&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;So simple right! for using other Geocoder Map APIs , refer to full documentation of &lt;a href="http://geopy.readthedocs.org/en/latest/#"&gt;Geopy&lt;/a&gt;. I hope you understands the working of Geocoder APIs and power of Geopy.
+&lt;/br&gt;Comment below if you come across any problem and give feedback. Thanks you all! Have a good day!&lt;/p&gt;</content><category term="Geopy"></category><category term="Geocoder"></category><category term="Python"></category><category term="GoogleV3"></category><category term="Yandex"></category><category term="Geonames"></category></entry><entry><title>Get Familiar with Python</title><link href="http://sunnykrGupta.github.io/get-familiar-with-python.html" rel="alternate"></link><published>2014-05-26T17:23:31+05:30</published><updated>2014-05-26T17:23:31+05:30</updated><author><name>Sunny Kr Gupta</name></author><id>tag:sunnykrgupta.github.io,2014-05-26:/get-familiar-with-python.html</id><summary type="html">&lt;p&gt;Python is a powerful scripting language.&lt;/p&gt;
+&lt;h4&gt;Guide's to Python :&lt;/h4&gt;
+&lt;ul&gt;
+&lt;li&gt;Learn about &lt;a href="http://en.wikipedia.org/wiki/REST"&gt;REST architecture&lt;/a&gt;.&lt;/li&gt;
+&lt;li&gt;Know and get familiar with Python. [2][2.1][10]&lt;/li&gt;
+&lt;li&gt;Setup virtualenv [3]&lt;/li&gt;
+&lt;li&gt;Get the feel of handling backend. Complete the django tutorial [4] from   official site.&lt;/li&gt;
+&lt;li&gt;Know a bit more about django architecture [5][8]&lt;/li&gt;
+&lt;li&gt;Write …&lt;/li&gt;&lt;/ul&gt;</summary><content type="html">&lt;p&gt;Python is a powerful scripting language.&lt;/p&gt;
+&lt;h4&gt;Guide's to Python :&lt;/h4&gt;
+&lt;ul&gt;
+&lt;li&gt;Learn about &lt;a href="http://en.wikipedia.org/wiki/REST"&gt;REST architecture&lt;/a&gt;.&lt;/li&gt;
+&lt;li&gt;Know and get familiar with Python. [2][2.1][10]&lt;/li&gt;
+&lt;li&gt;Setup virtualenv [3]&lt;/li&gt;
+&lt;li&gt;Get the feel of handling backend. Complete the django tutorial [4] from   official site.&lt;/li&gt;
+&lt;li&gt;Know a bit more about django architecture [5][8]&lt;/li&gt;
+&lt;li&gt;Write you first api using tastypie[6][7]&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h4&gt;Footnotes:&lt;/h4&gt;
+&lt;blockquote&gt;
+&lt;p&gt;[1]: http://en.wikipedia.org/wiki/REST&lt;/p&gt;
+&lt;p&gt;[2]: &lt;a href="http://www.youtube.com/watch?v=u1sVfGEBKWQ"&gt;What makes python awesome&lt;/a&gt;.
+[2.1]: &lt;a href="http://www.python.org/dev/peps/pep-0008"&gt;Python Style Guide&lt;/a&gt;.&lt;/p&gt;
+&lt;p&gt;[3]: http://stackoverflow.com/questions/4806448/how-do-i-install-from-a-local-cache-with-pip&lt;/p&gt;
+&lt;p&gt;[4]: https://docs.djangoproject.com/en/1.5/intro/tutorial01/&lt;/p&gt;
+&lt;p&gt;[5]: http://www.youtube.com/watch?v=t_ziKY1ayCo (~3hr video by James Bennett)&lt;/p&gt;
+&lt;p&gt;[6]: http://django-tastypie.readthedocs.org/en/latest/&lt;/p&gt;
+&lt;p&gt;[7]: http://pyvideo.org/video/673/restful-apis-with-tastypie&lt;/p&gt;
+&lt;p&gt;[8]: &lt;a href="http://bit.ly/16z2gQq"&gt;Two scoops for Django Book&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;[9]: &lt;a href="http://bit.ly/197rnvU"&gt;Pro python Book&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;[10]: http://docs.python.org/2/tutorial/index.html&lt;/p&gt;
+&lt;p&gt;[11]: https://github.com/twoscoops/django-twoscoops-project&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;h4&gt;Additional Resources:&lt;/h4&gt;
+&lt;ul&gt;
+&lt;li&gt;Django best practises [8]&lt;/li&gt;
+&lt;li&gt;Pro Python Book [9]&lt;/li&gt;
+&lt;li&gt;Pycon Videos: [http://pyvideo.org/category/33/pycon-us-2013]&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h4&gt;Community and updates:&lt;/h4&gt;
+&lt;ul&gt;
+&lt;li&gt;http://www.pythonweekly.com/&lt;/li&gt;
+&lt;li&gt;http://mail.python.org/mailman/listinfo/bangpypers&lt;/li&gt;
+&lt;li&gt;https://groups.google.com/forum/#!forum/django-users&lt;/li&gt;
+&lt;li&gt;http://mail.python.org/mailman/listinfo/ncr-python.in&lt;/li&gt;
+&lt;/ul&gt;</content><category term="python"></category></entry><entry><title>Octopress - Blog Frameworks</title><link href="http://sunnykrGupta.github.io/octopress-blog-frameworks.html" rel="alternate"></link><published>2014-05-26T17:23:31+05:30</published><updated>2014-05-26T17:23:31+05:30</updated><author><name>Sunny Kr Gupta</name></author><id>tag:sunnykrgupta.github.io,2014-05-26:/octopress-blog-frameworks.html</id><summary type="html">&lt;p&gt;Hello, Everyone! This is blog post for helping you setup your own blog using Octopress framework running over Jekyll. 
+I am Summer Intern at &lt;a href="http://www.ophio.co.in"&gt;Ophio&lt;/a&gt;, a New York based company. I have been given a task to set up my blog. My mentor Mr.&lt;a href="https://github.com/theskumar"&gt;Saurabh&lt;/a&gt; is a Senior Back-end Developer …&lt;/p&gt;</summary><content type="html">&lt;p&gt;Hello, Everyone! This is blog post for helping you setup your own blog using Octopress framework running over Jekyll. 
+I am Summer Intern at &lt;a href="http://www.ophio.co.in"&gt;Ophio&lt;/a&gt;, a New York based company. I have been given a task to set up my blog. My mentor Mr.&lt;a href="https://github.com/theskumar"&gt;Saurabh&lt;/a&gt; is a Senior Back-end Developer. He developed many cool stuffs and active contibutor to open-source technology.&lt;/p&gt;
+&lt;h3&gt;Deployment of Octopress : Blog Frameworks for Hackers&lt;/h3&gt;
+&lt;p&gt;Octopress is a static blogging framework built on top of Jekyll. It uses scripts to build static files to be deployed to a server. You can design your blog and deploy on &lt;a href="https://pages.github.com/"&gt;Github-Pages&lt;/a&gt; very quickly.&lt;/p&gt;
+&lt;h4&gt;Installation's :&lt;/h4&gt;
+&lt;ul&gt;
+&lt;li&gt;Git &lt;/li&gt;
+&lt;li&gt;Jekyll&lt;/li&gt;
+&lt;li&gt;Ruby Gem &lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;How to setup Octopress?? &lt;a href="http://octopress.org/docs/setup/"&gt;Go ahead&lt;/a&gt;.&lt;/p&gt;
+&lt;p&gt;Variety of theme available &lt;a href="https://github.com/imathis/octopress/wiki/3rd-Party-Octopress-Themes"&gt;here&lt;/a&gt;.&lt;/p&gt;
+&lt;p&gt;&lt;img alt="Responsive Blog" src="images/main-screenshot.png" title=" Octopress Image"&gt;&lt;/p&gt;</content><category term="Octopress"></category><category term="ruby"></category></entry><entry><title>Pelican Python Blogging Framework</title><link href="http://sunnykrGupta.github.io/pelican-python-blogging-framework.html" rel="alternate"></link><published>2014-05-26T17:23:31+05:30</published><updated>2014-05-26T17:23:31+05:30</updated><author><name>Sunny Kr Gupta</name></author><id>tag:sunnykrgupta.github.io,2014-05-26:/pelican-python-blogging-framework.html</id><summary type="html">&lt;p&gt;Hello, Everyone! This is 2nd blog post about Pelican framework in python.&lt;/p&gt;
+&lt;h4&gt;Deployment of Pelican : Blog Frameworks&lt;/h4&gt;
+&lt;p&gt;Pelican is a static site generator, written in Python. It strikes as
+a very interesting method as you can write your content purely in your favourite editor (in Markdown Flavour) and commit your …&lt;/p&gt;</summary><content type="html">&lt;p&gt;Hello, Everyone! This is 2nd blog post about Pelican framework in python.&lt;/p&gt;
+&lt;h4&gt;Deployment of Pelican : Blog Frameworks&lt;/h4&gt;
+&lt;p&gt;Pelican is a static site generator, written in Python. It strikes as
+a very interesting method as you can write your content purely in your favourite editor (in Markdown Flavour) and commit your post or style changes using Git. You can design your blog and deploy on &lt;a href="https://pages.github.com/"&gt;Github-Pages&lt;/a&gt; very quickly.&lt;/p&gt;
+&lt;h4&gt;Installation's :&lt;/h4&gt;
+&lt;p&gt;How to setup Pelican?? &lt;a href="http://docs.getpelican.com/en/stable/quickstart.html"&gt;Go ahead&lt;/a&gt; and detailed explanation of kicking a small webpage and deploying using github-pages, &lt;a href="http://seanazlin.com/creating-a-blog-on-GitHub-dot-io-with-Python.html"&gt;Creating-a-blog-on-GitHub-dot-io-with-Python&lt;/a&gt; by Sean Azlin. I got most of the help in building this blog from this.&lt;/p&gt;
+&lt;p&gt;Variety of &lt;a href="https://github.com/getpelican/pelican-themes"&gt;themes&lt;/a&gt; available.&lt;/p&gt;
+&lt;h4&gt;Note's :&lt;/h4&gt;
+&lt;ol&gt;
+&lt;li&gt;Follow Markdown syntax to write post.&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;Deploy your page by following and check your gitpage-url :&lt;/p&gt;
+&lt;p&gt;$ ghp-import output&lt;/p&gt;
+&lt;p&gt;$ git checkout master&lt;/p&gt;
+&lt;p&gt;$ git merge gh-pages&lt;/p&gt;
+&lt;p&gt;$ git push --all&lt;/p&gt;
+&lt;/li&gt;
+&lt;/ol&gt;
+&lt;p&gt;&lt;img alt="Responsive Blog" src="http://sunnykrGupta.github.io/images/Pelican.jpg" title="Pelican Image"&gt;&lt;/p&gt;</content><category term="pelican"></category><category term="python"></category></entry></feed>
