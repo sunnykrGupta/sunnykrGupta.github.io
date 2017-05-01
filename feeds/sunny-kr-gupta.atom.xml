@@ -1,95 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<feed xmlns="http://www.w3.org/2005/Atom"><title>Daemon Blog - Sunny Kr Gupta</title><link href="https://sunnykrGupta.github.io/" rel="alternate"></link><link href="https://sunnykrGupta.github.io/feeds/sunny-kr-gupta.atom.xml" rel="self"></link><id>https://sunnykrGupta.github.io/</id><updated>2017-05-02T00:10:10+05:30</updated><entry><title>Managing fleet on Kubernetes</title><link href="https://sunnykrGupta.github.io/managing-fleet-on-kubernetes.html" rel="alternate"></link><published>2017-05-02T00:10:10+05:30</published><updated>2017-05-02T00:10:10+05:30</updated><author><name>Sunny Kr Gupta</name></author><id>tag:sunnykrgupta.github.io,2017-05-02:/managing-fleet-on-kubernetes.html</id><summary type="html">&lt;blockquote&gt;
-&lt;p&gt;Couple of months ago, we were struggling with scalability of system and were in pursuit of finding right orchestration tools which can help in scaling modules.&lt;/p&gt;
-&lt;/blockquote&gt;
-&lt;p&gt;Then, we started exploring popular project managed by Google for orchestration management, Kubernetes for DevOps. Starting with two weeks of learning curves, we get …&lt;/p&gt;</summary><content type="html">&lt;blockquote&gt;
-&lt;p&gt;Couple of months ago, we were struggling with scalability of system and were in pursuit of finding right orchestration tools which can help in scaling modules.&lt;/p&gt;
-&lt;/blockquote&gt;
-&lt;p&gt;Then, we started exploring popular project managed by Google for orchestration management, Kubernetes for DevOps. Starting with two weeks of learning curves, we get our working staging system in kubes (kubernetes in short) and did small working setup to visualize the power of this orchestration framework.&lt;/p&gt;
-&lt;p&gt;We started with GCE (Google Container Engine) to get things working quickly. We created a cluster of 10 Nodes, each Node with configuration 4 vCore and 15 GB in default pool to run stateless Java components (in Shieldsquare core processing relies on code written in Java).&lt;/p&gt;
-&lt;p&gt;Before we go in depth, we did some research and found out we needed some gears(concepts/tools/theory) before board into container ship and sail out for cruise. We are dividing gears we need to know into two parts, ie, first will be Docker and second will focus on Kubernetes.&lt;/p&gt;
-&lt;h4&gt;Part - I (Understanding Docker at Dock)&lt;/h4&gt;
-&lt;ul&gt;
-&lt;li&gt;Stateless and stateful components.&lt;/li&gt;
-&lt;li&gt;Understanding containerization concept.&lt;/li&gt;
-&lt;li&gt;Writing good Dockerfile for modules.&lt;/li&gt;
-&lt;li&gt;Writing Optimized Dockerfile, understanding order of dynamic commands (ie, commands that we will change according to need for making other docker images) and commands that we will keep same in all Docker images. It helps in quick building of next Docker image. Each command that we run in Dockerfile is executed as a layer and subsequent command will be build on top of previous layer. Each layer is managed in cache by Docker tool. Docker manages cache itself to reuse layer of previously build Docker images to save time, network bandwidth &amp;amp; disk.&lt;/li&gt;
-&lt;/ul&gt;
-&lt;div class="highlight"&gt;&lt;pre&gt;------------------Ex :
-&lt;/pre&gt;&lt;/div&gt;
-
-
-&lt;ul&gt;
-&lt;li&gt;Running a single process inside a Docker container&lt;/li&gt;
-&lt;li&gt;Understanding remote Docker container registry for storing/pushing our locally built docker images, here we have used Google container registry (GCR) for docker image management.&lt;/li&gt;
-&lt;/ul&gt;
-&lt;h4&gt;Part - II (Understanding Kubernetes fleet)&lt;/h4&gt;
-&lt;ul&gt;
-&lt;li&gt;Learning basics of kubernetes &amp;amp; working flow&lt;/li&gt;
-&lt;li&gt;What are Pods! How container runs inside a pod.&lt;/li&gt;
-&lt;li&gt;What are Nodes (also known as worker or minion, a single machine)&lt;/li&gt;
-&lt;li&gt;What are deployments!&lt;/li&gt;
-&lt;li&gt;What is replication controller and Replica sets!&lt;/li&gt;
-&lt;li&gt;What is Kubernetes master!&lt;/li&gt;
-&lt;li&gt;What are services!&lt;/li&gt;
-&lt;li&gt;What is label selectors!&lt;/li&gt;
-&lt;li&gt;How to debug or get cluster info from command-line!&lt;/li&gt;
-&lt;/ul&gt;
-&lt;div class="highlight"&gt;&lt;pre&gt;    ---------kubectl commands
-&lt;/pre&gt;&lt;/div&gt;
-
-
-&lt;h4&gt;How do we run containers in GCE ?&lt;/h4&gt;
-&lt;p&gt;We have number of deployments which manages scaling pods up/down depend on processing we need. We need to follow proper versioning of modules to distinguish what is running inside your system and this helps in rollback releases in case of issues in production.&lt;/p&gt;
-&lt;blockquote&gt;
-&lt;p&gt;How about services/APIs we need to expose ?&lt;/p&gt;
-&lt;/blockquote&gt;
-&lt;ul&gt;
-&lt;li&gt;
-&lt;p&gt;There comes kubes services. We have plenty of APIs we need to expose to outside world. To make it happen, we have couple of kube services exposed using tcp loadbalancer which has been assigned public IP. Internally, these services keeps on doing service discovery using label selector to find pods and attached to this service, pods having same label will be targeted by a service. Its same concept of how we manage loadbalancer on cloud, attach VMs to a loadbalancer to offload incoming traffic.&lt;/p&gt;
-&lt;/li&gt;
-&lt;li&gt;
-&lt;p&gt;Resources running inside Kube ship know each other very well. Each services/pods can communicate by names assigned to each. Instead of using IPs (private) assigned to each of them, you can use names as FQDN given and its a good practise to use names instead of IPs because of dynamic allocation of IPs as resources get destroyed and created again. Kube-DNS maintains all list of IPs internally assigned and helps finding resources by names.&lt;/p&gt;
-&lt;/li&gt;
-&lt;/ul&gt;
-&lt;h4&gt;How to decide what resources you should allocate to your kubernetes Cluster or define pools resources?&lt;/h4&gt;
-&lt;p&gt;[http: // Setting pods CPU and Memory limits (M vs Mi)]&lt;/p&gt;
-&lt;p&gt;Each container has its own requirements of resources (ie, CPU or RAM, disk, network etc), there comes requests &amp;amp; limits in kubes. This helps alot in keeping your nodes healthy. Many times due to bad limits or not defining limits, your pods can go crazy at utilization, eat any resources and can lead to node starvation and lead to Node becomes unhealthy and goes in [Not Ready] state due to resource exhaustion. We had this multiple times at early stage and now we had fine tuned each pods resources based on its hunger behaviour.&lt;/p&gt;
-&lt;blockquote&gt;
-&lt;p&gt;How to define Node resources?&lt;/p&gt;
-&lt;/blockquote&gt;
-&lt;p&gt;Depends on container type (which you are running inside a pod), you can define different resource pools. Suppose you have modules named Core.X, Core.Y and Core.Z , all of them needs 2 core, 2 GB each to run, then you can have Standard Node Pool to run them. In this case, i will allocate below config for my Node pool.&lt;/p&gt;
-&lt;ul&gt;
-&lt;li&gt;Name : Standard Pool&lt;/li&gt;
-&lt;li&gt;Pool Size : 2&lt;/li&gt;
-&lt;li&gt;Node Config: 4 Core, 4 GB&lt;/li&gt;
-&lt;li&gt;Node Pool Size : 8 Core, 8 GB&lt;/li&gt;
-&lt;li&gt;Utilization : 6 Core, 6 GB (75 % used Core &amp;amp; RAM)&lt;/li&gt;
-&lt;/ul&gt;
-&lt;p&gt;Now, lets say i have high memory eater modules. let call them Mem.X, Mem.Y and Mem.Z , all of them needs 0.5 core, 4 GB each to run, then you need high memory Node Pool to run them. In this case, i will allocate below config for my Node pool.&lt;/p&gt;
-&lt;ul&gt;
-&lt;li&gt;Name : HighMem Pool&lt;/li&gt;
-&lt;li&gt;Pool Size : 2&lt;/li&gt;
-&lt;li&gt;Node Config : 1 Core, 8 GB&lt;/li&gt;
-&lt;li&gt;Node Pool : 2 Core, 16 GB&lt;/li&gt;
-&lt;li&gt;Utilization : 1.5 Core, 12 GB (75 % used Core &amp;amp; RAM)&lt;/li&gt;
-&lt;/ul&gt;
-&lt;blockquote&gt;
-&lt;p&gt;So, based on your Node types, you can deploy your pods in different Node pools by using Node selector in kube.&lt;/p&gt;
-&lt;/blockquote&gt;
-&lt;div class="highlight"&gt;&lt;pre&gt;-------------- Node selector example
-&lt;/pre&gt;&lt;/div&gt;
-
-
-&lt;p&gt;Note : Some configuration in GCE should be taken care, like autoupgrade kubernetes version. If you are running redis or any other cache manager that needs uptime, better you turn off autoupgrade because when kubernetes release comes all node will go on scheduled maintenance one by one and that could affect your production system. Else, you are fully stateless, you can keep default.&lt;/p&gt;
-&lt;div class="highlight"&gt;&lt;pre&gt;-------------- Autoupgrade off/on
-&lt;/pre&gt;&lt;/div&gt;
-
-
-&lt;p&gt;Pretty much all above theories are based on what we understood in last three months of kubernetes running in production. Container management is easy to adapt and lot of new observation is yet to be discovered as we go along the way. We currently managed to put the system in place to process 10 Billion APIs call per month and are pushing more to handle.&lt;/p&gt;
-&lt;blockquote&gt;
-&lt;p&gt;Conclusion : Kubernetes lifted alot of DevOps management and helped in scaling system. Adaptability is much quicker, most of security and other concerns is being managed by Google. Kubernetes aims to offer a better orchestration management system on top of clustered infrastrcuture.&lt;/p&gt;
-&lt;/blockquote&gt;</content><category term="kubernetes"></category><category term="docker"></category><category term="gce"></category><category term="gcr"></category><category term="container"></category></entry><entry><title>A Practical Guide to Geopy</title><link href="https://sunnykrGupta.github.io/a-practical-guide-to-geopy.html" rel="alternate"></link><published>2015-07-19T01:31:31+05:30</published><updated>2015-07-19T01:31:31+05:30</updated><author><name>Sunny Kr Gupta</name></author><id>tag:sunnykrgupta.github.io,2015-07-19:/a-practical-guide-to-geopy.html</id><summary type="html">&lt;p&gt;During my final major academic project, i was working with &lt;a href="http://twitter.com"&gt;Twitter&lt;/a&gt; data (ie. tweets). I did some research and found out approximately only 1% of all Tweets published on Twitter are geolocated (ie. have location information). This is a very small portion of the Tweets, and i needed almost every …&lt;/p&gt;</summary><content type="html">&lt;p&gt;During my final major academic project, i was working with &lt;a href="http://twitter.com"&gt;Twitter&lt;/a&gt; data (ie. tweets). I did some research and found out approximately only 1% of all Tweets published on Twitter are geolocated (ie. have location information). This is a very small portion of the Tweets, and i needed almost every tweets location to segregate data country-wise.
+<feed xmlns="http://www.w3.org/2005/Atom"><title>Daemon Blog - Sunny Kr Gupta</title><link href="https://sunnykrGupta.github.io/" rel="alternate"></link><link href="https://sunnykrGupta.github.io/feeds/sunny-kr-gupta.atom.xml" rel="self"></link><id>https://sunnykrGupta.github.io/</id><updated>2015-07-19T01:31:31+05:30</updated><entry><title>A Practical Guide to Geopy</title><link href="https://sunnykrGupta.github.io/a-practical-guide-to-geopy.html" rel="alternate"></link><published>2015-07-19T01:31:31+05:30</published><updated>2015-07-19T01:31:31+05:30</updated><author><name>Sunny Kr Gupta</name></author><id>tag:sunnykrgupta.github.io,2015-07-19:/a-practical-guide-to-geopy.html</id><summary type="html">&lt;p&gt;During my final major academic project, i was working with &lt;a href="http://twitter.com"&gt;Twitter&lt;/a&gt; data (ie. tweets). I did some research and found out approximately only 1% of all Tweets published on Twitter are geolocated (ie. have location information). This is a very small portion of the Tweets, and i needed almost every …&lt;/p&gt;</summary><content type="html">&lt;p&gt;During my final major academic project, i was working with &lt;a href="http://twitter.com"&gt;Twitter&lt;/a&gt; data (ie. tweets). I did some research and found out approximately only 1% of all Tweets published on Twitter are geolocated (ie. have location information). This is a very small portion of the Tweets, and i needed almost every tweets location to segregate data country-wise.
   - How to resolve a string location to determine country ("Banagher", "Ipoh" etc )
   - How to resolve a Coordinate into country. ('4.581' - '101.082' etc)&lt;/p&gt;
 &lt;p&gt;There comes a &lt;a href="http://geopy.readthedocs.org/"&gt;Geopy&lt;/a&gt; to rescue us to this problem.&lt;/p&gt;
@@ -257,16 +167,16 @@ You can query a string of coordinate too, in above code replace the geolocator l
 &lt;li&gt;http://mail.python.org/mailman/listinfo/bangpypers&lt;/li&gt;
 &lt;li&gt;https://groups.google.com/forum/#!forum/django-users&lt;/li&gt;
 &lt;li&gt;http://mail.python.org/mailman/listinfo/ncr-python.in&lt;/li&gt;
-&lt;/ul&gt;</content><category term="python"></category></entry><entry><title>Octopress - Blog Frameworks</title><link href="https://sunnykrGupta.github.io/octopress-blog-frameworks.html" rel="alternate"></link><published>2014-05-26T17:23:31+05:30</published><updated>2014-05-26T17:23:31+05:30</updated><author><name>Sunny Kr Gupta</name></author><id>tag:sunnykrgupta.github.io,2014-05-26:/octopress-blog-frameworks.html</id><summary type="html">&lt;p&gt;Hello, Everyone! This is blog post for helping you setup your own blog using Octopress framework running over Jekyll. 
-I am Summer Intern at &lt;a href="http://www.ophio.co.in"&gt;Ophio&lt;/a&gt;, a New York based company. I have been given a task to set up my blog. My mentor Mr.&lt;a href="https://github.com/theskumar"&gt;Saurabh&lt;/a&gt; is a Senior Back-end Developer …&lt;/p&gt;</summary><content type="html">&lt;p&gt;Hello, Everyone! This is blog post for helping you setup your own blog using Octopress framework running over Jekyll. 
+&lt;/ul&gt;</content><category term="python"></category></entry><entry><title>Octopress - Blog Frameworks</title><link href="https://sunnykrGupta.github.io/octopress-blog-frameworks.html" rel="alternate"></link><published>2014-05-26T17:23:31+05:30</published><updated>2014-05-26T17:23:31+05:30</updated><author><name>Sunny Kr Gupta</name></author><id>tag:sunnykrgupta.github.io,2014-05-26:/octopress-blog-frameworks.html</id><summary type="html">&lt;p&gt;Hello, Everyone! This is blog post for helping you setup your own blog using Octopress framework running over Jekyll.
+I am Summer Intern at &lt;a href="http://www.ophio.co.in"&gt;Ophio&lt;/a&gt;, a New York based company. I have been given a task to set up my blog. My mentor Mr.&lt;a href="https://github.com/theskumar"&gt;Saurabh&lt;/a&gt; is a Senior Back-end Developer …&lt;/p&gt;</summary><content type="html">&lt;p&gt;Hello, Everyone! This is blog post for helping you setup your own blog using Octopress framework running over Jekyll.
 I am Summer Intern at &lt;a href="http://www.ophio.co.in"&gt;Ophio&lt;/a&gt;, a New York based company. I have been given a task to set up my blog. My mentor Mr.&lt;a href="https://github.com/theskumar"&gt;Saurabh&lt;/a&gt; is a Senior Back-end Developer. He developed many cool stuffs and active contibutor to open-source technology.&lt;/p&gt;
 &lt;h3&gt;Deployment of Octopress : Blog Frameworks for Hackers&lt;/h3&gt;
 &lt;p&gt;Octopress is a static blogging framework built on top of Jekyll. It uses scripts to build static files to be deployed to a server. You can design your blog and deploy on &lt;a href="https://pages.github.com/"&gt;Github-Pages&lt;/a&gt; very quickly.&lt;/p&gt;
 &lt;h4&gt;Installation's :&lt;/h4&gt;
 &lt;ul&gt;
-&lt;li&gt;Git &lt;/li&gt;
+&lt;li&gt;Git&lt;/li&gt;
 &lt;li&gt;Jekyll&lt;/li&gt;
-&lt;li&gt;Ruby Gem &lt;/li&gt;
+&lt;li&gt;Ruby Gem&lt;/li&gt;
 &lt;/ul&gt;
 &lt;p&gt;How to setup Octopress?? &lt;a href="http://octopress.org/docs/setup/"&gt;Go ahead&lt;/a&gt;.&lt;/p&gt;
 &lt;p&gt;Variety of theme available &lt;a href="https://github.com/imathis/octopress/wiki/3rd-Party-Octopress-Themes"&gt;here&lt;/a&gt;.&lt;/p&gt;
