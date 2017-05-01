@@ -60,4 +60,5 @@ def killserver():
 def publish():
     local('pelican content -o output -s pelicanconf.py')
     local('ghp-import output')
+    print "Pushing changes to Github pages"
     local('git push origin gh-pages:master')

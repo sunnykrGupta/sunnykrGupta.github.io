@@ -6,7 +6,7 @@ AUTHOR = u'Sunny KUMAR'
 SITENAME = u'Daemon Blog'
 
 #Production Mode
-SITEURL = 'http://sunnykrGupta.github.io'
+SITEURL = 'https://sunnykrGupta.github.io'
 
 #Devel Mode, always give absolute URL
 #SITEURL = 'http://localhost:8000'
@@ -33,16 +33,14 @@ TRANSLATION_FEED_ATOM = None
 #to use Google Analytics, set this var to your UA-XYZ code
 GOOGLE_ANALYTICS="UA-63834161-1"
 
-#Set the disqus Sitename here. Goto
+# Set this to your Disqus sitename to enable disqus comments in articles
+# Set the disqus Sitename here. Goto
 DISQUS_SITENAME='sunnydaemon'
 
 STATIC_PATHS = ['images']
 
 #replace the logo placeholder, put your logo in content/images/your_logo.png and make this var point to SITEURL + '/static/images/your_logo.png'
 USER_LOGO_URL=SITEURL+'/images/logo.jpg'
-
-# set this to your Disqus sitename to enable disqus comments in articles
-#DISQUS_SITENAME=
 
 # some text rendered right below the logo
 TAGLINE="Data Engineer, DevOps on Kubernetes, SysAdmin, Programmer, Optimist, Footballer :D"
