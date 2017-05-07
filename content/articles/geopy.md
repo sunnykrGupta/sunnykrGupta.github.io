@@ -3,6 +3,7 @@ Date: 2015-07-19 01:31:31
 Category: Blog
 Tags: Geopy, Geocoder, Python, GoogleV3, Yandex, Geonames
 Author: Sunny Kr Gupta
+Status: published
 
 
 During my final major academic project, i was working with [Twitter](http://twitter.com) data (ie. tweets). I did some research and found out approximately only 1% of all Tweets published on Twitter are geolocated (ie. have location information). This is a very small portion of the Tweets, and i needed almost every tweets location to segregate data country-wise.

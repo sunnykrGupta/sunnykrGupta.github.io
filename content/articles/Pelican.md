@@ -3,6 +3,8 @@ Date: 2014-05-26 17:23:31
 Category: Blog
 Tags: pelican,python
 Author: Sunny Kr Gupta
+Status: published
+
 
 Hello, Everyone! This is 2nd blog post about Pelican framework in python.
 

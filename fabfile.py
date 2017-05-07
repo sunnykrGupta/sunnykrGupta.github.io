@@ -27,13 +27,10 @@ def build():
 def serve():
     local('cd {deploy_path} && python -m SimpleHTTPServer'.format(**env))
 
-def buildnserve():
-    build()
-    serve()
-
 def rebuild():
     clean()
     build()
+    serve()
 
 def regenerate():
     local('pelican -r -s pelicanconf.py')
