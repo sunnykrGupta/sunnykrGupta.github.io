@@ -6,10 +6,10 @@ AUTHOR = u'Sunny KUMAR'
 SITENAME = u'Daemon Blog'
 
 #Production Mode
-#SITEURL = 'https://sunnykrGupta.github.io'
+SITEURL = 'https://sunnykrGupta.github.io'
 
 #Devel Mode, always give absolute URL
-SITEURL = 'http://localhost:8000'
+#SITEURL = 'http://localhost:8000'
 
 THEME = "/home/daemonsl/Dropbox/boxSpace/CodeCave/pelican-svbhack"
 
