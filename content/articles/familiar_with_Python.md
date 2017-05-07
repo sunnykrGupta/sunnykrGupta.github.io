@@ -3,6 +3,8 @@ Date: 2014-05-26 17:23:31
 Category: Python
 Tags: python
 Author: Sunny Kr Gupta
+Status: published
+
 
 
 Python is a powerful scripting language.

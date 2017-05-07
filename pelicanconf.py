@@ -6,10 +6,10 @@ AUTHOR = u'Sunny KUMAR'
 SITENAME = u'Daemon Blog'
 
 #Production Mode
-SITEURL = 'https://sunnykrGupta.github.io'
+#SITEURL = 'https://sunnykrGupta.github.io'
 
 #Devel Mode, always give absolute URL
-#SITEURL = 'http://localhost:8000'
+SITEURL = 'http://localhost:8000'
 
 THEME = "/home/daemonsl/Dropbox/boxSpace/CodeCave/pelican-svbhack"
 
@@ -17,6 +17,12 @@ TIMEZONE = 'Asia/Calcutta'
 DEFAULT_LANG = u'en'
 
 PATH = 'content'
+
+DEFAULT_METADATA = {
+    'status': 'draft',
+}
+#Status: published
+#Status: draft
 
 #We are using share_post plugin to enable share feature in blog
 # Download : https://github.com/getpelican/pelican-plugins

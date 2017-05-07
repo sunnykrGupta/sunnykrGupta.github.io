@@ -1,65 +1,319 @@
 Title: Managing fleet on Kubernetes
-Date: 2017-05-02 00:10:
+Date: 2017-05-02 00:10:10
 Category: kubernetes, docker, gce, gcr, container
 Tags: kubernetes, docker, gce, gcr, container
 Author: Sunny Kr Gupta
+Status: draft
 
-Couple of months ago, we were struggling with scalability of system and were in pursuit of finding right orchestration tools which can help in scaling modules.
+> Couple of months ago, we were struggling with scalability of system and were in pursuit of finding right orchestration tools which can help in scaling system quickly.
 
-Then, we started exploring popular project managed by Google for orchestration management, Kubernetes for DevOps. Starting with two weeks of learning curves, we get our working staging system in kubes (kubernetes in short) and did small working setup to visualize the power of this orchestration framework.
+Then, we started exploring popular project managed by Google for orchestration management, **[Kubernetes](https://kubernetes.io/)** for DevOps. Starting with two weeks of learning curves, we get our working staging system in _kubes_ (kubernetes in short) and did small working setup to visualize the power of this orchestration framework.
 
-We started with GCE (Google Container Engine) to get things working quickly. We created a cluster of 10 Nodes, each Node with configuration 4 vCore and 15 GB in default pool to run stateless Java components (in Shieldsquare core processing relies on code written in Java).
+We started with ```Google Container Engine (GCE)``` to get things working quickly. We created a cluster of ```10 Nodes```, each Node with configuration ```4 vCore and 15 GB``` in **default pool** to run stateless Java components <sub>( in [Shieldsquare](https://www.shieldsquare.com/) core processing relies on code written in Java)</sub>.
 
-Before we go in depth, we did some research and found out we needed some gears(concepts/tools/theory) before board into container ship and sail out for cruise. We are dividing gears we need to know into two parts, ie, first will be Docker and second will focus on Kubernetes.
+Before we go in depth, we did some research and found out we needed some _gears_ (concepts/tools/theory) before we board into container ship and sail out for cruise.
 
-Part - I (Understanding Docker at Dock)
-- Stateless and stateful components.
-- Understanding containerization concept.
-- Writing good Dockerfile for modules.
-- Writing Optimized Dockerfile, understanding order of dynamic commands (ie, commands that we will change according to need for making other docker images) and commands that we will keep same in all Docker images. It helps in quick building of next Docker image. Each command that we run in Dockerfile is executed as a layer and subsequent command will be build on top of previous layer. Each layer is managed in cache by Docker tool. Docker manages cache itself to reuse layer of previously build Docker images to save time, network bandwidth & disk.
+We are dividing gears that we need to know into two parts, ie, first will be ```Docker``` and second will focused on ```Kubernetes```.
 
-------------------Ex :
+#### Part - I (Understanding Docker at Dock)
+* Stateless and stateful components.
+    - In computing, a stateless protocol is a communications protocol in which no information is retained by either sender or receiver. The sender transmits a packet to the receiver and does not expect an acknowledgment of receipt. A UDP connection-oriented session is a stateless connection because neither systems maintains information about the session during its life.
+    - In contrast, a protocol that requires keeping of the internal state on the server is known as a stateful protocol. A TCP connection-oriented session is a 'stateful' connection because both systems maintain information about the session itself during its life.
+
+* [Understanding containerization concept](https://www.redhat.com/en/containers)
+    - Container provides operating system-level virtualization through a virtual environment that has its own process and network space, instead of creating a full-fledged [virtual machine](https://en.wikipedia.org/wiki/Virtual_machine). This enables the kernel of an operating system to allow the existence of multiple isolated user-space instances, instead of just one.
+
+* [Writing good Dockerfile for modules](https://docs.docker.com/engine/userguide/eng-image/dockerfile_best-practices/).
+    - Dockerfile is set of instruction used by Docker to build an image. Containers are created using docker images, which can be built either by executing commands manually or automatically through Dockerfile. Docker achieves this by creating safe, **LXC** (i.e. Linux Containers) based environments for applications called “docker containers”.
+
+* Writing optimized Dockerfile, understanding order of commands. Each command that we run in Dockerfile is executed as a layer and subsequent command will be build on top of previous layer. Each layer is managed in cache by Docker tool. Docker manages cache itself to reuse layer of previously build Docker images to save time & disk.
 
 
-- Running a single process inside a Docker container
+```
+I have three file in my directory named 'flask' :
+➜  flask
+
+── app.py
+── Dockerfile
+── requirement.txt
+```
+
+```
+##### cat app.py
+
+from flask import Flask
+#from flask import render_template, request
+import json
+
+app = Flask(__name__)
+
+@app.route("/")
+def hello():
+    return "Welcome to Python Flask!\n"
+
+if __name__ == "__main__":
+    app.run(host='0.0.0.0', port='5009')
+
+```
+```
+###### cat requirement.txt
+
+Flask==0.10.1
+```
+
+```
+###### cat Dockerfile
+
+FROM frolvlad/alpine-python2
+
+RUN mkdir /etc/flask
+
+ADD app.py /etc/flask/app.py
+ADD requirement.txt /etc/flask/requirement.txt
+
+
+CMD ["python", "/etc/flask/app.py"]
+
+```
+
+> Lets build our docker image with name **flask-v1**
+
+```
+➜  docker build -t flask-v1 .
+
+Sending build context to Docker daemon 4.096 kB
+
+Step 1/5 : FROM frolvlad/alpine-python2
+latest: Pulling from frolvlad/alpine-python2
+627beaf3eaaf: Pull complete
+79d39e719c2e: Pull complete
+Digest: sha256:47e3f85dadf401d51c6f74a18d4f693c2157692292e6dae0a078f37499a183ee
+Status: Downloaded newer image for frolvlad/alpine-python2:latest
+ ---> 603e17608203
+
+Step 2/5 : RUN mkdir /etc/flask
+ ---> Running in 0d97b7a8986b
+ ---> 9b2a858914e2
+Removing intermediate container 0d97b7a8986b
+
+Step 3/5 : ADD app.py /etc/flask/app.py
+ ---> 1a4938be7722
+Removing intermediate container f4d11b837e26
+
+Step 4/5 : ADD requirement.txt /etc/flask/requirement.txt
+ ---> 5d058851dd81
+Removing intermediate container 08eef72a4051
+
+Step 5/5 : CMD python /etc/flask/app.py
+ ---> Running in 96490917e533
+ ---> a081e6cbcf3c
+Removing intermediate container 96490917e533
+
+Successfully built a081e6cbcf3c
+```
+
+Now, we have made some modification in **app.py**
+
+```
+##### cat app.py
+
+from flask import Flask
+#from flask import render_template, request
+import json
+
+app = Flask(__name__)
+
+@app.route("/")
+def hello():
+    return "Welcome to Python Flask!\n"
+
+#Added utility
+def utility():
+    return "something"
+
+if __name__ == "__main__":
+    app.run(host='0.0.0.0', port='5009')
+```
+
+> Lets build our docker image with name **flask-v2**
+
+```
+➜  docker build -t flask-v2 .
+
+Sending build context to Docker daemon 4.096 kB
+
+Step 1/5 : FROM frolvlad/alpine-python2
+ ---> 603e17608203
+
+Step 2/5 : RUN mkdir /etc/flask
+ ---> Using cache
+ ---> 9b2a858914e2
+
+Step 3/5 : ADD app.py /etc/flask/app.py
+ ---> a7565514aab3
+Removing intermediate container 360eb266a458
+
+Step 4/5 : ADD requirement.txt /etc/flask/requirement.txt
+ ---> 8441bca383f0
+Removing intermediate container 15ebbb15d67d
+
+Step 5/5 : CMD python /etc/flask/app.py
+ ---> Running in 73e4bbcbe512
+ ---> 0f4a5754f0d0
+Removing intermediate container 73e4bbcbe512
+
+Successfully built 0f4a5754f0d0
+```
+
+You will see only *step-2* was taken from cache, rest of the instructions ran again because change has been detected by Docker on *step-3* command ie, ```ADD app.py``` , so all subsequent commands ran again to build layer on top of previous layer.
+
+
+Now we have made changes in ```Dockerfile```, some reorder of commands.
+
+```
+# cat Dockerfile
+
+FROM frolvlad/alpine-python2
+
+RUN mkdir /etc/flask
+
+# add requirement file first, then commands which contains some changes.
+ADD requirement.txt /etc/flask/requirement.txt
+ADD app.py /etc/flask/app.py
+
+CMD ["python", "/etc/flask/app.py"]
+
+```
+
+> Lets build our docker image with name **flask-v3** and lets see build console.
+
+```
+➜  flask docker build -t flask-v3 .
+
+Sending build context to Docker daemon 4.096 kB
+
+Step 1/5 : FROM frolvlad/alpine-python2
+ ---> 603e17608203
+
+Step 2/5 : RUN mkdir /etc/flask
+ ---> Using cache
+ ---> 9b2a858914e2
+
+Step 3/5 : ADD requirement.txt /etc/flask/requirement.txt
+ ---> Using cache
+ ---> db8fc95cebff
+
+Step 4/5 : ADD app.py /etc/flask/app.py
+ ---> 9fb8351616e1
+Removing intermediate container 4e98534d5339
+
+Step 5/5 : CMD python /etc/flask/app.py
+ ---> Running in 139f8c4282d8
+ ---> e3fae9852d94
+Removing intermediate container 139f8c4282d8
+
+Successfully built e3fae9852d94
+
+```
+
+Now, you can see only *step-2,3* was taken from ```cache```, *step-4* command ie, ```ADD app.py``` build new layer because of change detected in ```app.py``` file, and this build saved little bit of our time. This is really important in building big Docker images where we have bigger chain of command to build an app.
+
+
+
+- [Running a single process inside a Docker container](https://docs.docker.com/engine/userguide/eng-image/dockerfile_best-practices/#each-container-should-have-only-one-concern).
+    * “one process per container” is frequently a good rule of thumb, it is not a hard and fast rule. Use your best judgment to keep containers as clean and modular as possible - Docker
 - Understanding remote Docker container registry for storing/pushing our locally built docker images, here we have used Google container registry (GCR) for docker image management.
+    * [Pushing and Pulling Images to GCR](https://cloud.google.com/container-registry/docs/pushing-and-pulling)
+    * [Push images to Docker Cloud](https://docs.docker.com/docker-cloud/builds/push-images/)
+
+---------------
+
+---------------
+
+#### Part - II ( Understanding Kubernetes fleet )
+
+ - Learning basics of kubernetes & [working flow training](https://kubernetes.io/docs/tutorials/kubernetes-basics/).
+    * Kubernetes is an open-source platform for automating deployment, scaling, and operations of application containers across clusters of hosts, providing container-centric infrastructure - Kubernetes.io
+
+ - [What are Pods! How container runs inside a pod!](https://kubernetes.io/docs/concepts/workloads/pods/pod/#what-is-a-pod)
+    * Pods are the atomic unit on the Kubernetes platform. A Pod is a Kubernetes abstraction that represents a group of one or more application containers (such as Nginx or redis), and some shared resources for those containers.
+
+<div style="text-align: right"><sub>Pod Overview : Images by Kubernetes.io</sub></div>
+![Pods overview image](/images/kubes/module_03_pods.svg "Pods Overview")
+
+ - [What are Nodes](https://kubernetes.io/docs/concepts/nodes/node/#what-is-a-node) <sub>(also known as worker or minion, a single machine)</sub>
+    * A Pod always runs on a Node. A Node is a worker machine in Kubernetes and may be either a virtual or a physical machine, depending on the cluster. Node is controlled by Kubernetes Master. Kubernetes manages scheduling of pods in Nodes running in a cluster.
+
+<div style="text-align: right"><sub>Node Overview : Images by Kubernetes.io</sub></div>
+![Node overview image](/images/kubes/module_03_nodes.svg "Node Overview")
 
 
+ - [What are deployments!](https://kubernetes.io/docs/concepts/workloads/controllers/deployment/)
+    * Deployments to create new resources, or replace existing ones by new ones by means of configuration defined. You can think of it as a supervisor of pods management.
 
-Part - II (Understanding Kubernetes fleet)
-- Learning basics of kubernetes & working flow
-- What are Pods! How container runs inside a pod.
-- What are Nodes (also known as worker or minion, a single machine)
-- What are deployments!
-- What is replication controller and Replica sets!
-- What is Kubernetes master!
-- What are services!
-- What is label selectors!
-- How to debug or get cluster info from command-line!
+
+```
+#### cat sample-deployment.yaml
+
+apiVersion: apps/v1beta1
+kind: Deployment
+metadata:
+  name: nginx-deployment
+spec:
+  replicas: 3
+  template:
+    metadata:
+      labels:
+        app: nginx
+    spec:
+      containers:
+      - name: nginx
+        image: nginx:1.7.9
+      ports:
+      - containerPort: 80
+```
+
+ - [What is replication controller and Replica sets!](https://kubernetes.io/docs/concepts/workloads/controllers/replicaset/)
+    * A ReplicationController and Replica Sets ensures that a specified number of pod “replicas” are running at any one time. In other words, it makes sure that a pod or homogeneous set of pods are always up and available. If there are too many pods, it will kill some. If there are too few, it will start more.
+    > In above ```yaml``` file, you can see ```replicas``` keyword, this is being managed by replication utility.
+
+ - [What is Kubernetes master!](https://kubernetes.io/docs/concepts/overview/components/)
+    * The controlling services in a Kubernetes cluster are called the master, or control plane, components. For example, master components are responsible for making global decisions about the cluster (e.g., scheduling), and detecting and responding to cluster events (e.g., starting up a new pod when a replication controller’s ‘replicas’ field is unsatisfied). Kubernetes provides a REST API supporting primarily CRUD operations on (mostly) persistent resources, which serve as the hub of its control plane.
+    * [Kubernetes Ecosystem consists of mutiple components.](https://github.com/kubernetes/community/blob/master/contributors/design-proposals/architecture.md#architecture)
+
+ - What are services!
+ - What is label selectors!
+ - How to debug or get cluster info from command-line!
+
+```
     ---------kubectl commands
+```
 
+#### How do we run containers in GCE ?
 
-> How do we run containers in GCE ?
 We have number of deployments which manages scaling pods up/down depend on processing we need. We need to follow proper versioning of modules to distinguish what is running inside your system and this helps in rollback releases in case of issues in production.
-    How about services/APIs we need to expose ?
-- There comes kubes services. We have plenty of APIs we need to expose to outside world. To make it happen, we have couple of kube services exposed using tcp loadbalancer which has been assigned public IP. Internally, these services keeps on doing service discovery using label selector to find pods and attached to this service, pods having same label will be targeted by a service. Its same concept of how we manage loadbalancer on cloud, attach VMs to a loadbalancer to offload incoming traffic.
 
-- Resources running inside Kube ship know each other very well. Each services/pods can communicate by names assigned to each. Instead of using IPs (private) assigned to each of them, you can use names as FQDN given and its a good practise to use names instead of IPs because of dynamic allocation of IPs as resources get destroyed and created again. Kube-DNS maintains all list of IPs internally assigned and helps finding resources by names.
+> How about services/APIs we need to expose ?
+
+  - There comes kubes services. We have plenty of APIs we need to expose to outside world. To make it happen, we have couple of kube services exposed using tcp loadbalancer which has been assigned public IP. Internally, these services keeps on doing service discovery using label selector to find pods and attached to this service, pods having same label will be targeted by a service. Its same concept of how we manage loadbalancer on cloud, attach VMs to a loadbalancer to offload incoming traffic.
+
+ - Resources running inside Kube ship know each other very well. Each services/pods can communicate by names assigned to each. Instead of using IPs (private) assigned to each of them, you can use names as FQDN given and its a good practise to use names instead of IPs because of dynamic allocation of IPs as resources get destroyed and created again. Kube-DNS maintains all list of IPs internally assigned and helps finding resources by names.
 
 
-> How to decide what resources you should allocate to your kubernetes Cluster or define pools resources?
+#### How to decide what resources you should allocate to your kubernetes Cluster or define pools resources?
 [http: // Setting pods CPU and Memory limits (M vs Mi)]
 
 Each container has its own requirements of resources (ie, CPU or RAM, disk, network etc), there comes requests & limits in kubes. This helps alot in keeping your nodes healthy. Many times due to bad limits or not defining limits, your pods can go crazy at utilization, eat any resources and can lead to node starvation and lead to Node becomes unhealthy and goes in [Not Ready] state due to resource exhaustion. We had this multiple times at early stage and now we had fine tuned each pods resources based on its hunger behaviour.
 
-    How to define Node resources?
+> How to define Node resources?
+
 Depends on container type (which you are running inside a pod), you can define different resource pools. Suppose you have modules named Core.X, Core.Y and Core.Z , all of them needs 2 core, 2 GB each to run, then you can have Standard Node Pool to run them. In this case, i will allocate below config for my Node pool.
 
-- Name : Standard Pool
-- Pool Size : 2
-- Node Config: 4 Core, 4 GB
-- Node Pool Size : 8 Core, 8 GB
-- Utilization : 6 Core, 6 GB (75 % used Core & RAM)
+ - Name : Standard Pool
+ - Pool Size : 2
+ - Node Config: 4 Core, 4 GB
+ - Node Pool Size : 8 Core, 8 GB
+ - Utilization : 6 Core, 6 GB (75 % used Core & RAM)
 
 Now, lets say i have high memory eater modules. let call them Mem.X, Mem.Y and Mem.Z , all of them needs 0.5 core, 4 GB each to run, then you need high memory Node Pool to run them. In this case, i will allocate below config for my Node pool.
 
@@ -70,17 +324,19 @@ Now, lets say i have high memory eater modules. let call them Mem.X, Mem.Y and M
 - Utilization : 1.5 Core, 12 GB (75 % used Core & RAM)
 
 
-So, based on your Node types, you can deploy your pods in different Node pools by using Node selector in kube.
-
+> So, based on your Node types, you can deploy your pods in different Node pools by using Node selector in kube.
+```
 -------------- Node selector example
-
+```
 
 
 Note : Some configuration in GCE should be taken care, like autoupgrade kubernetes version. If you are running redis or any other cache manager that needs uptime, better you turn off autoupgrade because when kubernetes release comes all node will go on scheduled maintenance one by one and that could affect your production system. Else, you are fully stateless, you can keep default.
 
+```
 -------------- Autoupgrade off/on
 
+```
 
 Pretty much all above theories are based on what we understood in last three months of kubernetes running in production. Container management is easy to adapt and lot of new observation is yet to be discovered as we go along the way. We currently managed to put the system in place to process 10 Billion APIs call per month and are pushing more to handle.
 
-Conclusion : Kubernetes lifted alot of DevOps management and helped in scaling system. Adaptability is much quicker, most of security and other concerns is being managed by Google. Kubernetes aims to offer a better orchestration management system on top of clustered infrastrcuture.
+> Conclusion : Kubernetes lifted alot of DevOps management and helped in scaling system. Adaptability is much quicker, most of security and other concerns is being managed by Google. Kubernetes aims to offer a better orchestration management system on top of clustered infrastrcuture.

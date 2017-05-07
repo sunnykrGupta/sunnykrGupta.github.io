@@ -1,5 +1,7 @@
 Title: About Me
 Date: 2017-04-09 17:40
+Status: published
+
 
 
 A Data Engineer and DevOps Lead in Bangalore based Startup, [Shieldsquare](https://www.shieldsquare.com/).

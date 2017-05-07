@@ -1,5 +1,7 @@
 Title: Projects
 Date: 2015-06-02 16:46
+Status: published
+
 
 These are some important projects that i have worked on in the past.
 
