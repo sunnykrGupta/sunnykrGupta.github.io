@@ -3,7 +3,7 @@ Date: 2017-05-02 00:10:10
 Category: kubernetes, docker, gce, gcr, container
 Tags: kubernetes, docker, gce, gcr, container
 Author: Sunny Kr Gupta
-Status: draft
+Status: unpublished
 
 > Couple of months ago, we were struggling with scalability of system and were in pursuit of finding right orchestration tools which can help in scaling system quickly.
 
@@ -14,6 +14,8 @@ We started with ```Google Container Engine (GCE)``` to get things working quickl
 Before we go in depth, we did some research and found out we needed some _gears_ (concepts/tools/theory) before we board into container ship and sail out for cruise.
 
 We are dividing gears that we need to know into two parts, ie, first will be ```Docker``` and second will focused on ```Kubernetes```.
+
+-----------
 
 #### Part - I (Understanding Docker at Dock)
 * Stateless and stateful components.
@@ -226,7 +228,6 @@ Now, you can see only *step-2,3* was taken from ```cache```, *step-4* command ie
     * [Pushing and Pulling Images to GCR](https://cloud.google.com/container-registry/docs/pushing-and-pulling)
     * [Push images to Docker Cloud](https://docs.docker.com/docker-cloud/builds/push-images/)
 
----------------
 
 ---------------
 
@@ -281,62 +282,185 @@ spec:
     * The controlling services in a Kubernetes cluster are called the master, or control plane, components. For example, master components are responsible for making global decisions about the cluster (e.g., scheduling), and detecting and responding to cluster events (e.g., starting up a new pod when a replication controller’s ‘replicas’ field is unsatisfied). Kubernetes provides a REST API supporting primarily CRUD operations on (mostly) persistent resources, which serve as the hub of its control plane.
     * [Kubernetes Ecosystem consists of mutiple components.](https://github.com/kubernetes/community/blob/master/contributors/design-proposals/architecture.md#architecture)
 
- - What are services!
- - What is label selectors!
- - How to debug or get cluster info from command-line!
+ - [What are services!](https://kubernetes.io/docs/concepts/services-networking/service/)
+    * A Kubernetes Service is an abstraction which defines a logical set of Pods and a policy by which to access them. The set of Pods targeted by a Service is (usually) determined by a Label Selector. Service keep on looking for pods which has specific labels assigned and keep tracks of those pods for request offloading.
+
+<div style="text-align: right"><sub>Service Overview : Images by Kubernetes.io</sub></div>
+![Service overview image](/images/kubes/module_04_labels.svg "Service Overview")
+
 
 ```
-    ---------kubectl commands
+###### cat sample-services.yaml
+
+kind: Service
+apiVersion: v1
+metadata:
+  name: my-service
+spec:
+  type: LoadBalancer
+  loadBalancerIP: 10.10.10.1
+  ports:
+    # the port that this service should serve on
+  - port: 80
+    # port on which it should forward request ie, port pod is listening
+    targetPort: 8080
+  selector:
+    # labels assigned to pods
+    app: MyApp
+
 ```
+
+ - How to debug or [get cluster info from command-line!](https://kubernetes.io/docs/user-guide/kubectl-cheatsheet/)
+    * ```kubectl``` is a command line interface for running commands against Kubernetes clusters.
+
+```
+-----General Commands
+
+## To view Nodes in a cluster
+$kubectl get nodes
+
+NAME                                          STATUS    AGE
+gke-test-cluster-default-pool-2d123aa1-012f   Ready     2d
+gke-test-cluster-default-pool-2d123aa1-e23k   Ready     2d
+
+
+## To view the Deployment we created run:
+$    kubectl get deployments
+
+NAME         DESIRED   CURRENT   UP-TO-DATE   AVAILABLE   AGE
+hello-node   1         1         1            1           3m
+
+
+## To view the Pod created by the deployment run:
+$    kubectl get pods
+
+NAME                         READY     STATUS    RESTARTS   AGE
+hello-node-714049816-ztzrb   1/1       Running   0          6m
+
+
+## To view the Pod created by the deployment run:
+$    kubectl get pods
+
+NAME                         READY     STATUS    RESTARTS   AGE
+hello-node-714049816-ztzrb   1/1       Running   0          6m
+
+## To view detailed information of the Pod:
+$ kubectl get pods -o wide
+or
+$ kubectl get pods --output=wide
+
+NAME             READY     STATUS    RESTARTS   AGE       IP
+dd-agent-0f75g   1/1       Running   0          23d       10.204.5.16
+
+
+## To view the stdout / stderr from a Pod run:
+$    kubectl logs <POD-NAME>
+
+## To view metadata about the cluster run:
+$    kubectl cluster-info
+
+```
+
+-------------
 
 #### How do we run containers in GCE ?
 
-We have number of deployments which manages scaling pods up/down depend on processing we need. We need to follow proper versioning of modules to distinguish what is running inside your system and this helps in rollback releases in case of issues in production.
+We have number of ```deployments``` which manages scaling pods up/down depend on processing we need. Pods run containers inside Node available in a cluster. We need to follow proper versioning of modules to distinguish what is running inside your system and this helps in rollback releases in case of issues in production.
 
 > How about services/APIs we need to expose ?
 
-  - There comes kubes services. We have plenty of APIs we need to expose to outside world. To make it happen, we have couple of kube services exposed using tcp loadbalancer which has been assigned public IP. Internally, these services keeps on doing service discovery using label selector to find pods and attached to this service, pods having same label will be targeted by a service. Its same concept of how we manage loadbalancer on cloud, attach VMs to a loadbalancer to offload incoming traffic.
+  - There comes kubes ```services```. We have plenty of APIs we need to expose to outside world. To make it happen, we have couple of kube services exposed using tcp loadbalancer which has been assigned public IP. Internally, these services keeps on doing service discovery using ```label selector``` to find pods and attach it to this service, pods having same label will be targeted by a service. Its same concept of how we manage loadbalancer on cloud, attach VMs to a loadbalancer to offload incoming traffic.
 
- - Resources running inside Kube ship know each other very well. Each services/pods can communicate by names assigned to each. Instead of using IPs (private) assigned to each of them, you can use names as FQDN given and its a good practise to use names instead of IPs because of dynamic allocation of IPs as resources get destroyed and created again. Kube-DNS maintains all list of IPs internally assigned and helps finding resources by names.
+ - Resources running inside Kube ship knows each other very well. Each ```services/pods``` can communicate by names assigned to each. Instead of using IPs (private) assigned to each of them, you can use names given as FQDN and its a good practise to use names instead of IPs because of dynamic nature of network resource allocation and resources get destroyed and created again in a container lifecycle management. Kube-DNS maintains all list of IPs internally assigned and helps finding resources by names.
 
 
-#### How to decide what resources you should allocate to your kubernetes Cluster or define pools resources?
-[http: // Setting pods CPU and Memory limits (M vs Mi)]
+------------
 
-Each container has its own requirements of resources (ie, CPU or RAM, disk, network etc), there comes requests & limits in kubes. This helps alot in keeping your nodes healthy. Many times due to bad limits or not defining limits, your pods can go crazy at utilization, eat any resources and can lead to node starvation and lead to Node becomes unhealthy and goes in [Not Ready] state due to resource exhaustion. We had this multiple times at early stage and now we had fine tuned each pods resources based on its hunger behaviour.
+#### How to decide what resources you should allocate to your [pods resources](https://kubernetes.io/docs/tasks/configure-pod-container/assign-cpu-ram-container/)?
 
-> How to define Node resources?
+```
+Convention
+# RAM : Mi = MB, ie, 1024Mi is 1024 MB or 1GB
+# CPU : m = milicpu , ie, 100m cpu is 100 milicpu, or say 0.1 CPU
 
-Depends on container type (which you are running inside a pod), you can define different resource pools. Suppose you have modules named Core.X, Core.Y and Core.Z , all of them needs 2 core, 2 GB each to run, then you can have Standard Node Pool to run them. In this case, i will allocate below config for my Node pool.
+apiVersion: v1
+kind: Pod
+metadata:
+  name: cpu-ram-demo
+spec:
+  containers:
+  - name: cpu-ram-demo-container
+    image: gcr.io/google-samples/node-hello:1.0
+    resources:
+      requests:
+        memory: "64Mi"
+        cpu: "250m"
+      limits:
+        memory: "128Mi"
+        cpu: "500m"
+```
+
+Each container has its own requirements of resources (ie, CPU or RAM, disk, network etc), there comes requests & limits in kubes. This helps alot in keeping your nodes healthy. Many times due to bad limits or not defining limits, your pods can go crazy at utilization, eat any resources and can lead to node starvation and lead to Node becomes unhealthy and goes in ```[Not Ready]``` state due to resource exhaustion. We had this multiple times at early stage and now we had fine tuned each pods resources based on its hunger behaviour.
+
+> How to define Node resources in kubernetes cluster?
+
+Depends on container type <sub>(which you are running inside a pod)</sub>, you can define different Node pools. Suppose you have modules named ```Core.X, Core.Y and Core.Z``` , all of them needs ```2 core, 2 GB``` each to run, then you can have **Standard Node Pool** to run them. In this case, i will allocate below config for my Node pool.
 
  - Name : Standard Pool
  - Pool Size : 2
  - Node Config: 4 Core, 4 GB
  - Node Pool Size : 8 Core, 8 GB
- - Utilization : 6 Core, 6 GB (75 % used Core & RAM)
+ - ```Utilization``` : 6 Core, 6 GB (75 % used Core & RAM)
 
-Now, lets say i have high memory eater modules. let call them Mem.X, Mem.Y and Mem.Z , all of them needs 0.5 core, 4 GB each to run, then you need high memory Node Pool to run them. In this case, i will allocate below config for my Node pool.
+Now, lets say i have high memory eater modules. let call them ```Mem.X, Mem.Y and Mem.Z``` , all of them needs ```0.5 core, 4 GB``` each to run, then you need **High memory Node Pool** to run them. In this case, i will allocate now below config for my Node pool.
 
 - Name : HighMem Pool
 - Pool Size : 2
 - Node Config : 1 Core, 8 GB
 - Node Pool : 2 Core, 16 GB
-- Utilization : 1.5 Core, 12 GB (75 % used Core & RAM)
+- ```Utilization``` : 1.5 Core, 12 GB (75 % used Core & RAM)
 
 
-> So, based on your Node types, you can deploy your pods in different Node pools by using Node selector in kube.
+> So, based on your [Node pool type](https://cloud.google.com/container-engine/docs/node-pools), you can deploy your pods in different Node pools by using ```nodeSelector``` in kubes.
+
 ```
 -------------- Node selector example
+
+apiVersion: v1
+kind: Pod
+metadata:
+  name: nginx
+  labels:
+    env: test
+spec:
+  containers:
+  - name: nginx-v1
+    image: nginx
+  nodeSelector:
+    #give label assigned to your node pool
+    cloud.google.com/gke-nodepool: high-mem-pool
+
 ```
 
+--------------
 
-Note : Some configuration in GCE should be taken care, like autoupgrade kubernetes version. If you are running redis or any other cache manager that needs uptime, better you turn off autoupgrade because when kubernetes release comes all node will go on scheduled maintenance one by one and that could affect your production system. Else, you are fully stateless, you can keep default.
-
-```
--------------- Autoupgrade off/on
+##### Note : Some configuration in GCE should be taken care, like autoupgrade kubernetes version. If you are running redis or any other cache manager that needs uptime, better you turn off autoupgrade because when kubernetes release comes all node will go on scheduled maintenance one by one and that could affect your production system. Else, you are fully stateless, you can keep default.
 
 ```
+----- Autoupgrade off
 
-Pretty much all above theories are based on what we understood in last three months of kubernetes running in production. Container management is easy to adapt and lot of new observation is yet to be discovered as we go along the way. We currently managed to put the system in place to process 10 Billion APIs call per month and are pushing more to handle.
+# https://cloud.google.com/container-engine/docs/node-auto-upgrade
 
-> Conclusion : Kubernetes lifted alot of DevOps management and helped in scaling system. Adaptability is much quicker, most of security and other concerns is being managed by Google. Kubernetes aims to offer a better orchestration management system on top of clustered infrastrcuture.
+gcloud beta container node-pools update <NODEPOOL> --cluster <CLUSTER> --zone <ZONE> --no-enable-autoupgrade
+
+```
+
+Pretty much all above theories/understanding are based on what we got in last three months of kubernetes running in production. Container management is easy to adapt and lot of new observation is yet to be discovered as we go along the way.
+
+----------- We currently managed to put the system in place to process ```10 Billion APIs``` call per month and are pushing more to handle.
+
+
+
+------------
+
+> Conclusion : ```Kubernetes``` lifted alot of ```DevOps management``` and helped in scaling system. Adaptability is much quicker, most of security and other concerns is being managed by Google. Kubernetes aims to offer a better orchestration management system on top of clustered infrastrcuture.
