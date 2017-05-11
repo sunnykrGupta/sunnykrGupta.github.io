@@ -86,7 +86,7 @@
 <p>Docker’s container-based platform allows for highly portable workloads. Docker containers can run on a developer’s local laptop, on physical or virtual machines in a data center, on cloud providers, or in a mixture of environments.</p>
 <hr>
 <h4>Launching on Kubernetes</h4>
-<p>We started with <code>Google Container Engine (GCE)</code> to get things working quickly. We started with a cluster of <code>10 Nodes</code>, each Node with configuration <code>4 vCore and 15 GB</code> in <strong>default pool</strong> to run stateless Java components <sub>( Here at <a href="https://www.shieldsquare.com/">Shieldsquare</a> core processing relies on code written in Java)</sub>.</p>
+<p>We started with <code>Google Container Engine (GCE)</code> to get things working quickly. We started with a cluster with few <code>10's of Nodes</code>, each Node with configuration <code>12 vCore and 30 GB</code> in <strong>default pool</strong> to run stateless Java components <sub>( Here at <a href="https://www.shieldsquare.com/">Shieldsquare</a> core processing relies on code written in Java)</sub>.</p>
 <p>When working with Kubernetes, we must become familiar with working concepts of <code>Docker</code> and <code>Kubernetes</code>.</p>
 <hr>
 <h4>Understanding Docker</h4>
@@ -149,8 +149,9 @@
 <blockquote>
 <p>So, based on your <a href="https://cloud.google.com/container-engine/docs/node-pools">Node pool type</a>, you can deploy your pods in different Node pools by using <code>nodeSelector</code> directives in configuration.</p>
 </blockquote>
-<div class="highlight"><pre>-------------- Node selector example
-
+<div class="highlight"><pre>-
+-------------- Node selector example
+-
 apiVersion: v1
 kind: Pod
 metadata:
@@ -164,6 +165,8 @@ spec:
   nodeSelector:
     #give label assigned to your node pool
     cloud.google.com/gke-nodepool: high-mem-pool
+-
+-
 </pre></div>
 
 
@@ -180,7 +183,8 @@ spec:
 <p>Um! What about logs?</p>
 </blockquote>
 <p>Right, logs are very important. We have ELK (Elasticsearch, Logstash, Kibana) to consume logs reported by containers running in cluster. Containers is running with <a href="https://logging.apache.org/log4j">log4j</a> (log4j is a reliable, fast and flexible logging framework (APIs) written in Java,) configured to push logs through logstash to Elasticsearch.</p>
-<div class="highlight"><pre>#log4j configuration for application
+<div class="highlight"><pre>-
+#log4j configuration for application
 log4j.rootLogger=ERROR, server
 
 #We will use socket appender
@@ -194,6 +198,7 @@ log4j.appender.server.RemoteHost=app-logstash.server.net
 
 #Define any connection delay before attempting to reconnect
 log4j.appender.server.ReconnectionDelay=10000
+-
 </pre></div>
 
 
@@ -214,14 +219,14 @@ gcloud beta container node-pools update &lt;NODEPOOL&gt; --cluster &lt;CLUSTER&g
 
 
 <p>Pretty much all above understanding are based on what we learned in last four months of kubernetes running in production. Container management is easy to adapt and lot of new observation is yet to be discovered as we go along the way.</p>
-<p>Looking at our deployments today, Kubernetes is absolutely fantastic. We currently managed to put the system in place to process ``5 Billion APIs``` call per month and are pushing more to handle.</p>
+<p>Looking at our deployments today, Kubernetes is absolutely fantastic in Auto-pilot and doing self-healing jobs for us. We are running more than 1000 pods in cluster together and currently managed to process <code>10's of Billions of API calls</code> call per month and are pushing more to handle.</p>
 <hr>
 <blockquote>
 <p>Conclusion : <code>Kubernetes</code> lifted alot of <code>server management</code> and helped in faster depployments &amp; scaling system. Adaptability is much quicker, most of security and other concerns is being managed by Google. Kubernetes aims to offer a better orchestration management system on top of clustered infrastrcuture. Development on Kubernetes has been happening at storm-speed, and the <a href="https://kubernetes.io/community/">community of Kubernauts</a> has grown bigger.</p>
 </blockquote>
   </div>
   <div class="article_meta">
-    <p>Posted on: Tue 02 May 2017</p>
+    <p>Posted on: Mon 08 May 2017</p>
     <p>Category: <a href="https://sunnykrGupta.github.io/category/kubernetes-docker-gce-gcr-container.html">kubernetes, docker, gce, gcr, container</a>
  &ndash; Tags:
       <a href="https://sunnykrGupta.github.io/tag/kubernetes.html">kubernetes</a>,      <a href="https://sunnykrGupta.github.io/tag/docker.html">docker</a>,      <a href="https://sunnykrGupta.github.io/tag/gce.html">gce</a>,      <a href="https://sunnykrGupta.github.io/tag/gcr.html">gcr</a>,      <a href="https://sunnykrGupta.github.io/tag/container.html">container</a>    </p>
