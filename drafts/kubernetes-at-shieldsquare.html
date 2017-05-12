@@ -129,21 +129,21 @@
 <blockquote>
 <p>Defining correct Node resources in kubernetes cluster.</p>
 </blockquote>
-<p>Each container has its own requirements of resources (ie, CPU or RAM, disk, network etc), there comes <a href="https://kubernetes.io/docs/tasks/configure-pod-container/assign-cpu-ram-container/">requests &amp; limits in kubes</a>. This helps alot in keeping your nodes healthy. Many times due to bad limits or not defining limits on resources, your pods could go crazy at utilization, eat any resources which lead to node starvation and node goes in <code>[Not Ready]</code> state due to resource exhaustion. We had this multiple times at early stage and now we had fine tuned each pods resources based on its hunger behaviour.</p>
-<p>Depends on container type <sub>(which you are running inside a pod)</sub>, you can define different Node pools. Suppose you have modules named <code>Core-X, Core-Y and Core-Z</code> , all of them needs <code>2 Core, 2 GB</code> each to run, then you can have <strong>Standard Node Pool</strong> to run them. In this case, i will allocate below config for my Node pool.</p>
+<p>Each container has its own requirements of resources (ie, CPU, RAM, disk, network etc), there comes <a href="https://kubernetes.io/docs/tasks/configure-pod-container/assign-cpu-ram-container/">requests &amp; limits in kubes</a>. This helps in keeping your nodes healthy. Many times due to bad limits or not defining limits on resources, your pods could go crazy at utilization, eat any resources which lead to node starvation and node goes in <code>[Not Ready]</code> state due to resource exhaustion. We had this multiple times at early stage and now we had fine tuned each pods resources based on its hunger behaviour.</p>
+<p>Depends on container type <sub>(which you are running inside a pod)</sub>, you can define different Node pools. Suppose you have modules named <code>Core-X, Core-Y and Core-Z</code> , all of them needs <code>2 Core, 2 GB</code> each to run, then you can have <strong>Standard Node Pool</strong> to run them. In this case, i will allocate following config for my Node pool.</p>
 <ul>
 <li>Name : Standard Pool</li>
 <li>Pool Size : 2</li>
 <li>Node Config: 4 Core, 4 GB</li>
-<li>Node Pool Size : 8 Core, 8 GB</li>
+<li>Node Pool Resource : 8 Core, 8 GB</li>
 <li><code>Utilization</code> : 6 Core, 6 GB (75 % used Core &amp; RAM)</li>
 </ul>
-<p>Now, lets say i have high memory eater modules. let call them <code>Mem-X, Mem-Y and Mem-Z</code> , all of them needs <code>0.5 Core, 4 GB</code> each to run, then you need <strong>High memory Node Pool</strong> to run them. In this case, i will allocate now below config for my Node pool.</p>
+<p>Now, lets say i have high memory eater modules. let call them <code>Mem-X, Mem-Y and Mem-Z</code> , all of them needs <code>0.5 Core, 4 GB</code> each to run, then you need <strong>High memory Node Pool</strong> to run them. In this case, i will allocate different config for my Node pool.</p>
 <ul>
 <li>Name : HighMem Pool</li>
 <li>Pool Size : 2</li>
 <li>Node Config : 1 Core, 8 GB</li>
-<li>Node Pool : 2 Core, 16 GB</li>
+<li>Node Pool Resource : 2 Core, 16 GB</li>
 <li><code>Utilization</code> : 1.5 Core, 12 GB (75 % used Core &amp; RAM)</li>
 </ul>
 <blockquote>
@@ -204,12 +204,12 @@ log4j.appender.server.ReconnectionDelay=10000
 
 <hr>
 <h4>Data stores and Kubernetes</h4>
-<p>Kubernetes is more about running stateless containers. At shieldsquare, we mostly use kubernetes to run tools that don't need persistency ie, caching, temporary data. Its not meant for stateful components like, MySQL or MongoDB or any other engine that extensively work with data at rest. So, we are not running our production data stores inside Kubernetes. However, Kubernetes have support for stateful containers management too but still at mature stage. The important learning is that you don’t have to run everything in Kubernetes and orchestrate only applications which are stateless.</p>
+<p>Kubernetes is more about running stateless containers. At shieldsquare, we mostly use kubernetes to run tools that don't need persistency ie, caching, temporary data. Its not meant for stateful components like, MySQL or MongoDB or any other engine that extensively work with data at rest. So, we are not running our production data stores inside Kubernetes. However, Kubernetes have support for stateful containers management too but still at mature stage. The important learning is that you don’t have to run everything in Kubernetes and only orchestrate applications which are stateless.</p>
 <hr>
 <h4>Cost Impact</h4>
 <p>With Kubernetes cluster, we brought down cost by 40% on Google Cloud Platform. We have managed to run tightly coupled containers inside a different node pools. We have plenty of services, some are core intensive and couple of them are memory hungry, we let kubernetes manage and fit the containers in right place without us worrying about how to maximize the utilization.</p>
 <hr>
-<p><strong>Note :</strong> Some configuration in GCE should be taken care, like <code>autoupgrade kubernetes version</code>. If you are running RabbitMQ, Redis or any other message queue as service that needs uptime, better you turn off autoupgrade because kubernetes new version release comes, all node will be scheduled for maintenance, however it rolles updates one by one but could affect your production system. Else, if you are fully stateless, you can keep default or skip this warning!.</p>
+<p><strong>Note :</strong> Some configuration in GCE should be taken care, like <code>autoupgrade kubernetes version</code>. If you are running RabbitMQ, Redis or any other message queue as service that needs uptime, better you turn off autoupgrade because kubernetes new version release will schedule all your node for maintenance, however it rolles updates one by one but could affect your production system. Else, if you are fully stateless, you can keep default or skip this warning!.</p>
 <div class="highlight"><pre>----Autoupgrade off
 
 # https://cloud.google.com/container-engine/docs/node-auto-upgrade
@@ -222,7 +222,7 @@ gcloud beta container node-pools update &lt;NODEPOOL&gt; --cluster &lt;CLUSTER&g
 <p>Looking at our deployments today, Kubernetes is absolutely fantastic in Auto-pilot and doing self-healing jobs for us. We are running more than <code>1000 pods</code> in cluster together and currently managed to process <code>10's of Billions of API calls per month</code> and are pushing more to handle.</p>
 <hr>
 <blockquote>
-<p>Conclusion : <code>Kubernetes</code> lifted alot of <code>server management</code> and helped in faster depployments &amp; scaling system. Adaptability is much quicker, most of security and other concerns is being managed by Google. Kubernetes aims to offer a better orchestration management system on top of clustered infrastrcuture. Development on Kubernetes has been happening at storm-speed, and the <a href="https://kubernetes.io/community/">community of Kubernauts</a> has grown bigger.</p>
+<p>Conclusion : <code>Kubernetes</code> lifted lot of <code>server management</code> and helped in faster depployments &amp; scaling system. Adaptability is much quicker, most of security and other concerns is being managed by Google. Kubernetes aims to offer a better orchestration management system on top of clustered infrastrcuture. Development on Kubernetes has been happening at storm-speed, and the <a href="https://kubernetes.io/community/">community of Kubernauts</a> has grown bigger.</p>
 </blockquote>
   </div>
   <div class="article_meta">
