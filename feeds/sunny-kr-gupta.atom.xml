@@ -1,5 +1,498 @@
 <?xml version="1.0" encoding="utf-8"?>
-<feed xmlns="http://www.w3.org/2005/Atom"><title>Daemon Blog - Sunny Kr Gupta</title><link href="https://sunnykrGupta.github.io/" rel="alternate"></link><link href="https://sunnykrGupta.github.io/feeds/sunny-kr-gupta.atom.xml" rel="self"></link><id>https://sunnykrGupta.github.io/</id><updated>2015-07-19T01:31:31+05:30</updated><entry><title>A Practical Guide to Geopy</title><link href="https://sunnykrGupta.github.io/a-practical-guide-to-geopy.html" rel="alternate"></link><published>2015-07-19T01:31:31+05:30</published><updated>2015-07-19T01:31:31+05:30</updated><author><name>Sunny Kr Gupta</name></author><id>tag:sunnykrgupta.github.io,2015-07-19:/a-practical-guide-to-geopy.html</id><summary type="html">&lt;p&gt;During my final major academic project, i was working with &lt;a href="http://twitter.com"&gt;Twitter&lt;/a&gt; data (ie. tweets). I did some research and found out approximately only 1% of all Tweets published on Twitter are geolocated (ie. have location information). This is a very small portion of the Tweets, and i needed almost every …&lt;/p&gt;</summary><content type="html">&lt;p&gt;During my final major academic project, i was working with &lt;a href="http://twitter.com"&gt;Twitter&lt;/a&gt; data (ie. tweets). I did some research and found out approximately only 1% of all Tweets published on Twitter are geolocated (ie. have location information). This is a very small portion of the Tweets, and i needed almost every tweets location to segregate data country-wise.
+<feed xmlns="http://www.w3.org/2005/Atom"><title>Daemon Blog - Sunny Kr Gupta</title><link href="https://sunnykrGupta.github.io/" rel="alternate"></link><link href="https://sunnykrGupta.github.io/feeds/sunny-kr-gupta.atom.xml" rel="self"></link><id>https://sunnykrGupta.github.io/</id><updated>2017-08-13T19:45:00+05:30</updated><entry><title>Managing fleet on Kubernetes</title><link href="https://sunnykrGupta.github.io/managing-fleet-on-kubernetes.html" rel="alternate"></link><published>2017-08-13T19:45:00+05:30</published><updated>2017-08-13T19:45:00+05:30</updated><author><name>Sunny Kr Gupta</name></author><id>tag:sunnykrgupta.github.io,2017-08-13:/managing-fleet-on-kubernetes.html</id><summary type="html">&lt;blockquote&gt;
+&lt;p&gt;Couple of months ago, we were struggling with scalability of system and were in pursuit of finding right orchestration tools which can help in scaling system quickly. This draft is outline of things we tried and learned.&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;p&gt;We started exploring popular project managed by Google for orchestration management, &lt;strong&gt;&lt;a href="https://kubernetes.io/"&gt;Kubernetes&lt;/a&gt;&lt;/strong&gt; for …&lt;/p&gt;</summary><content type="html">&lt;blockquote&gt;
+&lt;p&gt;Couple of months ago, we were struggling with scalability of system and were in pursuit of finding right orchestration tools which can help in scaling system quickly. This draft is outline of things we tried and learned.&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;p&gt;We started exploring popular project managed by Google for orchestration management, &lt;strong&gt;&lt;a href="https://kubernetes.io/"&gt;Kubernetes&lt;/a&gt;&lt;/strong&gt; for DevOps. Starting with two weeks of learning curves, we get our working staging system in &lt;em&gt;kubes&lt;/em&gt; (kubernetes in short) and did small working setup to visualize the power of this orchestration framework.&lt;/p&gt;
+&lt;hr&gt;
+&lt;h4&gt;Microservices&lt;/h4&gt;
+&lt;p&gt;Microservice architectures have been trending because its architectural style aims to tackle the problems of managing modern application by decoupling software solutions into smaller functional services that are expected to fail.&lt;/p&gt;
+&lt;p&gt;This help in quick recovery from failure on smaller functional units in contrast to making recovery from big monolithic software systems. Microservices helps in making your release cycle faster even because you will be focusing on smaller changes in single app instead of pushing code changes in bigger software systems that has multiple dependencies.&lt;/p&gt;
+&lt;hr&gt;
+&lt;h4&gt;Containers&lt;/h4&gt;
+&lt;p&gt;Microservice architectures got a big tide in 2013 when Docker inc. released Docker technology. &lt;strong&gt;Docker container&lt;/strong&gt; gave perfect alternatives to virtual machines and drove software packaging methods in a more developer friendly way. Docker container are comparatively smaller than virtual machines (VMs). Its shares underlying host OS resources, we can spin up hundreds of these small units in order of milliseconds. Their smaller size helps in faster packaging, testing and even deployments because of its portable nature.&lt;/p&gt;
+&lt;p&gt;Docker’s container-based platform allows highly portable workloads. Docker containers can run on a developer’s local laptop, on physical or virtual machines in a data center, on cloud providers, or in a mixture of environments.&lt;/p&gt;
+&lt;hr&gt;
+&lt;p&gt;We started with &lt;code&gt;Google Container Engine (GCE)&lt;/code&gt; to get things work quickly. We started with a cluster with few &lt;code&gt;10's of Nodes&lt;/code&gt;, each Node with configuration &lt;code&gt;12 vCore and 30 GB&lt;/code&gt; in &lt;strong&gt;default pool&lt;/strong&gt; to run stateless components.&lt;/p&gt;
+&lt;p&gt;Before we go in depth, we have done some research and found out we needed some &lt;em&gt;gears&lt;/em&gt; (concepts/tools/theory) before we board into container ship and sail out for cruise.&lt;/p&gt;
+&lt;p&gt;We are dividing gears that we need to know into two parts, ie, first will be &lt;code&gt;Docker&lt;/code&gt; and second will focused on &lt;code&gt;Kubernetes&lt;/code&gt;.&lt;/p&gt;
+&lt;hr&gt;
+&lt;h4&gt;Part - I (Understanding Docker at Dock)&lt;/h4&gt;
+&lt;ul&gt;
+&lt;li&gt;
+&lt;p&gt;Stateless and stateful components.&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;In computing, a stateless protocol is a communications protocol in which no information is retained by either sender or receiver. The sender transmits a packet to the receiver and does not expect an acknowledgment of receipt. A UDP connection-oriented session is a stateless connection because neither systems maintains information about the session during its life.&lt;/li&gt;
+&lt;li&gt;In contrast, a protocol that requires keeping of the internal state on the server is known as a stateful protocol. A TCP connection-oriented session is a 'stateful' connection because both systems maintain information about the session itself during its life.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;&lt;a href="https://www.redhat.com/en/containers"&gt;Understanding containerization concept&lt;/a&gt;&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;Container provides operating system-level virtualization through a virtual environment that has its own process and network space, instead of creating a full-fledged &lt;a href="https://en.wikipedia.org/wiki/Virtual_machine"&gt;virtual machine&lt;/a&gt;. This enables the kernel of an operating system to allow the existence of multiple isolated user-space instances, instead of just one.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;&lt;a href="https://docs.docker.com/engine/userguide/eng-image/dockerfile_best-practices/"&gt;Writing good Dockerfile for modules&lt;/a&gt;.&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;Dockerfile is set of instruction used by Docker to build an image. Containers are created using docker images, which can be built either by executing commands manually or automatically through Dockerfile. Docker achieves this by creating safe, &lt;strong&gt;LXC&lt;/strong&gt; (i.e. Linux Containers) based environments for applications called “docker containers”.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;Writing optimized Dockerfile, understanding order of commands. Each command that we run in Dockerfile is executed as a layer and subsequent command will be build on top of previous layer. Each layer is managed in cache by Docker tool. Docker manages cache itself to reuse layer of previously build Docker images to save time &amp;amp; disk.&lt;/p&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;I have three file in my directory named &amp;#39;flask&amp;#39; :
+➜  flask
+
+── app.py
+── Dockerfile
+── requirement.txt
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="c"&gt;##### cat app.py&lt;/span&gt;
+
+&lt;span class="kn"&gt;from&lt;/span&gt; &lt;span class="nn"&gt;flask&lt;/span&gt; &lt;span class="kn"&gt;import&lt;/span&gt; &lt;span class="n"&gt;Flask&lt;/span&gt;
+&lt;span class="c"&gt;#from flask import render_template, request&lt;/span&gt;
+&lt;span class="kn"&gt;import&lt;/span&gt; &lt;span class="nn"&gt;json&lt;/span&gt;
+
+&lt;span class="n"&gt;app&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;Flask&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;__name__&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+
+&lt;span class="nd"&gt;@app.route&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s"&gt;&amp;quot;/&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;span class="k"&gt;def&lt;/span&gt; &lt;span class="nf"&gt;hello&lt;/span&gt;&lt;span class="p"&gt;():&lt;/span&gt;
+    &lt;span class="k"&gt;return&lt;/span&gt; &lt;span class="s"&gt;&amp;quot;Welcome to Python Flask!&lt;/span&gt;&lt;span class="se"&gt;\n&lt;/span&gt;&lt;span class="s"&gt;&amp;quot;&lt;/span&gt;
+
+&lt;span class="k"&gt;if&lt;/span&gt; &lt;span class="n"&gt;__name__&lt;/span&gt; &lt;span class="o"&gt;==&lt;/span&gt; &lt;span class="s"&gt;&amp;quot;__main__&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;
+    &lt;span class="n"&gt;app&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;run&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;host&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="s"&gt;&amp;#39;0.0.0.0&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;port&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="s"&gt;&amp;#39;5009&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;div class="highlight"&gt;&lt;pre&gt;###### cat requirement.txt
+
+Flask==0.10.1
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;div class="highlight"&gt;&lt;pre&gt;###### cat Dockerfile
+
+FROM frolvlad/alpine-python2
+
+RUN mkdir /etc/flask
+
+ADD app.py /etc/flask/app.py
+ADD requirement.txt /etc/flask/requirement.txt
+
+
+CMD [&amp;quot;python&amp;quot;, &amp;quot;/etc/flask/app.py&amp;quot;]
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;blockquote&gt;
+&lt;p&gt;Lets build our docker image with name &lt;strong&gt;flask-v1&lt;/strong&gt;&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;➜  docker build -t flask-v1 .
+
+Sending build context to Docker daemon 4.096 kB
+
+Step 1/5 : FROM frolvlad/alpine-python2
+latest: Pulling from frolvlad/alpine-python2
+627beaf3eaaf: Pull complete
+79d39e719c2e: Pull complete
+Digest: sha256:47e3f85dadf401d51c6f74a18d4f693c2157692292e6dae0a078f37499a183ee
+Status: Downloaded newer image for frolvlad/alpine-python2:latest
+ ---&amp;gt; 603e17608203
+
+Step 2/5 : RUN mkdir /etc/flask
+ ---&amp;gt; Running in 0d97b7a8986b
+ ---&amp;gt; 9b2a858914e2
+Removing intermediate container 0d97b7a8986b
+
+Step 3/5 : ADD app.py /etc/flask/app.py
+ ---&amp;gt; 1a4938be7722
+Removing intermediate container f4d11b837e26
+
+Step 4/5 : ADD requirement.txt /etc/flask/requirement.txt
+ ---&amp;gt; 5d058851dd81
+Removing intermediate container 08eef72a4051
+
+Step 5/5 : CMD python /etc/flask/app.py
+ ---&amp;gt; Running in 96490917e533
+ ---&amp;gt; a081e6cbcf3c
+Removing intermediate container 96490917e533
+
+Successfully built a081e6cbcf3c
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;Now, we have made some modification in &lt;strong&gt;app.py&lt;/strong&gt;&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="c"&gt;##### cat app.py&lt;/span&gt;
+
+&lt;span class="kn"&gt;from&lt;/span&gt; &lt;span class="nn"&gt;flask&lt;/span&gt; &lt;span class="kn"&gt;import&lt;/span&gt; &lt;span class="n"&gt;Flask&lt;/span&gt;
+&lt;span class="c"&gt;#from flask import render_template, request&lt;/span&gt;
+&lt;span class="kn"&gt;import&lt;/span&gt; &lt;span class="nn"&gt;json&lt;/span&gt;
+
+&lt;span class="n"&gt;app&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;Flask&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;__name__&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+
+&lt;span class="nd"&gt;@app.route&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s"&gt;&amp;quot;/&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;span class="k"&gt;def&lt;/span&gt; &lt;span class="nf"&gt;hello&lt;/span&gt;&lt;span class="p"&gt;():&lt;/span&gt;
+    &lt;span class="k"&gt;return&lt;/span&gt; &lt;span class="s"&gt;&amp;quot;Welcome to Python Flask!&lt;/span&gt;&lt;span class="se"&gt;\n&lt;/span&gt;&lt;span class="s"&gt;&amp;quot;&lt;/span&gt;
+
+&lt;span class="c"&gt;#Added utility&lt;/span&gt;
+&lt;span class="k"&gt;def&lt;/span&gt; &lt;span class="nf"&gt;utility&lt;/span&gt;&lt;span class="p"&gt;():&lt;/span&gt;
+    &lt;span class="k"&gt;return&lt;/span&gt; &lt;span class="s"&gt;&amp;quot;something&amp;quot;&lt;/span&gt;
+
+&lt;span class="k"&gt;if&lt;/span&gt; &lt;span class="n"&gt;__name__&lt;/span&gt; &lt;span class="o"&gt;==&lt;/span&gt; &lt;span class="s"&gt;&amp;quot;__main__&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;
+    &lt;span class="n"&gt;app&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;run&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;host&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="s"&gt;&amp;#39;0.0.0.0&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;port&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="s"&gt;&amp;#39;5009&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;blockquote&gt;
+&lt;p&gt;Lets build our docker image with name &lt;strong&gt;flask-v2&lt;/strong&gt;&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;➜  docker build -t flask-v2 .
+
+Sending build context to Docker daemon 4.096 kB
+
+Step 1/5 : FROM frolvlad/alpine-python2
+ ---&amp;gt; 603e17608203
+
+Step 2/5 : RUN mkdir /etc/flask
+ ---&amp;gt; Using cache
+ ---&amp;gt; 9b2a858914e2
+
+Step 3/5 : ADD app.py /etc/flask/app.py
+ ---&amp;gt; a7565514aab3
+Removing intermediate container 360eb266a458
+
+Step 4/5 : ADD requirement.txt /etc/flask/requirement.txt
+ ---&amp;gt; 8441bca383f0
+Removing intermediate container 15ebbb15d67d
+
+Step 5/5 : CMD python /etc/flask/app.py
+ ---&amp;gt; Running in 73e4bbcbe512
+ ---&amp;gt; 0f4a5754f0d0
+Removing intermediate container 73e4bbcbe512
+
+Successfully built 0f4a5754f0d0
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;You will see only &lt;em&gt;step-2&lt;/em&gt; was taken from cache, rest of the instructions ran again because change has been detected by Docker on &lt;em&gt;step-3&lt;/em&gt; command ie, &lt;code&gt;ADD app.py&lt;/code&gt; , so all subsequent commands ran again to build layer on top of previous layer.&lt;/p&gt;
+&lt;p&gt;Now we have made changes in &lt;code&gt;Dockerfile&lt;/code&gt;, some reorder of commands.&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;# cat Dockerfile
+
+FROM frolvlad/alpine-python2
+
+RUN mkdir /etc/flask
+
+# add requirement file first, then commands which contains some changes.
+ADD requirement.txt /etc/flask/requirement.txt
+ADD app.py /etc/flask/app.py
+
+CMD [&amp;quot;python&amp;quot;, &amp;quot;/etc/flask/app.py&amp;quot;]
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;blockquote&gt;
+&lt;p&gt;Lets build our docker image with name &lt;strong&gt;flask-v3&lt;/strong&gt; and lets see build console.&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;➜  flask docker build -t flask-v3 .
+
+Sending build context to Docker daemon 4.096 kB
+
+Step 1/5 : FROM frolvlad/alpine-python2
+ ---&amp;gt; 603e17608203
+
+Step 2/5 : RUN mkdir /etc/flask
+ ---&amp;gt; Using cache
+ ---&amp;gt; 9b2a858914e2
+
+Step 3/5 : ADD requirement.txt /etc/flask/requirement.txt
+ ---&amp;gt; Using cache
+ ---&amp;gt; db8fc95cebff
+
+Step 4/5 : ADD app.py /etc/flask/app.py
+ ---&amp;gt; 9fb8351616e1
+Removing intermediate container 4e98534d5339
+
+Step 5/5 : CMD python /etc/flask/app.py
+ ---&amp;gt; Running in 139f8c4282d8
+ ---&amp;gt; e3fae9852d94
+Removing intermediate container 139f8c4282d8
+
+Successfully built e3fae9852d94
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;Now, you can see only &lt;em&gt;step-2,3&lt;/em&gt; was taken from &lt;code&gt;cache&lt;/code&gt;, &lt;em&gt;step-4&lt;/em&gt; command ie, &lt;code&gt;ADD app.py&lt;/code&gt; build new layer because of change detected in &lt;code&gt;app.py&lt;/code&gt; file, and this build saved little bit of our time. This is really important in building big Docker images where we have bigger chain of command to build an app.&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;a href="https://docs.docker.com/engine/userguide/eng-image/dockerfile_best-practices/#each-container-should-have-only-one-concern"&gt;Running a single process inside a Docker container&lt;/a&gt;.&lt;ul&gt;
+&lt;li&gt;“one process per container” is frequently a good rule of thumb, it is not a hard and fast rule. Use your best judgment to keep containers as clean and modular as possible - Docker&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;Understanding remote Docker container registry for storing/pushing our locally built docker images, here we have used Google container registry (GCR) for docker image management.&lt;ul&gt;
+&lt;li&gt;&lt;a href="https://cloud.google.com/container-registry/docs/pushing-and-pulling"&gt;Pushing and Pulling Images to GCR&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="https://docs.docker.com/docker-cloud/builds/push-images/"&gt;Push images to Docker Cloud&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;hr&gt;
+&lt;h4&gt;Part - II ( Understanding Kubernetes in Ocean )&lt;/h4&gt;
+&lt;ul&gt;
+&lt;li&gt;
+&lt;p&gt;Learning basics of kubernetes &amp;amp; &lt;a href="https://kubernetes.io/docs/tutorials/kubernetes-basics/"&gt;working flow training&lt;/a&gt;.&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;Kubernetes is an open-source platform for automating deployment, scaling, and operations of application containers across clusters of hosts, providing container-centric infrastructure - Kubernetes.io&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;&lt;a href="https://kubernetes.io/docs/concepts/workloads/pods/pod/#what-is-a-pod"&gt;What are Pods! How container run inside a pod!&lt;/a&gt;&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;Pods are the atomic unit on the Kubernetes platform. A Pod is a Kubernetes abstraction that represents a group of one or more application containers (such as Nginx or redis), and some shared resources for those containers.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;div style="text-align: right"&gt;&lt;sub&gt;Pod Overview : Images by Kubernetes.io&lt;/sub&gt;&lt;/div&gt;
+
+&lt;p&gt;&lt;img alt="Pods overview image" src="/images/kubes/module_03_pods.svg" title="Pods Overview"&gt;&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;a href="https://kubernetes.io/docs/concepts/nodes/node/#what-is-a-node"&gt;What are Nodes&lt;/a&gt; &lt;sub&gt;(also known as worker or minion, a single machine)&lt;/sub&gt;&lt;ul&gt;
+&lt;li&gt;A Pod always runs inside a Node. A Node is a worker machine in Kubernetes and may be either a virtual or a physical machine, depending on the cluster. Node is controlled by Kubernetes Master. Kubernetes manages scheduling of pods in Nodes running in a cluster.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;div style="text-align: right"&gt;&lt;sub&gt;Node Overview : Images by Kubernetes.io&lt;/sub&gt;&lt;/div&gt;
+
+&lt;p&gt;&lt;img alt="Node overview image" src="/images/kubes/module_03_nodes.svg" title="Node Overview"&gt;&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;a href="https://kubernetes.io/docs/concepts/workloads/controllers/deployment/"&gt;What are deployments!&lt;/a&gt;&lt;ul&gt;
+&lt;li&gt;Deployments to create new resources, or replace existing ones by new ones by means of configuration defined. You can think of it as a supervisor of pods management.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;#### cat sample-deployment.yaml
+
+apiVersion: apps/v1beta1
+kind: Deployment
+metadata:
+  name: nginx-deployment
+spec:
+  replicas: 3
+  template:
+    metadata:
+      labels:
+        app: nginx
+    spec:
+      containers:
+      - name: nginx
+        image: nginx:1.7.9
+      ports:
+      - containerPort: 80
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;ul&gt;
+&lt;li&gt;
+&lt;p&gt;&lt;a href="https://kubernetes.io/docs/concepts/workloads/controllers/replicaset/"&gt;What is replication controller and Replica sets!&lt;/a&gt;&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;A ReplicationController and Replica Sets ensures that a specified number of pod “replicas” are running at any one time. In other words, it makes sure that a pod or homogeneous set of pods are always up and available. If there are too many pods, it will kill some. If there are too few, it will start more.&lt;blockquote&gt;
+&lt;p&gt;In above &lt;code&gt;yaml&lt;/code&gt; file, you can see &lt;code&gt;replicas&lt;/code&gt; keyword, this is being managed by replication utility.&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;&lt;a href="https://kubernetes.io/docs/concepts/overview/components/"&gt;What is Kubernetes master!&lt;/a&gt;&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;The controlling services in a Kubernetes cluster are called the master, or control plane, components. For example, master components are responsible for making global decisions about the cluster (e.g., scheduling), and detecting and responding to cluster events (e.g., starting up a new pod when a replication controller’s ‘replicas’ field is unsatisfied). Kubernetes provides a REST API supporting primarily CRUD operations on (mostly) persistent resources, which serve as the hub of its control plane.&lt;/li&gt;
+&lt;li&gt;&lt;a href="https://github.com/kubernetes/community/blob/master/contributors/design-proposals/architecture.md#architecture"&gt;Kubernetes Ecosystem consists of mutiple components.&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;&lt;a href="https://kubernetes.io/docs/concepts/services-networking/service/"&gt;What are services!&lt;/a&gt;&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;A Kubernetes Service is an abstraction which defines a logical set of Pods and a policy by which to access them. The set of Pods targeted by a Service is (usually) determined by a Label Selector. Service keep on looking for pods which has specific labels assigned and keep tracks of those pods for request offloading.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;div style="text-align: right"&gt;&lt;sub&gt;Service Overview : Images by Kubernetes.io&lt;/sub&gt;&lt;/div&gt;
+
+&lt;p&gt;&lt;img alt="Service overview image" src="/images/kubes/module_04_labels.svg" title="Service Overview"&gt;&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;###### cat sample-services.yaml
+
+kind: Service
+apiVersion: v1
+metadata:
+  name: my-service
+spec:
+  type: LoadBalancer
+  loadBalancerIP: 10.10.10.1
+  ports:
+    # the port that this service should serve on
+  - port: 80
+    # port on which it should forward request ie, port pod is listening
+    targetPort: 8080
+  selector:
+    # labels assigned to pods
+    app: MyApp
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;ul&gt;
+&lt;li&gt;How to debug or &lt;a href="https://kubernetes.io/docs/user-guide/kubectl-cheatsheet/"&gt;get cluster info from command-line!&lt;/a&gt;&lt;ul&gt;
+&lt;li&gt;&lt;code&gt;kubectl&lt;/code&gt; is a command line interface for running commands against Kubernetes clusters.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="x"&gt;-----General Commands&lt;/span&gt;
+
+&lt;span class="cp"&gt;##&lt;/span&gt;&lt;span class="c"&gt; To view Nodes in a cluster&lt;/span&gt;&lt;span class="x"&gt;&lt;/span&gt;
+&lt;span class="p"&gt;$&lt;/span&gt;&lt;span class="nv"&gt;kubectl&lt;/span&gt;&lt;span class="x"&gt; get nodes&lt;/span&gt;
+
+&lt;span class="x"&gt;NAME                                          STATUS    AGE&lt;/span&gt;
+&lt;span class="x"&gt;gke-test-cluster-default-pool-2d123aa1-012f   Ready     2d&lt;/span&gt;
+&lt;span class="x"&gt;gke-test-cluster-default-pool-2d123aa1-e23k   Ready     2d&lt;/span&gt;
+
+
+&lt;span class="cp"&gt;##&lt;/span&gt;&lt;span class="c"&gt; To view the Deployment we created run:&lt;/span&gt;&lt;span class="x"&gt;&lt;/span&gt;
+&lt;span class="p"&gt;$&lt;/span&gt;&lt;span class="x"&gt;    kubectl get deployments&lt;/span&gt;
+
+&lt;span class="x"&gt;NAME         DESIRED   CURRENT   UP-TO-DATE   AVAILABLE   AGE&lt;/span&gt;
+&lt;span class="x"&gt;hello-node   1         1         1            1           3m&lt;/span&gt;
+
+
+&lt;span class="cp"&gt;##&lt;/span&gt;&lt;span class="c"&gt; To view the Pod created by the deployment run:&lt;/span&gt;&lt;span class="x"&gt;&lt;/span&gt;
+&lt;span class="p"&gt;$&lt;/span&gt;&lt;span class="x"&gt;    kubectl get pods&lt;/span&gt;
+
+&lt;span class="x"&gt;NAME                         READY     STATUS    RESTARTS   AGE&lt;/span&gt;
+&lt;span class="x"&gt;hello-node-714049816-ztzrb   1/1       Running   0          6m&lt;/span&gt;
+
+
+&lt;span class="cp"&gt;##&lt;/span&gt;&lt;span class="c"&gt; To view the Pod created by the deployment run:&lt;/span&gt;&lt;span class="x"&gt;&lt;/span&gt;
+&lt;span class="p"&gt;$&lt;/span&gt;&lt;span class="x"&gt;    kubectl get pods&lt;/span&gt;
+
+&lt;span class="x"&gt;NAME                         READY     STATUS    RESTARTS   AGE&lt;/span&gt;
+&lt;span class="x"&gt;hello-node-714049816-ztzrb   1/1       Running   0          6m&lt;/span&gt;
+
+&lt;span class="cp"&gt;##&lt;/span&gt;&lt;span class="c"&gt; To view detailed information of the Pod:&lt;/span&gt;&lt;span class="x"&gt;&lt;/span&gt;
+&lt;span class="p"&gt;$&lt;/span&gt;&lt;span class="x"&gt; kubectl get pods -o wide&lt;/span&gt;
+&lt;span class="x"&gt;or&lt;/span&gt;
+&lt;span class="p"&gt;$&lt;/span&gt;&lt;span class="x"&gt; kubectl get pods --output=wide&lt;/span&gt;
+
+&lt;span class="x"&gt;NAME             READY     STATUS    RESTARTS   AGE       IP&lt;/span&gt;
+&lt;span class="x"&gt;dd-agent-0f75g   1/1       Running   0          23d       10.204.5.16&lt;/span&gt;
+
+
+&lt;span class="cp"&gt;##&lt;/span&gt;&lt;span class="c"&gt; To view the stdout / stderr from a Pod run:&lt;/span&gt;&lt;span class="x"&gt;&lt;/span&gt;
+&lt;span class="p"&gt;$&lt;/span&gt;&lt;span class="x"&gt;    kubectl logs &amp;lt;POD-NAME&amp;gt;&lt;/span&gt;
+
+&lt;span class="cp"&gt;##&lt;/span&gt;&lt;span class="c"&gt; To view metadata about the cluster run:&lt;/span&gt;&lt;span class="x"&gt;&lt;/span&gt;
+&lt;span class="p"&gt;$&lt;/span&gt;&lt;span class="x"&gt;    kubectl cluster-info&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;hr&gt;
+&lt;h4&gt;How do we run containers in GCE ?&lt;/h4&gt;
+&lt;p&gt;We have number of &lt;code&gt;deployments&lt;/code&gt; which manages scaling pods up/down depend on processing we need. Pods run containers inside Node available in a cluster. We need to follow proper versioning of modules to distinguish what is running inside your system and this helps in rollback releases in case of issues in production.&lt;/p&gt;
+&lt;blockquote&gt;
+&lt;p&gt;How about services/APIs we need to expose ?&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;ul&gt;
+&lt;li&gt;
+&lt;p&gt;There comes kubes &lt;code&gt;services&lt;/code&gt;. We have plenty of APIs we need to expose to outside world. To make it happen, we have couple of kube services exposed using tcp loadbalancer which has been assigned public IP. Internally, these services keeps on doing service discovery using &lt;code&gt;label selector&lt;/code&gt; to find pods and attach it to this service, pods having same label will be targeted by a service. Its same concept of how we manage loadbalancer on cloud, attach VMs to a loadbalancer to offload incoming traffic.&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;Resources running inside Kube ship knows each other very well. Each &lt;code&gt;services/pods&lt;/code&gt; can communicate by names assigned to each. Instead of using IPs (private) assigned to each of them, you can use names given as FQDN and its a good practise to use names instead of IPs because of dynamic nature of network resource allocation and resources get destroyed and created again in a container lifecycle management. Kube-DNS maintains all list of IPs internally assigned and helps finding resources by names.&lt;/p&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;hr&gt;
+&lt;h4&gt;How to decide what resources you should allocate to your &lt;a href="https://kubernetes.io/docs/tasks/configure-pod-container/assign-cpu-ram-container/"&gt;pods resources&lt;/a&gt;?&lt;/h4&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;Convention
+# RAM : Mi = MB, ie, 1024Mi is 1024 MB or 1GB
+# CPU : m = milicpu , ie, 100m cpu is 100 milicpu, or say 0.1 CPU
+
+apiVersion: v1
+kind: Pod
+metadata:
+  name: cpu-ram-demo
+spec:
+  containers:
+  - name: cpu-ram-demo-container
+    image: gcr.io/google-samples/node-hello:1.0
+    resources:
+      requests:
+        memory: &amp;quot;64Mi&amp;quot;
+        cpu: &amp;quot;250m&amp;quot;
+      limits:
+        memory: &amp;quot;128Mi&amp;quot;
+        cpu: &amp;quot;500m&amp;quot;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;Each container has its own requirements of resources (ie, CPU, RAM, disk, network etc), there comes requests &amp;amp; limits in kubes. This helps in keeping your nodes healthy. Many times due to bad limits or not defining limits, your pods can go crazy at utilization, eat any resources and can lead to node starvation and lead to Node becomes unhealthy and goes in &lt;code&gt;[Not Ready]&lt;/code&gt; state due to resource exhaustion. We had this multiple times at early stage and now we had fine tuned each pods resources based on its hunger behaviour.&lt;/p&gt;
+&lt;h5&gt;How to define Node resources in kubernetes cluster?&lt;/h5&gt;
+&lt;p&gt;Depends on container type &lt;sub&gt;(which you are running inside a pod)&lt;/sub&gt;, you can define different Node pools. Suppose you have modules named &lt;code&gt;Core.X, Core.Y and Core.Z&lt;/code&gt; , all of them needs &lt;code&gt;2 core, 2 GB&lt;/code&gt; each to run, then you can have &lt;strong&gt;Standard Node Pool&lt;/strong&gt; to run them. In this case, i will allocate following config for my Node pool.&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;Name : Standard Pool&lt;/li&gt;
+&lt;li&gt;Pool Size : 2&lt;/li&gt;
+&lt;li&gt;Node Config: 4 Core, 4 GB&lt;/li&gt;
+&lt;li&gt;Node Pool Resource : 8 Core, 8 GB&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;Utilization&lt;/code&gt; : 6 Core, 6 GB (75 % used Core &amp;amp; RAM)&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;Now, lets say i have high memory eater modules. let call them &lt;code&gt;Mem.X, Mem.Y and Mem.Z&lt;/code&gt; , all of them needs &lt;code&gt;0.5 core, 4 GB&lt;/code&gt; each to run, then you need &lt;strong&gt;High memory Node Pool&lt;/strong&gt; to run them. In this case, i will allocate different config for my Node pool.&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;Name : HighMem Pool&lt;/li&gt;
+&lt;li&gt;Pool Size : 2&lt;/li&gt;
+&lt;li&gt;Node Config : 1 Core, 8 GB&lt;/li&gt;
+&lt;li&gt;Node Pool Resource : 2 Core, 16 GB&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;Utilization&lt;/code&gt; : 1.5 Core, 12 GB (75 % used Core &amp;amp; RAM)&lt;/li&gt;
+&lt;/ul&gt;
+&lt;blockquote&gt;
+&lt;p&gt;So, based on your &lt;a href="https://cloud.google.com/container-engine/docs/node-pools"&gt;Node pool type&lt;/a&gt;, you can deploy your pods in different Node pools by using &lt;code&gt;nodeSelector&lt;/code&gt; in kubes.&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;-------------- Node selector example
+
+apiVersion: v1
+kind: Pod
+metadata:
+  name: nginx
+  labels:
+    env: test
+spec:
+  containers:
+  - name: nginx-v1
+    image: nginx
+  nodeSelector:
+    #give label assigned to your node pool
+    cloud.google.com/gke-nodepool: high-mem-pool
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;hr&gt;
+&lt;h4&gt;How we monitor Kubernetes ?&lt;/h4&gt;
+&lt;p&gt;We can run custom monitoring setup to keep an eye on Nodes. You can run &lt;a href="https://github.com/kubernetes/heapster"&gt;heapster&lt;/a&gt;, ie. responsible for compute resource usage analysis and monitoring of container clusters, hooked with &lt;a href="https://github.com/influxdata/influxdb"&gt;influxdb&lt;/a&gt; that consumes reporting pushed by heapster and can be visualized in &lt;a href="https://grafana.com/"&gt;grafana&lt;/a&gt;.&lt;/p&gt;
+&lt;div style="text-align: right"&gt;&lt;sub&gt;Monitoring in Grafana&lt;/sub&gt;&lt;/div&gt;
+
+&lt;p&gt;&lt;img alt="Grafana monitoring" src="/images/kubes/grafana.png" title="Grafana monitoring"&gt;&lt;/p&gt;
+&lt;hr&gt;
+&lt;p&gt;&lt;strong&gt;Note :&lt;/strong&gt; Some configuration in GCE should be taken care, like &lt;code&gt;autoupgrade kubernetes version&lt;/code&gt;. If you are running RabbitMQ, Redis or any other message queue as service that needs uptime, better you turn off autoupgrade because kubernetes new version release will schedule all your node for maintenance, however it rolles updates one by one but could affect your production system. Else, if you are fully stateless, you can keep default or skip this warning!&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;----- Autoupgrade off
+
+# https://cloud.google.com/container-engine/docs/node-auto-upgrade
+
+gcloud beta container node-pools update &amp;lt;NODEPOOL&amp;gt; --cluster &amp;lt;CLUSTER&amp;gt; --zone &amp;lt;ZONE&amp;gt; --no-enable-autoupgrade
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;Pretty much all above understanding are based on what i learned in last six months of kubernetes running in production. Container management is easy to adapt and lot of new observation is yet to be discovered as we go along the way.&lt;/p&gt;
+&lt;p&gt;Looking at deployments today, Kubernetes is absolutely fantastic in Auto-pilot and doing self-healing jobs for us. We are running more than &lt;code&gt;1000 pods&lt;/code&gt; in cluster together and currently managed to process &lt;code&gt;10's of Billions of API calls per month&lt;/code&gt; and are pushing more to handle.&lt;/p&gt;
+&lt;hr&gt;
+&lt;blockquote&gt;
+&lt;p&gt;Conclusion : &lt;code&gt;Kubernetes&lt;/code&gt; lifted lot of &lt;code&gt;server management&lt;/code&gt; and helped in faster depployments &amp;amp; scaling system. Adaptability is much quicker, most of security and other concerns is being managed by Google. Kubernetes aims to offer a better orchestration management system on top of clustered infrastrcuture. Development on Kubernetes has been happening at storm-speed, and the &lt;a href="https://kubernetes.io/community/"&gt;community of Kubernauts&lt;/a&gt; has grown bigger.&lt;/p&gt;
+&lt;/blockquote&gt;</content><category term="kubernetes"></category><category term="docker"></category><category term="gce"></category><category term="gcr"></category><category term="container"></category></entry><entry><title>A Practical Guide to Geopy</title><link href="https://sunnykrGupta.github.io/a-practical-guide-to-geopy.html" rel="alternate"></link><published>2015-07-19T01:31:31+05:30</published><updated>2015-07-19T01:31:31+05:30</updated><author><name>Sunny Kr Gupta</name></author><id>tag:sunnykrgupta.github.io,2015-07-19:/a-practical-guide-to-geopy.html</id><summary type="html">&lt;p&gt;During my final major academic project, i was working with &lt;a href="http://twitter.com"&gt;Twitter&lt;/a&gt; data (ie. tweets). I did some research and found out approximately only 1% of all Tweets published on Twitter are geolocated (ie. have location information). This is a very small portion of the Tweets, and i needed almost every …&lt;/p&gt;</summary><content type="html">&lt;p&gt;During my final major academic project, i was working with &lt;a href="http://twitter.com"&gt;Twitter&lt;/a&gt; data (ie. tweets). I did some research and found out approximately only 1% of all Tweets published on Twitter are geolocated (ie. have location information). This is a very small portion of the Tweets, and i needed almost every tweets location to segregate data country-wise.
   - How to resolve a string location to determine country ("Banagher", "Ipoh" etc )
   - How to resolve a Coordinate into country. ('4.581' - '101.082' etc)&lt;/p&gt;
 &lt;p&gt;There comes a &lt;a href="http://geopy.readthedocs.org/"&gt;Geopy&lt;/a&gt; to rescue us to this problem.&lt;/p&gt;

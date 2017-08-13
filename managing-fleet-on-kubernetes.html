@@ -1,0 +1,618 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <!-- ## for client-side less
+  <link rel="stylesheet/less" type="text/css" href="https://sunnykrGupta.github.io/theme/css/style.less">
+  <script src="http://cdnjs.cloudflare.com/ajax/libs/less.js/1.7.3/less.min.js" type="text/javascript"></script>
+  -->
+  <link rel="stylesheet" type="text/css" href="https://sunnykrGupta.github.io/theme/css/style.css">
+  <link rel="stylesheet" type="text/css" href="https://sunnykrGupta.github.io/theme/css/pygments.css">
+  <link rel="stylesheet" type="text/css" href="//fonts.googleapis.com/css?family=PT+Sans|PT+Serif|PT+Mono">
+
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="author" content="Sunny KUMAR">
+  <meta name="description" content="Posts and writings by Sunny KUMAR">
+
+
+<meta name="keywords" content="kubernetes, docker, gce, gcr, container">
+
+  <title>
+    Daemon Blog
+&ndash; Managing fleet on Kubernetes  </title>
+
+<script type="text/javascript">
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-63834161-1', 'auto');
+  ga('send', 'pageview');
+
+</script>
+</head>
+
+<body>
+  <aside>
+    <div id="user_meta">
+      <a id="user_meta_logo" href="https://sunnykrGupta.github.io">
+        <img src="https://sunnykrGupta.github.io/images/logo.jpg" alt="logo">
+      </a>
+      <h3><a href="https://sunnykrGupta.github.io">Sunny KUMAR</a></h3>
+      <p>Data Engineer, DevOps on Kubernetes, SysAdmin, Programmer, Optimist, Footballer :D</p>
+      <nav>
+          <h4><a href="https://sunnykrGupta.github.io/pages/projects.html">Project</a></h4>
+          <h4><a href="https://sunnykrGupta.github.io/pages/about-me.html">About</a></h4>
+          <h4><a href="https://sunnykrGupta.github.io/pages/contact-me.html">Contact</a></h4>
+      </nav>
+    </div>
+  </aside>
+
+  <main>
+    <header>
+      <nav>
+          <a id="github" href="https://github.com/sunnykrGupta" target="_blank"><img src="https://sunnykrGupta.github.io/theme/images/Mono/webicon-github.png" alt="github"></a>
+          <a id="twitter" href="https://twitter.com/Sunny_KrGupta" target="_blank"><img src="https://sunnykrGupta.github.io/theme/images/Mono/webicon-twitter.png" alt="twitter"></a>
+          <a id="linkedin" href="https://www.linkedin.com/in/sunnykrgupta/" target="_blank"><img src="https://sunnykrGupta.github.io/theme/images/Mono/webicon-linkedin.png" alt="linkedin"></a>
+          <a id="googleplus" href="https://plus.google.com/u/0/+SunnyKrGUPTA" target="_blank"><img src="https://sunnykrGupta.github.io/theme/images/Mono/webicon-googleplus.png" alt="googleplus"></a>
+          <a id="mail" href="mailto:sunnygupta.kr@gmail.com" target="_blank"><img src="https://sunnykrGupta.github.io/theme/images/Mono/webicon-mail.png" alt="mail"></a>
+      </nav>
+      <br />
+      <p>
+        <a href="https://sunnykrGupta.github.io/index.html">Index</a> &nbsp;&nbsp; &brvbar; <a href="https://sunnykrGupta.github.io/archives.html">&nbsp;&nbsp;Archives</a>
+      </p>
+
+    </header>
+
+<article>
+  <div class="article_title">
+    <h3><a href="https://sunnykrGupta.github.io/managing-fleet-on-kubernetes.html">Managing fleet on Kubernetes</a></h3>
+  </div>
+  <div class="article_text">
+    <blockquote>
+<p>Couple of months ago, we were struggling with scalability of system and were in pursuit of finding right orchestration tools which can help in scaling system quickly. This draft is outline of things we tried and learned.</p>
+</blockquote>
+<p>We started exploring popular project managed by Google for orchestration management, <strong><a href="https://kubernetes.io/">Kubernetes</a></strong> for DevOps. Starting with two weeks of learning curves, we get our working staging system in <em>kubes</em> (kubernetes in short) and did small working setup to visualize the power of this orchestration framework.</p>
+<hr>
+<h4>Microservices</h4>
+<p>Microservice architectures have been trending because its architectural style aims to tackle the problems of managing modern application by decoupling software solutions into smaller functional services that are expected to fail.</p>
+<p>This help in quick recovery from failure on smaller functional units in contrast to making recovery from big monolithic software systems. Microservices helps in making your release cycle faster even because you will be focusing on smaller changes in single app instead of pushing code changes in bigger software systems that has multiple dependencies.</p>
+<hr>
+<h4>Containers</h4>
+<p>Microservice architectures got a big tide in 2013 when Docker inc. released Docker technology. <strong>Docker container</strong> gave perfect alternatives to virtual machines and drove software packaging methods in a more developer friendly way. Docker container are comparatively smaller than virtual machines (VMs). Its shares underlying host OS resources, we can spin up hundreds of these small units in order of milliseconds. Their smaller size helps in faster packaging, testing and even deployments because of its portable nature.</p>
+<p>Docker’s container-based platform allows highly portable workloads. Docker containers can run on a developer’s local laptop, on physical or virtual machines in a data center, on cloud providers, or in a mixture of environments.</p>
+<hr>
+<p>We started with <code>Google Container Engine (GCE)</code> to get things work quickly. We started with a cluster with few <code>10's of Nodes</code>, each Node with configuration <code>12 vCore and 30 GB</code> in <strong>default pool</strong> to run stateless components.</p>
+<p>Before we go in depth, we have done some research and found out we needed some <em>gears</em> (concepts/tools/theory) before we board into container ship and sail out for cruise.</p>
+<p>We are dividing gears that we need to know into two parts, ie, first will be <code>Docker</code> and second will focused on <code>Kubernetes</code>.</p>
+<hr>
+<h4>Part - I (Understanding Docker at Dock)</h4>
+<ul>
+<li>
+<p>Stateless and stateful components.</p>
+<ul>
+<li>In computing, a stateless protocol is a communications protocol in which no information is retained by either sender or receiver. The sender transmits a packet to the receiver and does not expect an acknowledgment of receipt. A UDP connection-oriented session is a stateless connection because neither systems maintains information about the session during its life.</li>
+<li>In contrast, a protocol that requires keeping of the internal state on the server is known as a stateful protocol. A TCP connection-oriented session is a 'stateful' connection because both systems maintain information about the session itself during its life.</li>
+</ul>
+</li>
+<li>
+<p><a href="https://www.redhat.com/en/containers">Understanding containerization concept</a></p>
+<ul>
+<li>Container provides operating system-level virtualization through a virtual environment that has its own process and network space, instead of creating a full-fledged <a href="https://en.wikipedia.org/wiki/Virtual_machine">virtual machine</a>. This enables the kernel of an operating system to allow the existence of multiple isolated user-space instances, instead of just one.</li>
+</ul>
+</li>
+<li>
+<p><a href="https://docs.docker.com/engine/userguide/eng-image/dockerfile_best-practices/">Writing good Dockerfile for modules</a>.</p>
+<ul>
+<li>Dockerfile is set of instruction used by Docker to build an image. Containers are created using docker images, which can be built either by executing commands manually or automatically through Dockerfile. Docker achieves this by creating safe, <strong>LXC</strong> (i.e. Linux Containers) based environments for applications called “docker containers”.</li>
+</ul>
+</li>
+<li>
+<p>Writing optimized Dockerfile, understanding order of commands. Each command that we run in Dockerfile is executed as a layer and subsequent command will be build on top of previous layer. Each layer is managed in cache by Docker tool. Docker manages cache itself to reuse layer of previously build Docker images to save time &amp; disk.</p>
+</li>
+</ul>
+<div class="highlight"><pre>I have three file in my directory named &#39;flask&#39; :
+➜  flask
+
+── app.py
+── Dockerfile
+── requirement.txt
+</pre></div>
+
+
+<div class="highlight"><pre><span class="c">##### cat app.py</span>
+
+<span class="kn">from</span> <span class="nn">flask</span> <span class="kn">import</span> <span class="n">Flask</span>
+<span class="c">#from flask import render_template, request</span>
+<span class="kn">import</span> <span class="nn">json</span>
+
+<span class="n">app</span> <span class="o">=</span> <span class="n">Flask</span><span class="p">(</span><span class="n">__name__</span><span class="p">)</span>
+
+<span class="nd">@app.route</span><span class="p">(</span><span class="s">&quot;/&quot;</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">hello</span><span class="p">():</span>
+    <span class="k">return</span> <span class="s">&quot;Welcome to Python Flask!</span><span class="se">\n</span><span class="s">&quot;</span>
+
+<span class="k">if</span> <span class="n">__name__</span> <span class="o">==</span> <span class="s">&quot;__main__&quot;</span><span class="p">:</span>
+    <span class="n">app</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">host</span><span class="o">=</span><span class="s">&#39;0.0.0.0&#39;</span><span class="p">,</span> <span class="n">port</span><span class="o">=</span><span class="s">&#39;5009&#39;</span><span class="p">)</span>
+</pre></div>
+
+
+<div class="highlight"><pre>###### cat requirement.txt
+
+Flask==0.10.1
+</pre></div>
+
+
+<div class="highlight"><pre>###### cat Dockerfile
+
+FROM frolvlad/alpine-python2
+
+RUN mkdir /etc/flask
+
+ADD app.py /etc/flask/app.py
+ADD requirement.txt /etc/flask/requirement.txt
+
+
+CMD [&quot;python&quot;, &quot;/etc/flask/app.py&quot;]
+</pre></div>
+
+
+<blockquote>
+<p>Lets build our docker image with name <strong>flask-v1</strong></p>
+</blockquote>
+<div class="highlight"><pre>➜  docker build -t flask-v1 .
+
+Sending build context to Docker daemon 4.096 kB
+
+Step 1/5 : FROM frolvlad/alpine-python2
+latest: Pulling from frolvlad/alpine-python2
+627beaf3eaaf: Pull complete
+79d39e719c2e: Pull complete
+Digest: sha256:47e3f85dadf401d51c6f74a18d4f693c2157692292e6dae0a078f37499a183ee
+Status: Downloaded newer image for frolvlad/alpine-python2:latest
+ ---&gt; 603e17608203
+
+Step 2/5 : RUN mkdir /etc/flask
+ ---&gt; Running in 0d97b7a8986b
+ ---&gt; 9b2a858914e2
+Removing intermediate container 0d97b7a8986b
+
+Step 3/5 : ADD app.py /etc/flask/app.py
+ ---&gt; 1a4938be7722
+Removing intermediate container f4d11b837e26
+
+Step 4/5 : ADD requirement.txt /etc/flask/requirement.txt
+ ---&gt; 5d058851dd81
+Removing intermediate container 08eef72a4051
+
+Step 5/5 : CMD python /etc/flask/app.py
+ ---&gt; Running in 96490917e533
+ ---&gt; a081e6cbcf3c
+Removing intermediate container 96490917e533
+
+Successfully built a081e6cbcf3c
+</pre></div>
+
+
+<p>Now, we have made some modification in <strong>app.py</strong></p>
+<div class="highlight"><pre><span class="c">##### cat app.py</span>
+
+<span class="kn">from</span> <span class="nn">flask</span> <span class="kn">import</span> <span class="n">Flask</span>
+<span class="c">#from flask import render_template, request</span>
+<span class="kn">import</span> <span class="nn">json</span>
+
+<span class="n">app</span> <span class="o">=</span> <span class="n">Flask</span><span class="p">(</span><span class="n">__name__</span><span class="p">)</span>
+
+<span class="nd">@app.route</span><span class="p">(</span><span class="s">&quot;/&quot;</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">hello</span><span class="p">():</span>
+    <span class="k">return</span> <span class="s">&quot;Welcome to Python Flask!</span><span class="se">\n</span><span class="s">&quot;</span>
+
+<span class="c">#Added utility</span>
+<span class="k">def</span> <span class="nf">utility</span><span class="p">():</span>
+    <span class="k">return</span> <span class="s">&quot;something&quot;</span>
+
+<span class="k">if</span> <span class="n">__name__</span> <span class="o">==</span> <span class="s">&quot;__main__&quot;</span><span class="p">:</span>
+    <span class="n">app</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">host</span><span class="o">=</span><span class="s">&#39;0.0.0.0&#39;</span><span class="p">,</span> <span class="n">port</span><span class="o">=</span><span class="s">&#39;5009&#39;</span><span class="p">)</span>
+</pre></div>
+
+
+<blockquote>
+<p>Lets build our docker image with name <strong>flask-v2</strong></p>
+</blockquote>
+<div class="highlight"><pre>➜  docker build -t flask-v2 .
+
+Sending build context to Docker daemon 4.096 kB
+
+Step 1/5 : FROM frolvlad/alpine-python2
+ ---&gt; 603e17608203
+
+Step 2/5 : RUN mkdir /etc/flask
+ ---&gt; Using cache
+ ---&gt; 9b2a858914e2
+
+Step 3/5 : ADD app.py /etc/flask/app.py
+ ---&gt; a7565514aab3
+Removing intermediate container 360eb266a458
+
+Step 4/5 : ADD requirement.txt /etc/flask/requirement.txt
+ ---&gt; 8441bca383f0
+Removing intermediate container 15ebbb15d67d
+
+Step 5/5 : CMD python /etc/flask/app.py
+ ---&gt; Running in 73e4bbcbe512
+ ---&gt; 0f4a5754f0d0
+Removing intermediate container 73e4bbcbe512
+
+Successfully built 0f4a5754f0d0
+</pre></div>
+
+
+<p>You will see only <em>step-2</em> was taken from cache, rest of the instructions ran again because change has been detected by Docker on <em>step-3</em> command ie, <code>ADD app.py</code> , so all subsequent commands ran again to build layer on top of previous layer.</p>
+<p>Now we have made changes in <code>Dockerfile</code>, some reorder of commands.</p>
+<div class="highlight"><pre># cat Dockerfile
+
+FROM frolvlad/alpine-python2
+
+RUN mkdir /etc/flask
+
+# add requirement file first, then commands which contains some changes.
+ADD requirement.txt /etc/flask/requirement.txt
+ADD app.py /etc/flask/app.py
+
+CMD [&quot;python&quot;, &quot;/etc/flask/app.py&quot;]
+</pre></div>
+
+
+<blockquote>
+<p>Lets build our docker image with name <strong>flask-v3</strong> and lets see build console.</p>
+</blockquote>
+<div class="highlight"><pre>➜  flask docker build -t flask-v3 .
+
+Sending build context to Docker daemon 4.096 kB
+
+Step 1/5 : FROM frolvlad/alpine-python2
+ ---&gt; 603e17608203
+
+Step 2/5 : RUN mkdir /etc/flask
+ ---&gt; Using cache
+ ---&gt; 9b2a858914e2
+
+Step 3/5 : ADD requirement.txt /etc/flask/requirement.txt
+ ---&gt; Using cache
+ ---&gt; db8fc95cebff
+
+Step 4/5 : ADD app.py /etc/flask/app.py
+ ---&gt; 9fb8351616e1
+Removing intermediate container 4e98534d5339
+
+Step 5/5 : CMD python /etc/flask/app.py
+ ---&gt; Running in 139f8c4282d8
+ ---&gt; e3fae9852d94
+Removing intermediate container 139f8c4282d8
+
+Successfully built e3fae9852d94
+</pre></div>
+
+
+<p>Now, you can see only <em>step-2,3</em> was taken from <code>cache</code>, <em>step-4</em> command ie, <code>ADD app.py</code> build new layer because of change detected in <code>app.py</code> file, and this build saved little bit of our time. This is really important in building big Docker images where we have bigger chain of command to build an app.</p>
+<ul>
+<li><a href="https://docs.docker.com/engine/userguide/eng-image/dockerfile_best-practices/#each-container-should-have-only-one-concern">Running a single process inside a Docker container</a>.<ul>
+<li>“one process per container” is frequently a good rule of thumb, it is not a hard and fast rule. Use your best judgment to keep containers as clean and modular as possible - Docker</li>
+</ul>
+</li>
+<li>Understanding remote Docker container registry for storing/pushing our locally built docker images, here we have used Google container registry (GCR) for docker image management.<ul>
+<li><a href="https://cloud.google.com/container-registry/docs/pushing-and-pulling">Pushing and Pulling Images to GCR</a></li>
+<li><a href="https://docs.docker.com/docker-cloud/builds/push-images/">Push images to Docker Cloud</a></li>
+</ul>
+</li>
+</ul>
+<hr>
+<h4>Part - II ( Understanding Kubernetes in Ocean )</h4>
+<ul>
+<li>
+<p>Learning basics of kubernetes &amp; <a href="https://kubernetes.io/docs/tutorials/kubernetes-basics/">working flow training</a>.</p>
+<ul>
+<li>Kubernetes is an open-source platform for automating deployment, scaling, and operations of application containers across clusters of hosts, providing container-centric infrastructure - Kubernetes.io</li>
+</ul>
+</li>
+<li>
+<p><a href="https://kubernetes.io/docs/concepts/workloads/pods/pod/#what-is-a-pod">What are Pods! How container run inside a pod!</a></p>
+<ul>
+<li>Pods are the atomic unit on the Kubernetes platform. A Pod is a Kubernetes abstraction that represents a group of one or more application containers (such as Nginx or redis), and some shared resources for those containers.</li>
+</ul>
+</li>
+</ul>
+<div style="text-align: right"><sub>Pod Overview : Images by Kubernetes.io</sub></div>
+
+<p><img alt="Pods overview image" src="/images/kubes/module_03_pods.svg" title="Pods Overview"></p>
+<ul>
+<li><a href="https://kubernetes.io/docs/concepts/nodes/node/#what-is-a-node">What are Nodes</a> <sub>(also known as worker or minion, a single machine)</sub><ul>
+<li>A Pod always runs inside a Node. A Node is a worker machine in Kubernetes and may be either a virtual or a physical machine, depending on the cluster. Node is controlled by Kubernetes Master. Kubernetes manages scheduling of pods in Nodes running in a cluster.</li>
+</ul>
+</li>
+</ul>
+<div style="text-align: right"><sub>Node Overview : Images by Kubernetes.io</sub></div>
+
+<p><img alt="Node overview image" src="/images/kubes/module_03_nodes.svg" title="Node Overview"></p>
+<ul>
+<li><a href="https://kubernetes.io/docs/concepts/workloads/controllers/deployment/">What are deployments!</a><ul>
+<li>Deployments to create new resources, or replace existing ones by new ones by means of configuration defined. You can think of it as a supervisor of pods management.</li>
+</ul>
+</li>
+</ul>
+<div class="highlight"><pre>#### cat sample-deployment.yaml
+
+apiVersion: apps/v1beta1
+kind: Deployment
+metadata:
+  name: nginx-deployment
+spec:
+  replicas: 3
+  template:
+    metadata:
+      labels:
+        app: nginx
+    spec:
+      containers:
+      - name: nginx
+        image: nginx:1.7.9
+      ports:
+      - containerPort: 80
+</pre></div>
+
+
+<ul>
+<li>
+<p><a href="https://kubernetes.io/docs/concepts/workloads/controllers/replicaset/">What is replication controller and Replica sets!</a></p>
+<ul>
+<li>A ReplicationController and Replica Sets ensures that a specified number of pod “replicas” are running at any one time. In other words, it makes sure that a pod or homogeneous set of pods are always up and available. If there are too many pods, it will kill some. If there are too few, it will start more.<blockquote>
+<p>In above <code>yaml</code> file, you can see <code>replicas</code> keyword, this is being managed by replication utility.</p>
+</blockquote>
+</li>
+</ul>
+</li>
+<li>
+<p><a href="https://kubernetes.io/docs/concepts/overview/components/">What is Kubernetes master!</a></p>
+<ul>
+<li>The controlling services in a Kubernetes cluster are called the master, or control plane, components. For example, master components are responsible for making global decisions about the cluster (e.g., scheduling), and detecting and responding to cluster events (e.g., starting up a new pod when a replication controller’s ‘replicas’ field is unsatisfied). Kubernetes provides a REST API supporting primarily CRUD operations on (mostly) persistent resources, which serve as the hub of its control plane.</li>
+<li><a href="https://github.com/kubernetes/community/blob/master/contributors/design-proposals/architecture.md#architecture">Kubernetes Ecosystem consists of mutiple components.</a></li>
+</ul>
+</li>
+<li>
+<p><a href="https://kubernetes.io/docs/concepts/services-networking/service/">What are services!</a></p>
+<ul>
+<li>A Kubernetes Service is an abstraction which defines a logical set of Pods and a policy by which to access them. The set of Pods targeted by a Service is (usually) determined by a Label Selector. Service keep on looking for pods which has specific labels assigned and keep tracks of those pods for request offloading.</li>
+</ul>
+</li>
+</ul>
+<div style="text-align: right"><sub>Service Overview : Images by Kubernetes.io</sub></div>
+
+<p><img alt="Service overview image" src="/images/kubes/module_04_labels.svg" title="Service Overview"></p>
+<div class="highlight"><pre>###### cat sample-services.yaml
+
+kind: Service
+apiVersion: v1
+metadata:
+  name: my-service
+spec:
+  type: LoadBalancer
+  loadBalancerIP: 10.10.10.1
+  ports:
+    # the port that this service should serve on
+  - port: 80
+    # port on which it should forward request ie, port pod is listening
+    targetPort: 8080
+  selector:
+    # labels assigned to pods
+    app: MyApp
+</pre></div>
+
+
+<ul>
+<li>How to debug or <a href="https://kubernetes.io/docs/user-guide/kubectl-cheatsheet/">get cluster info from command-line!</a><ul>
+<li><code>kubectl</code> is a command line interface for running commands against Kubernetes clusters.</li>
+</ul>
+</li>
+</ul>
+<div class="highlight"><pre><span class="x">-----General Commands</span>
+
+<span class="cp">##</span><span class="c"> To view Nodes in a cluster</span><span class="x"></span>
+<span class="p">$</span><span class="nv">kubectl</span><span class="x"> get nodes</span>
+
+<span class="x">NAME                                          STATUS    AGE</span>
+<span class="x">gke-test-cluster-default-pool-2d123aa1-012f   Ready     2d</span>
+<span class="x">gke-test-cluster-default-pool-2d123aa1-e23k   Ready     2d</span>
+
+
+<span class="cp">##</span><span class="c"> To view the Deployment we created run:</span><span class="x"></span>
+<span class="p">$</span><span class="x">    kubectl get deployments</span>
+
+<span class="x">NAME         DESIRED   CURRENT   UP-TO-DATE   AVAILABLE   AGE</span>
+<span class="x">hello-node   1         1         1            1           3m</span>
+
+
+<span class="cp">##</span><span class="c"> To view the Pod created by the deployment run:</span><span class="x"></span>
+<span class="p">$</span><span class="x">    kubectl get pods</span>
+
+<span class="x">NAME                         READY     STATUS    RESTARTS   AGE</span>
+<span class="x">hello-node-714049816-ztzrb   1/1       Running   0          6m</span>
+
+
+<span class="cp">##</span><span class="c"> To view the Pod created by the deployment run:</span><span class="x"></span>
+<span class="p">$</span><span class="x">    kubectl get pods</span>
+
+<span class="x">NAME                         READY     STATUS    RESTARTS   AGE</span>
+<span class="x">hello-node-714049816-ztzrb   1/1       Running   0          6m</span>
+
+<span class="cp">##</span><span class="c"> To view detailed information of the Pod:</span><span class="x"></span>
+<span class="p">$</span><span class="x"> kubectl get pods -o wide</span>
+<span class="x">or</span>
+<span class="p">$</span><span class="x"> kubectl get pods --output=wide</span>
+
+<span class="x">NAME             READY     STATUS    RESTARTS   AGE       IP</span>
+<span class="x">dd-agent-0f75g   1/1       Running   0          23d       10.204.5.16</span>
+
+
+<span class="cp">##</span><span class="c"> To view the stdout / stderr from a Pod run:</span><span class="x"></span>
+<span class="p">$</span><span class="x">    kubectl logs &lt;POD-NAME&gt;</span>
+
+<span class="cp">##</span><span class="c"> To view metadata about the cluster run:</span><span class="x"></span>
+<span class="p">$</span><span class="x">    kubectl cluster-info</span>
+</pre></div>
+
+
+<hr>
+<h4>How do we run containers in GCE ?</h4>
+<p>We have number of <code>deployments</code> which manages scaling pods up/down depend on processing we need. Pods run containers inside Node available in a cluster. We need to follow proper versioning of modules to distinguish what is running inside your system and this helps in rollback releases in case of issues in production.</p>
+<blockquote>
+<p>How about services/APIs we need to expose ?</p>
+</blockquote>
+<ul>
+<li>
+<p>There comes kubes <code>services</code>. We have plenty of APIs we need to expose to outside world. To make it happen, we have couple of kube services exposed using tcp loadbalancer which has been assigned public IP. Internally, these services keeps on doing service discovery using <code>label selector</code> to find pods and attach it to this service, pods having same label will be targeted by a service. Its same concept of how we manage loadbalancer on cloud, attach VMs to a loadbalancer to offload incoming traffic.</p>
+</li>
+<li>
+<p>Resources running inside Kube ship knows each other very well. Each <code>services/pods</code> can communicate by names assigned to each. Instead of using IPs (private) assigned to each of them, you can use names given as FQDN and its a good practise to use names instead of IPs because of dynamic nature of network resource allocation and resources get destroyed and created again in a container lifecycle management. Kube-DNS maintains all list of IPs internally assigned and helps finding resources by names.</p>
+</li>
+</ul>
+<hr>
+<h4>How to decide what resources you should allocate to your <a href="https://kubernetes.io/docs/tasks/configure-pod-container/assign-cpu-ram-container/">pods resources</a>?</h4>
+<div class="highlight"><pre>Convention
+# RAM : Mi = MB, ie, 1024Mi is 1024 MB or 1GB
+# CPU : m = milicpu , ie, 100m cpu is 100 milicpu, or say 0.1 CPU
+
+apiVersion: v1
+kind: Pod
+metadata:
+  name: cpu-ram-demo
+spec:
+  containers:
+  - name: cpu-ram-demo-container
+    image: gcr.io/google-samples/node-hello:1.0
+    resources:
+      requests:
+        memory: &quot;64Mi&quot;
+        cpu: &quot;250m&quot;
+      limits:
+        memory: &quot;128Mi&quot;
+        cpu: &quot;500m&quot;
+</pre></div>
+
+
+<p>Each container has its own requirements of resources (ie, CPU, RAM, disk, network etc), there comes requests &amp; limits in kubes. This helps in keeping your nodes healthy. Many times due to bad limits or not defining limits, your pods can go crazy at utilization, eat any resources and can lead to node starvation and lead to Node becomes unhealthy and goes in <code>[Not Ready]</code> state due to resource exhaustion. We had this multiple times at early stage and now we had fine tuned each pods resources based on its hunger behaviour.</p>
+<h5>How to define Node resources in kubernetes cluster?</h5>
+<p>Depends on container type <sub>(which you are running inside a pod)</sub>, you can define different Node pools. Suppose you have modules named <code>Core.X, Core.Y and Core.Z</code> , all of them needs <code>2 core, 2 GB</code> each to run, then you can have <strong>Standard Node Pool</strong> to run them. In this case, i will allocate following config for my Node pool.</p>
+<ul>
+<li>Name : Standard Pool</li>
+<li>Pool Size : 2</li>
+<li>Node Config: 4 Core, 4 GB</li>
+<li>Node Pool Resource : 8 Core, 8 GB</li>
+<li><code>Utilization</code> : 6 Core, 6 GB (75 % used Core &amp; RAM)</li>
+</ul>
+<p>Now, lets say i have high memory eater modules. let call them <code>Mem.X, Mem.Y and Mem.Z</code> , all of them needs <code>0.5 core, 4 GB</code> each to run, then you need <strong>High memory Node Pool</strong> to run them. In this case, i will allocate different config for my Node pool.</p>
+<ul>
+<li>Name : HighMem Pool</li>
+<li>Pool Size : 2</li>
+<li>Node Config : 1 Core, 8 GB</li>
+<li>Node Pool Resource : 2 Core, 16 GB</li>
+<li><code>Utilization</code> : 1.5 Core, 12 GB (75 % used Core &amp; RAM)</li>
+</ul>
+<blockquote>
+<p>So, based on your <a href="https://cloud.google.com/container-engine/docs/node-pools">Node pool type</a>, you can deploy your pods in different Node pools by using <code>nodeSelector</code> in kubes.</p>
+</blockquote>
+<div class="highlight"><pre>-------------- Node selector example
+
+apiVersion: v1
+kind: Pod
+metadata:
+  name: nginx
+  labels:
+    env: test
+spec:
+  containers:
+  - name: nginx-v1
+    image: nginx
+  nodeSelector:
+    #give label assigned to your node pool
+    cloud.google.com/gke-nodepool: high-mem-pool
+</pre></div>
+
+
+<hr>
+<h4>How we monitor Kubernetes ?</h4>
+<p>We can run custom monitoring setup to keep an eye on Nodes. You can run <a href="https://github.com/kubernetes/heapster">heapster</a>, ie. responsible for compute resource usage analysis and monitoring of container clusters, hooked with <a href="https://github.com/influxdata/influxdb">influxdb</a> that consumes reporting pushed by heapster and can be visualized in <a href="https://grafana.com/">grafana</a>.</p>
+<div style="text-align: right"><sub>Monitoring in Grafana</sub></div>
+
+<p><img alt="Grafana monitoring" src="/images/kubes/grafana.png" title="Grafana monitoring"></p>
+<hr>
+<p><strong>Note :</strong> Some configuration in GCE should be taken care, like <code>autoupgrade kubernetes version</code>. If you are running RabbitMQ, Redis or any other message queue as service that needs uptime, better you turn off autoupgrade because kubernetes new version release will schedule all your node for maintenance, however it rolles updates one by one but could affect your production system. Else, if you are fully stateless, you can keep default or skip this warning!</p>
+<div class="highlight"><pre>----- Autoupgrade off
+
+# https://cloud.google.com/container-engine/docs/node-auto-upgrade
+
+gcloud beta container node-pools update &lt;NODEPOOL&gt; --cluster &lt;CLUSTER&gt; --zone &lt;ZONE&gt; --no-enable-autoupgrade
+</pre></div>
+
+
+<p>Pretty much all above understanding are based on what i learned in last six months of kubernetes running in production. Container management is easy to adapt and lot of new observation is yet to be discovered as we go along the way.</p>
+<p>Looking at deployments today, Kubernetes is absolutely fantastic in Auto-pilot and doing self-healing jobs for us. We are running more than <code>1000 pods</code> in cluster together and currently managed to process <code>10's of Billions of API calls per month</code> and are pushing more to handle.</p>
+<hr>
+<blockquote>
+<p>Conclusion : <code>Kubernetes</code> lifted lot of <code>server management</code> and helped in faster depployments &amp; scaling system. Adaptability is much quicker, most of security and other concerns is being managed by Google. Kubernetes aims to offer a better orchestration management system on top of clustered infrastrcuture. Development on Kubernetes has been happening at storm-speed, and the <a href="https://kubernetes.io/community/">community of Kubernauts</a> has grown bigger.</p>
+</blockquote>
+  </div>
+  <div class="article_meta">
+    <p>Posted on: Sun 13 August 2017</p>
+    <p>Category: <a href="https://sunnykrGupta.github.io/category/kubernetes-docker-gce-gcr-container-google-container-registry.html">kubernetes, docker, gce, gcr, container, google container registry</a>
+ &ndash; Tags:
+      <a href="https://sunnykrGupta.github.io/tag/kubernetes.html">kubernetes</a>,      <a href="https://sunnykrGupta.github.io/tag/docker.html">docker</a>,      <a href="https://sunnykrGupta.github.io/tag/gce.html">gce</a>,      <a href="https://sunnykrGupta.github.io/tag/gcr.html">gcr</a>,      <a href="https://sunnykrGupta.github.io/tag/container.html">container</a>    </p>
+  </div>
+  <section>
+      <p id="post-share-links">
+          Share on:
+          <a href="https://twitter.com/home?status=Managing%20fleet%20on%20Kubernetes%20https%3A//sunnykrGupta.github.io/managing-fleet-on-kubernetes.html" target="_blank" title="Share on Twitter"><img src="https://sunnykrGupta.github.io/theme/images/Share/twitter.svg" alt="twitter"></a>
+          <a href="https://www.facebook.com/sharer/sharer.php?u=https%3A//sunnykrGupta.github.io/managing-fleet-on-kubernetes.html" target="_blank" title="Share on Facebook"><img src="https://sunnykrGupta.github.io/theme/images/Share/facebook.svg" alt="facebook"></a>
+          <a href="https://plus.google.com/share?url=https%3A//sunnykrGupta.github.io/managing-fleet-on-kubernetes.html" target="_blank" title="Share on Google Plus"><img src="https://sunnykrGupta.github.io/theme/images/Share/googleplus.svg" alt="google+"></a>
+          <a href="mailto:?subject=Managing%20fleet%20on%20Kubernetes&amp;body=https%3A//sunnykrGupta.github.io/managing-fleet-on-kubernetes.html" target="_blank" title="Share via Email"><img src="https://sunnykrGupta.github.io/theme/images/Share/mail.svg" alt="email"></a>
+      </p>
+  </section>
+
+  <div id="article_comments">
+    <div id="disqus_thread"></div>
+    <script type="text/javascript">
+        var disqus_identifier = "managing-fleet-on-kubernetes.html";
+        (function() {
+             var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+             dsq.src = 'https://sunnydaemon.disqus.com/embed.js';
+             (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+         })();
+    </script>
+  </div>
+
+</article>
+
+
+    <div id="ending_message">
+      <p>&copy; Sunny KUMAR. Built using <a href="http://getpelican.com" target="_blank">Pelican</a>. Theme by Giulio Fidente on <a href="https://github.com/gfidente/pelican-svbhack" target="_blank">github</a>. Member of the <a href="http://internetdefenseleague.org">Internet Defense League</a>.</p>
+    </div>
+  </main>
+
+  <div id="right-feed">
+    <a class="twitter-timeline" href="https://twitter.com/sunnyLAGupta" data-widget-id="605800181926199296">Tweets by @sunnyLAGupta</a>
+    <script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0],p=/^http:/.test(d.location)?'http':'https';if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src=p+"://platform.twitter.com/widgets.js";fjs.parentNode.insertBefore(js,fjs);}}(document,"script","twitter-wjs");</script>
+  </div>
+<script type="text/javascript">
+  window._idl = {};
+  _idl.variant = "banner";
+  (function() {
+    var idl = document.createElement('script');
+    idl.type = 'text/javascript';
+    idl.async = true;
+    idl.src = ('https:' == document.location.protocol ? 'https://' : 'http://') + 'members.internetdefenseleague.org/include/?url=' + (_idl.url || '') + '&campaign=' + (_idl.campaign || '') + '&variant=' + (_idl.variant || 'banner');
+    document.getElementsByTagName('body')[0].appendChild(idl);
+  })();
+</script>
+</body>
+</html>
