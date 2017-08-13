@@ -3,7 +3,7 @@ Date: 2015-06-02 16:46
 Status: published
 
 
-These are some important projects that i have worked on in the past.
+These are some projects that i have worked on in the past.
 
 ### Global Analytics
 >Global Analytics is a system which crawls tweets from Twitter API, resolving location of tweets which are not geo-tagged using different Geocoding Map API, translate into english, correctify improper words of tweets and then analyzes the sentiment around a targeted topic (here i.e Governance, Economics, Religion, Tourism) using NLTK techniques with the help of TextBlob and generates the Visual Statistics on different Visualization techniques eg: Map, Histogram etc.

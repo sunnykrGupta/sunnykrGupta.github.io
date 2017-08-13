@@ -1,17 +1,38 @@
 Title: Managing fleet on Kubernetes
-Date: 2017-05-02 00:10:10
-Category: kubernetes, docker, gce, gcr, container
+Date: 2017-08-13 19:45:00
+Category: kubernetes, docker, container
 Tags: kubernetes, docker, gce, gcr, container
 Author: Sunny Kr Gupta
-Status: unpublished
+Status: published
 
-> Couple of months ago, we were struggling with scalability of system and were in pursuit of finding right orchestration tools which can help in scaling system quickly.
+> Couple of months ago, we were tackling challenges with scalability of system and were in pursuit of finding right orchestration tools which can help in scaling system quickly. This draft is outline of things we have tried and learned along the way. A Quick glance of things we came across while building fleet on Kubernetes.
 
-Then, we started exploring popular project managed by Google for orchestration management, **[Kubernetes](https://kubernetes.io/)** for DevOps. Starting with two weeks of learning curves, we get our working staging system in _kubes_ (kubernetes in short) and did small working setup to visualize the power of this orchestration framework.
+We started exploring popular project managed by Google for orchestration management, **[Kubernetes](https://kubernetes.io/)** for DevOps. Starting with two weeks of learning curves, we get our working staging system in _kubes_ (kubernetes in short) and did small working setup to visualize the power of this orchestration framework.
 
-We started with ```Google Container Engine (GCE)``` to get things working quickly. We created a cluster of ```10 Nodes```, each Node with configuration ```4 vCore and 15 GB``` in **default pool** to run stateless Java components <sub>( in [Shieldsquare](https://www.shieldsquare.com/) core processing relies on code written in Java)</sub>.
 
-Before we go in depth, we did some research and found out we needed some _gears_ (concepts/tools/theory) before we board into container ship and sail out for cruise.
+-------------------
+
+#### Microservices
+
+Microservice architectures have been trending because its architectural style aims to tackle the problems of managing modern application by decoupling software solutions into smaller functional services that are expected to fail.
+
+This help in quick recovery from failure on smaller functional units in contrast to making recovery from big monolithic software systems. Microservices helps in making your release cycle faster even because you will be focusing on smaller changes in single app instead of pushing code changes in bigger software systems that has multiple dependencies.
+
+----------------
+
+#### Containers
+
+
+Microservice architectures got a big tide in 2013 when Docker inc. released Docker technology. **Docker container** gave perfect alternatives to virtual machines and drove software packaging methods in a more developer friendly way. Docker container are comparatively smaller than virtual machines (VMs). Its shares underlying host OS resources, we can spin up hundreds of these small units in order of milliseconds. Their smaller size helps in faster packaging, testing and even deployments because of its portable nature.
+
+Docker’s container-based platform allows highly portable workloads. Docker containers can run on a developer’s local laptop, on physical or virtual machines in a data center, on cloud providers, or in a mixture of environments.
+
+----------------
+
+
+We started with ```Google Container Engine (GCE)``` to get things work quickly. We started with a cluster with few ```10's of Nodes```, each Node with configuration ```12 vCore and 30 GB``` in **[default pool](https://cloud.google.com/container-engine/docs/node-pools)** to run stateless components.
+
+Before we go in depth, we have done some research and found out we needed some _gears_ (concepts/tools/theory) before we board into container ship and sail out for cruise.
 
 We are dividing gears that we need to know into two parts, ie, first will be ```Docker``` and second will focused on ```Kubernetes```.
 
@@ -231,19 +252,19 @@ Now, you can see only *step-2,3* was taken from ```cache```, *step-4* command ie
 
 ---------------
 
-#### Part - II ( Understanding Kubernetes fleet )
+#### Part - II ( Understanding Kubernetes in Ocean )
 
  - Learning basics of kubernetes & [working flow training](https://kubernetes.io/docs/tutorials/kubernetes-basics/).
     * Kubernetes is an open-source platform for automating deployment, scaling, and operations of application containers across clusters of hosts, providing container-centric infrastructure - Kubernetes.io
 
- - [What are Pods! How container runs inside a pod!](https://kubernetes.io/docs/concepts/workloads/pods/pod/#what-is-a-pod)
+ - [What are Pods! How container run inside a pod!](https://kubernetes.io/docs/concepts/workloads/pods/pod/#what-is-a-pod)
     * Pods are the atomic unit on the Kubernetes platform. A Pod is a Kubernetes abstraction that represents a group of one or more application containers (such as Nginx or redis), and some shared resources for those containers.
 
 <div style="text-align: right"><sub>Pod Overview : Images by Kubernetes.io</sub></div>
 ![Pods overview image](/images/kubes/module_03_pods.svg "Pods Overview")
 
  - [What are Nodes](https://kubernetes.io/docs/concepts/nodes/node/#what-is-a-node) <sub>(also known as worker or minion, a single machine)</sub>
-    * A Pod always runs on a Node. A Node is a worker machine in Kubernetes and may be either a virtual or a physical machine, depending on the cluster. Node is controlled by Kubernetes Master. Kubernetes manages scheduling of pods in Nodes running in a cluster.
+    * A Pod always runs inside a Node. A Node is a worker machine in Kubernetes and may be either a virtual or a physical machine, depending on the cluster. Node is controlled by Kubernetes Master. Kubernetes manages scheduling of pods in Nodes running in a cluster.
 
 <div style="text-align: right"><sub>Node Overview : Images by Kubernetes.io</sub></div>
 ![Node overview image](/images/kubes/module_03_nodes.svg "Node Overview")
@@ -400,24 +421,24 @@ spec:
         cpu: "500m"
 ```
 
-Each container has its own requirements of resources (ie, CPU or RAM, disk, network etc), there comes requests & limits in kubes. This helps alot in keeping your nodes healthy. Many times due to bad limits or not defining limits, your pods can go crazy at utilization, eat any resources and can lead to node starvation and lead to Node becomes unhealthy and goes in ```[Not Ready]``` state due to resource exhaustion. We had this multiple times at early stage and now we had fine tuned each pods resources based on its hunger behaviour.
+Each container has its own requirements of resources (ie, CPU, RAM, disk, network etc), there comes requests & limits in kubes. This helps in keeping your nodes healthy. Many times due to bad limits or not defining limits, your pods can go crazy at utilization, eat any resources and can lead to node starvation and lead to Node becomes unhealthy and goes in ```[Not Ready]``` state due to resource exhaustion. We had this multiple times at early stage and now we had fine tuned each pods resources based on its hunger behaviour.
 
-> How to define Node resources in kubernetes cluster?
+##### How to define Node resources in kubernetes cluster?
 
-Depends on container type <sub>(which you are running inside a pod)</sub>, you can define different Node pools. Suppose you have modules named ```Core.X, Core.Y and Core.Z``` , all of them needs ```2 core, 2 GB``` each to run, then you can have **Standard Node Pool** to run them. In this case, i will allocate below config for my Node pool.
+Depends on container type <sub>(which you are running inside a pod)</sub>, you can define different Node pools. Suppose you have modules named ```Core.X, Core.Y and Core.Z``` , all of them needs ```2 core, 2 GB``` each to run, then you can have **Standard Node Pool** to run them. In this case, i will allocate following config for my Node pool.
 
  - Name : Standard Pool
  - Pool Size : 2
  - Node Config: 4 Core, 4 GB
- - Node Pool Size : 8 Core, 8 GB
+ - Node Pool Resource : 8 Core, 8 GB
  - ```Utilization``` : 6 Core, 6 GB (75 % used Core & RAM)
 
-Now, lets say i have high memory eater modules. let call them ```Mem.X, Mem.Y and Mem.Z``` , all of them needs ```0.5 core, 4 GB``` each to run, then you need **High memory Node Pool** to run them. In this case, i will allocate now below config for my Node pool.
+Now, lets say i have high memory eater modules. let call them ```Mem.X, Mem.Y and Mem.Z``` , all of them needs ```0.5 core, 4 GB``` each to run, then you need **High memory Node Pool** to run them. In this case, i will allocate different config for my Node pool.
 
 - Name : HighMem Pool
 - Pool Size : 2
 - Node Config : 1 Core, 8 GB
-- Node Pool : 2 Core, 16 GB
+- Node Pool Resource : 2 Core, 16 GB
 - ```Utilization``` : 1.5 Core, 12 GB (75 % used Core & RAM)
 
 
@@ -442,9 +463,22 @@ spec:
 
 ```
 
---------------
 
-##### Note : Some configuration in GCE should be taken care, like autoupgrade kubernetes version. If you are running redis or any other cache manager that needs uptime, better you turn off autoupgrade because when kubernetes release comes all node will go on scheduled maintenance one by one and that could affect your production system. Else, you are fully stateless, you can keep default.
+----------------
+
+#### How we monitor Kubernetes ?
+
+We can run custom monitoring setup to keep an eye on Nodes. You can run [heapster](https://github.com/kubernetes/heapster), ie. responsible for compute resource usage analysis and monitoring of container clusters, hooked with [influxdb](https://github.com/influxdata/influxdb) that consumes reporting pushed by heapster and can be visualized in [grafana](https://grafana.com/).
+
+<div style="text-align: right"><sub>Monitoring in Grafana</sub></div>
+![Grafana monitoring](/images/kubes/grafana.png "Grafana monitoring")
+
+
+----------------
+
+
+
+**Note :** Some configuration in GCE should be taken care, like ```autoupgrade kubernetes version```. If you are running RabbitMQ, Redis or any other message queue as service that needs uptime, better you turn off autoupgrade because kubernetes new version release will schedule all your node for maintenance, however it rolles updates one by one but could affect your production system. Else, if you are fully stateless, you can keep default or skip this warning!
 
 ```
 ----- Autoupgrade off
@@ -455,12 +489,12 @@ gcloud beta container node-pools update <NODEPOOL> --cluster <CLUSTER> --zone <Z
 
 ```
 
-Pretty much all above theories/understanding are based on what we got in last three months of kubernetes running in production. Container management is easy to adapt and lot of new observation is yet to be discovered as we go along the way.
 
------------ We currently managed to put the system in place to process ```10 Billion APIs``` call per month and are pushing more to handle.
+Pretty much all above understanding are based on what i learned in last six months of kubernetes running in production. Container management is easy to adapt and lot of new observation is yet to be discovered as we go along the way.
 
+Looking at deployments today, Kubernetes is absolutely fantastic in Auto-pilot and doing self-healing jobs itself. We are running more than ```1000 pods``` in cluster together and processing ```10's of Billions of API calls per month``` and are pushing more to handle.
 
 
 ------------
 
-> Conclusion : ```Kubernetes``` lifted alot of ```DevOps management``` and helped in scaling system. Adaptability is much quicker, most of security and other concerns is being managed by Google. Kubernetes aims to offer a better orchestration management system on top of clustered infrastrcuture.
+> Conclusion : ```Kubernetes``` lifted lot of ``` server management``` and helped in faster depployments & scaling system. Adaptability is much quicker, most of security and other concerns is being managed by Google. Kubernetes aims to offer a better orchestration management system on top of clustered infrastrcuture. Development on Kubernetes has been happening at storm-speed, and the [community of Kubernauts](https://kubernetes.io/community/) has grown bigger.

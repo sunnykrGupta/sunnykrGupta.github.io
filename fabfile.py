@@ -1,6 +1,7 @@
 from fabric.api import *
 import fabric.contrib.project as project
 import os
+from pelicanconf import SITEURL
 
 # Local path configuration (can be absolute or relative to fabfile)
 env.deploy_path = 'output'
@@ -55,7 +56,11 @@ def killserver():
 
 @hosts(production)
 def publish():
-    local('pelican content -o output -s pelicanconf.py')
-    local('ghp-import output')
-    print "Pushing changes to Github pages"
-    local('git push origin gh-pages:master')
+    if 'localhost' not in SITEURL:
+        local('pelican content -o output -s pelicanconf.py')
+        local('ghp-import output')
+        print "Pushing changes to Github pages"
+        local('git push origin gh-pages:master')
+    else:
+        print "Publish Aborted !! \n"
+        print "Correct SITEURL : ", SITEURL

@@ -21,6 +21,7 @@ PATH = 'content'
 DEFAULT_METADATA = {
     'status': 'draft',
 }
+#Status: unpublished
 #Status: published
 #Status: draft
 
