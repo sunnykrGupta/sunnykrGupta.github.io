@@ -72,7 +72,7 @@
   </div>
   <div class="article_text">
     <blockquote>
-<p>Couple of months ago, we were struggling with scalability of system and were in pursuit of finding right orchestration tools which can help in scaling system quickly. This draft is outline of things i tried and learned.</p>
+<p>Couple of months ago, we were tackling challenges with scalability of system and were in pursuit of finding right orchestration tools which can help in scaling system quickly. This draft is outline of things we have tried and learned along the way. A Quick glance of things we came across while building fleets on Kubernetes.</p>
 </blockquote>
 <p>We started exploring popular project managed by Google for orchestration management, <strong><a href="https://kubernetes.io/">Kubernetes</a></strong> for DevOps. Starting with two weeks of learning curves, we get our working staging system in <em>kubes</em> (kubernetes in short) and did small working setup to visualize the power of this orchestration framework.</p>
 <hr>
@@ -84,7 +84,7 @@
 <p>Microservice architectures got a big tide in 2013 when Docker inc. released Docker technology. <strong>Docker container</strong> gave perfect alternatives to virtual machines and drove software packaging methods in a more developer friendly way. Docker container are comparatively smaller than virtual machines (VMs). Its shares underlying host OS resources, we can spin up hundreds of these small units in order of milliseconds. Their smaller size helps in faster packaging, testing and even deployments because of its portable nature.</p>
 <p>Docker’s container-based platform allows highly portable workloads. Docker containers can run on a developer’s local laptop, on physical or virtual machines in a data center, on cloud providers, or in a mixture of environments.</p>
 <hr>
-<p>We started with <code>Google Container Engine (GCE)</code> to get things work quickly. We started with a cluster with few <code>10's of Nodes</code>, each Node with configuration <code>12 vCore and 30 GB</code> in <strong>default pool</strong> to run stateless components.</p>
+<p>We started with <code>Google Container Engine (GCE)</code> to get things work quickly. We started with a cluster with few <code>10's of Nodes</code>, each Node with configuration <code>12 vCore and 30 GB</code> in <strong><a href="https://cloud.google.com/container-engine/docs/node-pools">default pool</a></strong> to run stateless components.</p>
 <p>Before we go in depth, we have done some research and found out we needed some <em>gears</em> (concepts/tools/theory) before we board into container ship and sail out for cruise.</p>
 <p>We are dividing gears that we need to know into two parts, ie, first will be <code>Docker</code> and second will focused on <code>Kubernetes</code>.</p>
 <hr>
