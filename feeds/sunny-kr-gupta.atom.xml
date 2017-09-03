@@ -1,5 +1,119 @@
 <?xml version="1.0" encoding="utf-8"?>
-<feed xmlns="http://www.w3.org/2005/Atom"><title>Daemon Blog - Sunny Kr Gupta</title><link href="https://sunnykrGupta.github.io/" rel="alternate"></link><link href="https://sunnykrGupta.github.io/feeds/sunny-kr-gupta.atom.xml" rel="self"></link><id>https://sunnykrGupta.github.io/</id><updated>2017-08-13T19:45:00+05:30</updated><entry><title>Managing fleet on Kubernetes</title><link href="https://sunnykrGupta.github.io/managing-fleet-on-kubernetes.html" rel="alternate"></link><published>2017-08-13T19:45:00+05:30</published><updated>2017-08-13T19:45:00+05:30</updated><author><name>Sunny Kr Gupta</name></author><id>tag:sunnykrgupta.github.io,2017-08-13:/managing-fleet-on-kubernetes.html</id><summary type="html">&lt;blockquote&gt;
+<feed xmlns="http://www.w3.org/2005/Atom"><title>Daemon Blog - Sunny Kr Gupta</title><link href="https://sunnykrGupta.github.io/" rel="alternate"></link><link href="https://sunnykrGupta.github.io/feeds/sunny-kr-gupta.atom.xml" rel="self"></link><id>https://sunnykrGupta.github.io/</id><updated>2017-09-04T22:51:50+05:30</updated><entry><title>Installation of VNC server on Ubuntu</title><link href="https://sunnykrGupta.github.io/installation-of-vnc-server-on-ubuntu.html" rel="alternate"></link><published>2017-09-04T22:51:50+05:30</published><updated>2017-09-04T22:51:50+05:30</updated><author><name>Sunny Kr Gupta</name></author><id>tag:sunnykrgupta.github.io,2017-09-04:/installation-of-vnc-server-on-ubuntu.html</id><summary type="html">&lt;p&gt;This blog is intended for people who wanted to install GUI or desktop environment on linux &lt;a href="https://en.wikipedia.org/wiki/Server_(computing)"&gt;servers&lt;/a&gt; running on &lt;a href="https://en.wikipedia.org/wiki/Cloud_computing"&gt;cloud&lt;/a&gt; and connect.&lt;/p&gt;
+&lt;p&gt;We are going to use VNC (Virtual Network Computing) protocol for accessing our remote desktop server.&lt;/p&gt;
+&lt;hr&gt;
+&lt;h4&gt;What is VNC ?&lt;/h4&gt;
+&lt;p&gt;&lt;a href="https://en.wikipedia.org/wiki/Virtual_Network_Computing"&gt;Virtual network computing&lt;/a&gt;, or VNC, is a graphical desktop …&lt;/p&gt;</summary><content type="html">&lt;p&gt;This blog is intended for people who wanted to install GUI or desktop environment on linux &lt;a href="https://en.wikipedia.org/wiki/Server_(computing)"&gt;servers&lt;/a&gt; running on &lt;a href="https://en.wikipedia.org/wiki/Cloud_computing"&gt;cloud&lt;/a&gt; and connect.&lt;/p&gt;
+&lt;p&gt;We are going to use VNC (Virtual Network Computing) protocol for accessing our remote desktop server.&lt;/p&gt;
+&lt;hr&gt;
+&lt;h4&gt;What is VNC ?&lt;/h4&gt;
+&lt;p&gt;&lt;a href="https://en.wikipedia.org/wiki/Virtual_Network_Computing"&gt;Virtual network computing&lt;/a&gt;, or VNC, is a graphical desktop sharing system that allows you to control one computer remotely from another. A VNC server transfers keyboard and mouse events, and displays the remote host’s screen via a network connection, which allows you to operate a full &lt;a href="https://en.wikipedia.org/wiki/Desktop_environment"&gt;desktop environment&lt;/a&gt;.&lt;/p&gt;
+&lt;p&gt;Basically ubuntu server and ubuntu cloud editions does not contains GUI, which needs to be installed before installing VNC server. Please note that server and cloud editions are carefully designed to utilize less hardware resources ( minimal environment ), installing GUI might leads to high hardware utilization.&lt;/p&gt;
+&lt;h4&gt;Why i need GUI in remote server ?&lt;/h4&gt;
+&lt;p&gt;Just to explain a use case, let me tell me you how i landed up using VNC in first place. I was working on a problem which relates with cloud latency issue. I had a javascript code that makes an &lt;a href="(https://en.wikipedia.org/wiki/Web_API)"&gt;HTTP API&lt;/a&gt; call to a &lt;a href="https://en.wikipedia.org/wiki/Cloud_load_balancing"&gt;loadbalancer&lt;/a&gt; near to the geographical location of browser and response will be delivered from proximity based loadbalancer in that geographic region. To test this setup and execute my JS and use developer console to see what's happening under the network layer, i needed a browser engine in different location. I could have used some online paid or free service to get browser rented, services like &lt;a href="https://www.browserstack.com/"&gt;browserstack&lt;/a&gt; or other alternatives but that has free minutes based trial restrictions.&lt;/p&gt;
+&lt;hr&gt;
+&lt;h3&gt;Install a Desktop and VNC Server on Ubtunu 14.04&lt;/h3&gt;
+&lt;h5&gt;Step 1 - Install Ubuntu desktop&lt;/h5&gt;
+&lt;p&gt;Start installing below &lt;em&gt;gnome packages&lt;/em&gt; which helps VNC to load properly . These packages are required for all editions including &lt;em&gt;ubuntu desktop&lt;/em&gt; .&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="nv"&gt;$ &lt;/span&gt;sudo apt-get install --no-install-recommends ubuntu-desktop gnome-panel gnome-settings-daemon metacity nautilus gnome-terminal gnome-core
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;h5&gt;Step 2 - Install vnc4server package.&lt;/h5&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="nv"&gt;$ &lt;/span&gt;sudo apt-get install vnc4server
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;h5&gt;Step 3 - Make configuration changes in vncserver&lt;/h5&gt;
+&lt;p&gt;Open &lt;code&gt;/usr/bin/vncserver&lt;/code&gt; file and edit as follows . Before editing, make a backup copy.&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="nv"&gt;$ &lt;/span&gt;sudo cp /usr/bin/vncserver /usr/bin/vncserver.bkp
+
+&lt;span class="nv"&gt;$ &lt;/span&gt;sudo vim /usr/bin/vncserver
+
+&lt;span class="c"&gt;#Find this line &amp;quot;# exec /etc/X11/xinit/xinitrcnn&amp;quot;.&lt;/span&gt;
+&lt;span class="c"&gt;#and add these lines like below&lt;/span&gt;
+
+    &lt;span class="s2"&gt;&amp;quot;# exec /etc/X11/xinit/xinitrcnn&amp;quot;&lt;/span&gt;.
+       &lt;span class="s2"&gt;&amp;quot;gnome-panel &amp;amp;n&amp;quot;&lt;/span&gt;.
+       &lt;span class="s2"&gt;&amp;quot;gnome-settings-daemon &amp;amp;n&amp;quot;&lt;/span&gt;.
+       &lt;span class="s2"&gt;&amp;quot;metacity &amp;amp;n&amp;quot;&lt;/span&gt;.
+       &lt;span class="s2"&gt;&amp;quot;nautilus &amp;amp;n&amp;quot;&lt;/span&gt;.
+       &lt;span class="s2"&gt;&amp;quot;gnome-terminal &amp;amp;n&amp;quot;&lt;/span&gt;.
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;h5&gt;Step 4 - Start your vncserver&lt;/h5&gt;
+&lt;p&gt;Now type the command &lt;code&gt;vncserver&lt;/code&gt; to start VNC session. you will be prompted for creating new vnc password.&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="nv"&gt;$ &lt;/span&gt;vncserver
+You will require a password to access your desktops through VNC Clients.
+Password:******
+Verify:******
+
+xauth: file /root/.Xauthority does not exist
+New &lt;span class="s1"&gt;&amp;#39;ubuntu-desktop:1 (root)&amp;#39;&lt;/span&gt; desktop is ubuntu-desktop:1
+
+Starting applications specified in /root/.vnc/xstartup
+Log file is /root/.vnc/ubuntu-desktop:1.log
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;h5&gt;Step 5 - To check VNC server has started, follow&lt;/h5&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="nv"&gt;$ &lt;/span&gt;netstat -tulpn
+
+Proto Recv-Q Send-Q Local Address           Foreign Address         State       PID/Program name
+tcp        &lt;span class="m"&gt;0&lt;/span&gt;      &lt;span class="m"&gt;0&lt;/span&gt; 0.0.0.0:6001            0.0.0.0:*               LISTEN      28372/Xvnc4
+tcp6       &lt;span class="m"&gt;0&lt;/span&gt;      &lt;span class="m"&gt;0&lt;/span&gt; :::5901                 :::*                    LISTEN      28372/Xvnc4
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;blockquote&gt;
+&lt;p&gt;VNC server is running and listening on &lt;strong&gt;5901 port&lt;/strong&gt;. Make sure your firewall allows &lt;strong&gt;inbound&lt;/strong&gt; TCP connection to this port.&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;h5&gt;Step 6 - Configure your Firewall&lt;/h5&gt;
+&lt;p&gt;If &lt;strong&gt;firewall&lt;/strong&gt; is active, you need to open ports for inbound communication. If no firewall is enabled, you can skip this section.&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="c"&gt;#allow SSH&lt;/span&gt;
+&lt;span class="nv"&gt;$ &lt;/span&gt;sudo ufw allow OpenSSH
+
+&lt;span class="c"&gt;#allowing single port 5901 port&lt;/span&gt;
+&lt;span class="nv"&gt;$ &lt;/span&gt;sudo ufw allow 5901/tcp
+
+&lt;span class="c"&gt;#To allow series of port 5901 - 5910, follow&lt;/span&gt;
+&lt;span class="nv"&gt;$ &lt;/span&gt;sudo ufw allow 5901:5910/tcp
+
+&lt;span class="c"&gt;#To check firewall rules&lt;/span&gt;
+&lt;span class="nv"&gt;$ &lt;/span&gt;sudo  ufw status verbose
+
+Status: active
+Logging: on &lt;span class="o"&gt;(&lt;/span&gt;low&lt;span class="o"&gt;)&lt;/span&gt;
+Default: deny &lt;span class="o"&gt;(&lt;/span&gt;incoming&lt;span class="o"&gt;)&lt;/span&gt;, allow &lt;span class="o"&gt;(&lt;/span&gt;outgoing&lt;span class="o"&gt;)&lt;/span&gt;, disabled &lt;span class="o"&gt;(&lt;/span&gt;routed&lt;span class="o"&gt;)&lt;/span&gt;
+New profiles: skip
+
+To                         Action      From
+--                         ------      ----
+22/tcp &lt;span class="o"&gt;(&lt;/span&gt;OpenSSH&lt;span class="o"&gt;)&lt;/span&gt;           ALLOW IN    Anywhere
+5901:5910/tcp              ALLOW IN    Anywhere
+22/tcp &lt;span class="o"&gt;(&lt;/span&gt;OpenSSH &lt;span class="o"&gt;(&lt;/span&gt;v6&lt;span class="o"&gt;))&lt;/span&gt;      ALLOW IN    Anywhere &lt;span class="o"&gt;(&lt;/span&gt;v6&lt;span class="o"&gt;)&lt;/span&gt;
+5901:5910/tcp &lt;span class="o"&gt;(&lt;/span&gt;v6&lt;span class="o"&gt;)&lt;/span&gt;         ALLOW IN    Anywhere &lt;span class="o"&gt;(&lt;/span&gt;v6&lt;span class="o"&gt;)&lt;/span&gt;WW
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;blockquote&gt;
+&lt;p&gt;&lt;strong&gt;&lt;a href="https://www.digitalocean.com/community/tutorials/how-to-set-up-a-firewall-with-ufw-on-ubuntu-14-04"&gt;Good reads on configuring UFW firewall&lt;/a&gt;&lt;/strong&gt;&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;h5&gt;Step 7 - Connect to VNC Server&lt;/h5&gt;
+&lt;div style="text-align: right"&gt;&lt;sub&gt;Connect -Remote Desktop Viewer&lt;/sub&gt;&lt;/div&gt;
+
+&lt;p&gt;&lt;img alt="VNC Connect" src="/images/vnc/vnc-connect.png" title="VNC Connect"&gt;&lt;/p&gt;
+&lt;div style="text-align: right"&gt;&lt;sub&gt;Launch Firefox from Terminal&lt;/sub&gt;&lt;/div&gt;
+
+&lt;p&gt;&lt;img alt="Launch Firefox" src="/images/vnc/vnc-launch-firefox.png" title="Launch Firefox"&gt;&lt;/p&gt;
+&lt;div style="text-align: right"&gt;&lt;sub&gt;Google UK&lt;/sub&gt;&lt;/div&gt;
+
+&lt;p&gt;&lt;img alt="Google UK" src="/images/vnc/vnc-google-uk.png" title="Google UK"&gt;&lt;/p&gt;
+&lt;p&gt;That’s it, your VNC server is working.&lt;/p&gt;
+&lt;blockquote&gt;
+&lt;p&gt;Here my linux server is in london, UK. I opened firefox through terminal reach out to google. It opened google.co.uk. You can do lot of other stuffs on VNC protocol to get things done from remote location.&lt;/p&gt;
+&lt;/blockquote&gt;</content><category term="vnc"></category><category term="vncserver"></category><category term="ubuntu"></category><category term="desktop installation"></category></entry><entry><title>Managing fleet on Kubernetes</title><link href="https://sunnykrGupta.github.io/managing-fleet-on-kubernetes.html" rel="alternate"></link><published>2017-08-13T19:45:00+05:30</published><updated>2017-08-13T19:45:00+05:30</updated><author><name>Sunny Kr Gupta</name></author><id>tag:sunnykrgupta.github.io,2017-08-13:/managing-fleet-on-kubernetes.html</id><summary type="html">&lt;blockquote&gt;
 &lt;p&gt;Couple of months ago, we were tackling challenges with scalability of system and were in pursuit of finding right orchestration tools which can help in scaling system quickly. This draft is outline of things we have tried and learned along the way, , most of things might sound familiar to you …&lt;/p&gt;&lt;/blockquote&gt;</summary><content type="html">&lt;blockquote&gt;
 &lt;p&gt;Couple of months ago, we were tackling challenges with scalability of system and were in pursuit of finding right orchestration tools which can help in scaling system quickly. This draft is outline of things we have tried and learned along the way, , most of things might sound familiar to you. A Quick glance of things we came across while building fleet on Kubernetes.&lt;/p&gt;
 &lt;/blockquote&gt;
