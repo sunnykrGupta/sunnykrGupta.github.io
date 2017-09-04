@@ -100,7 +100,7 @@ To                         Action      From
 &lt;/blockquote&gt;
 &lt;h4&gt;Step 7 - Connect to VNC Server&lt;/h4&gt;
 &lt;blockquote&gt;
-&lt;p&gt;Use any remote desktop connect client that allow VNC protocol. Use &lt;em&gt;&lt;a href="https://en.wikipedia.org/wiki/IP_address"&gt;IP address&lt;/a&gt;&lt;/em&gt; of server along with port where VNC server is listening on.&lt;/p&gt;
+&lt;p&gt;Use any remote desktop connect client that allow VNC protocol. Use &lt;em&gt;&lt;a href="https://en.wikipedia.org/wiki/IP_address"&gt;IP address&lt;/a&gt;&lt;/em&gt; of server along with port where VNC server is listening.&lt;/p&gt;
 &lt;/blockquote&gt;
 &lt;div style="text-align: right"&gt;&lt;sub&gt;Connect -Remote Desktop Viewer&lt;/sub&gt;&lt;/div&gt;
 
