@@ -7,22 +7,22 @@
 &lt;h4&gt;What is VNC ?&lt;/h4&gt;
 &lt;p&gt;&lt;a href="https://en.wikipedia.org/wiki/Virtual_Network_Computing"&gt;Virtual network computing&lt;/a&gt;, or VNC, is a graphical desktop sharing system that allows you to control one computer remotely from another. A VNC server transfers keyboard and mouse events, and displays the remote host’s screen via a network connection, which allows you to operate a full &lt;a href="https://en.wikipedia.org/wiki/Desktop_environment"&gt;desktop environment&lt;/a&gt;.&lt;/p&gt;
 &lt;p&gt;Basically ubuntu server and ubuntu cloud editions does not contains GUI, which needs to be installed before installing VNC server. Please note that server and cloud editions are carefully designed to utilize less hardware resources ( minimal environment ), installing GUI might leads to high hardware utilization.&lt;/p&gt;
-&lt;h4&gt;Why i needed desktop environment in remote server ?&lt;/h4&gt;
-&lt;p&gt;Just to explain a use case, let me tell me you how i landed up using VNC in first place. I was working on a problem which relates with cloud latency issue. My Friend, &lt;a href="https://www.linkedin.com/in/neekneeraj/"&gt;Neeraj&lt;/a&gt; &lt;em&gt;(whose work revolves around core JS research &amp;amp; development)&lt;/em&gt; developed a javascript code that makes an cross origin &lt;a href="(https://en.wikipedia.org/wiki/Web_API)"&gt;HTTP API&lt;/a&gt; call to a &lt;a href="https://en.wikipedia.org/wiki/Cloud_load_balancing"&gt;loadbalancer&lt;/a&gt; near to the geographical location of browser and response will be delivered from proximity based loadbalancer in that geographic region. To test this setup, execute JS code and to use &lt;a href="https://developer.mozilla.org/en/docs/Tools/Browser_Console"&gt;developer console&lt;/a&gt; to see what's happening under the network layer, we were in need of a browser engine in different location. I could have used some online paid or free service to get browser rented, services like &lt;a href="https://www.browserstack.com/"&gt;browserstack&lt;/a&gt; or other alternatives but that has free minutes based trial restrictions.&lt;/p&gt;
+&lt;h4&gt;Why I needed desktop environment in remote server ?&lt;/h4&gt;
+&lt;p&gt;Just to explain a use case, let me tell me you how I ended up using VNC in first place. I was working on a problem which relates with cloud latency testing. My Friend, &lt;a href="https://www.linkedin.com/in/neekneeraj/"&gt;Neeraj&lt;/a&gt; &lt;em&gt;(whose work revolves around core JS research &amp;amp; development)&lt;/em&gt; developed a javascript code that makes an cross origin &lt;a href="(https://en.wikipedia.org/wiki/Web_API)"&gt;HTTP API&lt;/a&gt; call to a &lt;a href="https://en.wikipedia.org/wiki/Cloud_load_balancing"&gt;loadbalancer&lt;/a&gt; near to the geographical location of browser and response will be delivered from loadbalancer in geographic proximity. To test this setup, executing JS code and to use &lt;a href="https://developer.mozilla.org/en/docs/Tools/Browser_Console"&gt;developer console&lt;/a&gt; to see what's happening under the network layer, we were in need of a browser engine in different geographical location. I could have used some online paid or free service to get browser rented, services like &lt;a href="https://www.browserstack.com/"&gt;browserstack&lt;/a&gt; or other alternatives but that has free minutes based trial restrictions.&lt;/p&gt;
 &lt;hr&gt;
 &lt;h3&gt;Install a Desktop and VNC Server on Ubtunu 14.04&lt;/h3&gt;
-&lt;h5&gt;Step 1 - Install Ubuntu desktop&lt;/h5&gt;
+&lt;h4&gt;Step 1 - Install Ubuntu desktop&lt;/h4&gt;
 &lt;p&gt;Start installing below &lt;em&gt;gnome packages&lt;/em&gt; which helps VNC to load properly . These packages are required for all editions including &lt;em&gt;ubuntu desktop&lt;/em&gt; .&lt;/p&gt;
 &lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="nv"&gt;$ &lt;/span&gt;sudo apt-get install --no-install-recommends ubuntu-desktop gnome-panel gnome-settings-daemon metacity nautilus gnome-terminal gnome-core
 &lt;/pre&gt;&lt;/div&gt;
 
 
-&lt;h5&gt;Step 2 - Install vnc4server package.&lt;/h5&gt;
+&lt;h4&gt;Step 2 - Install vnc4server package.&lt;/h4&gt;
 &lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="nv"&gt;$ &lt;/span&gt;sudo apt-get install vnc4server
 &lt;/pre&gt;&lt;/div&gt;
 
 
-&lt;h5&gt;Step 3 - Make configuration changes in vncserver&lt;/h5&gt;
+&lt;h4&gt;Step 3 - Make configuration changes in vncserver&lt;/h4&gt;
 &lt;p&gt;Open &lt;code&gt;/usr/bin/vncserver&lt;/code&gt; file and edit as follows . Before editing, make a backup copy.&lt;/p&gt;
 &lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="nv"&gt;$ &lt;/span&gt;sudo cp /usr/bin/vncserver /usr/bin/vncserver.bkp
 
@@ -40,7 +40,7 @@
 &lt;/pre&gt;&lt;/div&gt;
 
 
-&lt;h5&gt;Step 4 - Start your vncserver&lt;/h5&gt;
+&lt;h4&gt;Step 4 - Start your vncserver&lt;/h4&gt;
 &lt;p&gt;Now type the command &lt;code&gt;vncserver&lt;/code&gt; to start VNC session. you will be prompted for creating new vnc password.&lt;/p&gt;
 &lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="nv"&gt;$ &lt;/span&gt;vncserver
 You will require a password to access your desktops through VNC Clients.
@@ -55,7 +55,7 @@ Log file is /root/.vnc/ubuntu-desktop:1.log
 &lt;/pre&gt;&lt;/div&gt;
 
 
-&lt;h5&gt;Step 5 - To check VNC server has started, follow&lt;/h5&gt;
+&lt;h4&gt;Step 5 - To check VNC server has started, follow&lt;/h4&gt;
 &lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="nv"&gt;$ &lt;/span&gt;netstat -tulpn
 
 Proto Recv-Q Send-Q Local Address           Foreign Address         State       PID/Program name
@@ -67,7 +67,7 @@ tcp6       &lt;span class="m"&gt;0&lt;/span&gt;      &lt;span class="m"&gt;0&lt;
 &lt;blockquote&gt;
 &lt;p&gt;VNC server is running and listening on &lt;strong&gt;5901 port&lt;/strong&gt;. Make sure your firewall allows &lt;strong&gt;inbound&lt;/strong&gt; TCP connection to this port.&lt;/p&gt;
 &lt;/blockquote&gt;
-&lt;h5&gt;Step 6 - Configure your Firewall&lt;/h5&gt;
+&lt;h4&gt;Step 6 - Configure your Firewall&lt;/h4&gt;
 &lt;p&gt;If &lt;strong&gt;firewall&lt;/strong&gt; is active, you need to open ports for inbound communication. If no firewall is enabled, you can skip this section.&lt;/p&gt;
 &lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="c"&gt;#allow SSH&lt;/span&gt;
 &lt;span class="nv"&gt;$ &lt;/span&gt;sudo ufw allow OpenSSH
@@ -98,19 +98,28 @@ To                         Action      From
 &lt;blockquote&gt;
 &lt;p&gt;&lt;strong&gt;&lt;a href="https://www.digitalocean.com/community/tutorials/how-to-set-up-a-firewall-with-ufw-on-ubuntu-14-04"&gt;Good reads on configuring UFW firewall&lt;/a&gt;&lt;/strong&gt;&lt;/p&gt;
 &lt;/blockquote&gt;
-&lt;h5&gt;Step 7 - Connect to VNC Server&lt;/h5&gt;
+&lt;h4&gt;Step 7 - Connect to VNC Server&lt;/h4&gt;
+&lt;blockquote&gt;
+&lt;p&gt;Use any remote desktop connect client that allow VNC protocol. Use &lt;em&gt;&lt;a href="https://en.wikipedia.org/wiki/IP_address"&gt;IP address&lt;/a&gt;&lt;/em&gt; of server along with port where VNC server is listening on.&lt;/p&gt;
+&lt;/blockquote&gt;
 &lt;div style="text-align: right"&gt;&lt;sub&gt;Connect -Remote Desktop Viewer&lt;/sub&gt;&lt;/div&gt;
 
 &lt;p&gt;&lt;img alt="VNC Connect" src="/images/vnc/vnc-connect.png" title="VNC Connect"&gt;&lt;/p&gt;
+&lt;blockquote&gt;
+&lt;p&gt;Once connected to your VNC server, you will see screen of remote server where you installed desktop GUI.&lt;/p&gt;
+&lt;/blockquote&gt;
 &lt;div style="text-align: right"&gt;&lt;sub&gt;Launch Firefox from Terminal&lt;/sub&gt;&lt;/div&gt;
 
 &lt;p&gt;&lt;img alt="Launch Firefox" src="/images/vnc/vnc-launch-firefox.png" title="Launch Firefox"&gt;&lt;/p&gt;
+&lt;blockquote&gt;
+&lt;p&gt;Browser screen running on remote server.&lt;/p&gt;
+&lt;/blockquote&gt;
 &lt;div style="text-align: right"&gt;&lt;sub&gt;Google UK&lt;/sub&gt;&lt;/div&gt;
 
 &lt;p&gt;&lt;img alt="Google UK" src="/images/vnc/vnc-google-uk.png" title="Google UK"&gt;&lt;/p&gt;
 &lt;p&gt;That’s it, your VNC server is working.&lt;/p&gt;
 &lt;blockquote&gt;
-&lt;p&gt;Here my linux server is in london, UK. I opened firefox through terminal reach out to google. It opened google.co.uk. You can do lot of other stuffs on VNC protocol to get things done from remote location.&lt;/p&gt;
+&lt;p&gt;Here I created my linux server in london, UK. I opened firefox through terminal to reach out to URL &lt;em&gt;google.com&lt;/em&gt;. It opened google.co.uk domain based on regional search engine. You can do lot of other stuffs on VNC protocol to get things done from remote location.&lt;/p&gt;
 &lt;/blockquote&gt;</content><category term="vnc"></category><category term="vncserver"></category><category term="ubuntu"></category><category term="desktop installation"></category></entry><entry><title>Managing fleet on Kubernetes</title><link href="https://sunnykrGupta.github.io/managing-fleet-on-kubernetes.html" rel="alternate"></link><published>2017-08-13T19:45:00+05:30</published><updated>2017-08-13T19:45:00+05:30</updated><author><name>Sunny Kr Gupta</name></author><id>tag:sunnykrgupta.github.io,2017-08-13:/managing-fleet-on-kubernetes.html</id><summary type="html">&lt;blockquote&gt;
 &lt;p&gt;Couple of months ago, we were tackling challenges with scalability of system and were in pursuit of finding right orchestration tools which can help in scaling system quickly. This draft is outline of things we have tried and learned along the way, , most of things might sound familiar to you …&lt;/p&gt;&lt;/blockquote&gt;</summary><content type="html">&lt;blockquote&gt;
 &lt;p&gt;Couple of months ago, we were tackling challenges with scalability of system and were in pursuit of finding right orchestration tools which can help in scaling system quickly. This draft is outline of things we have tried and learned along the way, , most of things might sound familiar to you. A Quick glance of things we came across while building fleet on Kubernetes.&lt;/p&gt;
