@@ -5,7 +5,8 @@ Tags: kubernetes, docker, gce, gcr, container
 Author: Sunny Kr Gupta
 Status: published
 
-> Couple of months ago, we were tackling challenges with scalability of system and were in pursuit of finding right orchestration tools which can help in scaling system quickly. This draft is outline of things we have tried and learned along the way. A Quick glance of things we came across while building fleet on Kubernetes.
+
+> Couple of months ago, we were tackling challenges with scalability of system and were in pursuit of finding right orchestration tools which can help in scaling system quickly. This draft is outline of things we have tried and learned along the way, , most of things might sound familiar to you. A Quick glance of things we came across while building fleet on Kubernetes.
 
 We started exploring popular project managed by Google for orchestration management, **[Kubernetes](https://kubernetes.io/)** for DevOps. Starting with two weeks of learning curves, we get our working staging system in _kubes_ (kubernetes in short) and did small working setup to visualize the power of this orchestration framework.
 
@@ -32,7 +33,7 @@ Docker’s container-based platform allows highly portable workloads. Docker con
 
 We started with ```Google Container Engine (GCE)``` to get things work quickly. We started with a cluster with few ```10's of Nodes```, each Node with configuration ```12 vCore and 30 GB``` in **[default pool](https://cloud.google.com/container-engine/docs/node-pools)** to run stateless components.
 
-Before we go in depth, we have done some research and found out we needed some _gears_ (concepts/tools/theory) before we board into container ship and sail out for cruise.
+Before going in depth, we needs some _gears_ (concepts/tools/theory) to onboard into container ship and sail out for cruise.
 
 We are dividing gears that we need to know into two parts, ie, first will be ```Docker``` and second will focused on ```Kubernetes```.
 
@@ -40,7 +41,7 @@ We are dividing gears that we need to know into two parts, ie, first will be ```
 
 #### Part - I (Understanding Docker at Dock)
 * Stateless and stateful components.
-    - In computing, a stateless protocol is a communications protocol in which no information is retained by either sender or receiver. The sender transmits a packet to the receiver and does not expect an acknowledgment of receipt. A UDP connection-oriented session is a stateless connection because neither systems maintains information about the session during its life.
+    - In computing, a stateless protocol is a communication protocol in which no information is retained by either sender or receiver. The sender transmits a packet to the receiver and does not expect an acknowledgment of receipt. A UDP connection-oriented session is a stateless connection because neither systems maintains information about the session during its life.
     - In contrast, a protocol that requires keeping of the internal state on the server is known as a stateful protocol. A TCP connection-oriented session is a 'stateful' connection because both systems maintain information about the session itself during its life.
 
 * [Understanding containerization concept](https://www.redhat.com/en/containers)
@@ -254,23 +255,23 @@ Now, you can see only *step-2,3* was taken from ```cache```, *step-4* command ie
 
 #### Part - II ( Understanding Kubernetes in Ocean )
 
- - Learning basics of kubernetes & [working flow training](https://kubernetes.io/docs/tutorials/kubernetes-basics/).
+ - Learning basics of kubernetes & [work flow training](https://kubernetes.io/docs/tutorials/kubernetes-basics/).
     * Kubernetes is an open-source platform for automating deployment, scaling, and operations of application containers across clusters of hosts, providing container-centric infrastructure - Kubernetes.io
 
- - [What are Pods! How container run inside a pod!](https://kubernetes.io/docs/concepts/workloads/pods/pod/#what-is-a-pod)
+ - [What are Pods? How container run inside a pod?](https://kubernetes.io/docs/concepts/workloads/pods/pod/#what-is-a-pod)
     * Pods are the atomic unit on the Kubernetes platform. A Pod is a Kubernetes abstraction that represents a group of one or more application containers (such as Nginx or redis), and some shared resources for those containers.
 
 <div style="text-align: right"><sub>Pod Overview : Images by Kubernetes.io</sub></div>
 ![Pods overview image](/images/kubes/module_03_pods.svg "Pods Overview")
 
- - [What are Nodes](https://kubernetes.io/docs/concepts/nodes/node/#what-is-a-node) <sub>(also known as worker or minion, a single machine)</sub>
+ - [What are Nodes?](https://kubernetes.io/docs/concepts/nodes/node/#what-is-a-node) <sub>(also known as worker or minion, a single machine)</sub>
     * A Pod always runs inside a Node. A Node is a worker machine in Kubernetes and may be either a virtual or a physical machine, depending on the cluster. Node is controlled by Kubernetes Master. Kubernetes manages scheduling of pods in Nodes running in a cluster.
 
 <div style="text-align: right"><sub>Node Overview : Images by Kubernetes.io</sub></div>
 ![Node overview image](/images/kubes/module_03_nodes.svg "Node Overview")
 
 
- - [What are deployments!](https://kubernetes.io/docs/concepts/workloads/controllers/deployment/)
+ - [What are deployments?](https://kubernetes.io/docs/concepts/workloads/controllers/deployment/)
     * Deployments to create new resources, or replace existing ones by new ones by means of configuration defined. You can think of it as a supervisor of pods management.
 
 
@@ -295,15 +296,15 @@ spec:
       - containerPort: 80
 ```
 
- - [What is replication controller and Replica sets!](https://kubernetes.io/docs/concepts/workloads/controllers/replicaset/)
+ - [What is replication controller and Replica sets?](https://kubernetes.io/docs/concepts/workloads/controllers/replicaset/)
     * A ReplicationController and Replica Sets ensures that a specified number of pod “replicas” are running at any one time. In other words, it makes sure that a pod or homogeneous set of pods are always up and available. If there are too many pods, it will kill some. If there are too few, it will start more.
     > In above ```yaml``` file, you can see ```replicas``` keyword, this is being managed by replication utility.
 
- - [What is Kubernetes master!](https://kubernetes.io/docs/concepts/overview/components/)
+ - [What is Kubernetes master?](https://kubernetes.io/docs/concepts/overview/components/)
     * The controlling services in a Kubernetes cluster are called the master, or control plane, components. For example, master components are responsible for making global decisions about the cluster (e.g., scheduling), and detecting and responding to cluster events (e.g., starting up a new pod when a replication controller’s ‘replicas’ field is unsatisfied). Kubernetes provides a REST API supporting primarily CRUD operations on (mostly) persistent resources, which serve as the hub of its control plane.
     * [Kubernetes Ecosystem consists of mutiple components.](https://github.com/kubernetes/community/blob/master/contributors/design-proposals/architecture.md#architecture)
 
- - [What are services!](https://kubernetes.io/docs/concepts/services-networking/service/)
+ - [What are services?](https://kubernetes.io/docs/concepts/services-networking/service/)
     * A Kubernetes Service is an abstraction which defines a logical set of Pods and a policy by which to access them. The set of Pods targeted by a Service is (usually) determined by a Label Selector. Service keep on looking for pods which has specific labels assigned and keep tracks of those pods for request offloading.
 
 <div style="text-align: right"><sub>Service Overview : Images by Kubernetes.io</sub></div>
@@ -331,7 +332,7 @@ spec:
 
 ```
 
- - How to debug or [get cluster info from command-line!](https://kubernetes.io/docs/user-guide/kubectl-cheatsheet/)
+ - [How to debug or get cluster info from command-line?](https://kubernetes.io/docs/user-guide/kubectl-cheatsheet/)
     * ```kubectl``` is a command line interface for running commands against Kubernetes clusters.
 
 ```
@@ -392,12 +393,12 @@ We have number of ```deployments``` which manages scaling pods up/down depend on
 
   - There comes kubes ```services```. We have plenty of APIs we need to expose to outside world. To make it happen, we have couple of kube services exposed using tcp loadbalancer which has been assigned public IP. Internally, these services keeps on doing service discovery using ```label selector``` to find pods and attach it to this service, pods having same label will be targeted by a service. Its same concept of how we manage loadbalancer on cloud, attach VMs to a loadbalancer to offload incoming traffic.
 
- - Resources running inside Kube ship knows each other very well. Each ```services/pods``` can communicate by names assigned to each. Instead of using IPs (private) assigned to each of them, you can use names given as FQDN and its a good practise to use names instead of IPs because of dynamic nature of network resource allocation and resources get destroyed and created again in a container lifecycle management. Kube-DNS maintains all list of IPs internally assigned and helps finding resources by names.
+ - Resources running inside Kube ship knows each other very well. Each ```services/pods``` can communicate by names assigned to each. Instead of using IPs (private) assigned to each of them, you can use names given as FQDN, its a good practise to use names instead of IPs because of dynamic nature of network resource allocation since resources get destroyed and created again in a container lifecycle management. Kube-DNS maintains all list of IPs internally assigned and helps finding resources by names.
 
 
 ------------
 
-#### How to decide what resources you should allocate to your [pods resources](https://kubernetes.io/docs/tasks/configure-pod-container/assign-cpu-ram-container/)?
+#### [How to decide what resources you should allocate to your pods resources](https://kubernetes.io/docs/tasks/configure-pod-container/assign-cpu-ram-container/)?
 
 ```
 Convention
@@ -421,7 +422,7 @@ spec:
         cpu: "500m"
 ```
 
-Each container has its own requirements of resources (ie, CPU, RAM, disk, network etc), there comes requests & limits in kubes. This helps in keeping your nodes healthy. Many times due to bad limits or not defining limits, your pods can go crazy at utilization, eat any resources and can lead to node starvation and lead to Node becomes unhealthy and goes in ```[Not Ready]``` state due to resource exhaustion. We had this multiple times at early stage and now we had fine tuned each pods resources based on its hunger behaviour.
+Each container has its own requirements of resources (ie, CPU, RAM, disk, network etc), there comes requests & limits in kubes. This helps in keeping your nodes healthy. Many times due to bad limits or not defining limits, your pods can go crazy at utilization, they might eat any resources, can lead to node starvation that results in Nodes becomes unhealthy and goes in ```[Not Ready]``` state due to resource exhaustion. We faced this multiple times at early stage and now we have fine tuned each pods resources based on its hunger behaviour.
 
 ##### How to define Node resources in kubernetes cluster?
 
@@ -490,7 +491,7 @@ gcloud beta container node-pools update <NODEPOOL> --cluster <CLUSTER> --zone <Z
 ```
 
 
-Pretty much all above understanding are based on what i learned in last six months of kubernetes running in production. Container management is easy to adapt and lot of new observation is yet to be discovered as we go along the way.
+Pretty much all above understanding are based on what I learned in last six months of kubernetes running in production. Container management is easy to adapt and lot of new observation is yet to be discovered as we go along the way.
 
 Looking at deployments today, Kubernetes is absolutely fantastic in Auto-pilot and doing self-healing jobs itself. We are running more than ```1000 pods``` in cluster together and processing ```10's of Billions of API calls per month``` and are pushing more to handle.
 
@@ -498,3 +499,9 @@ Looking at deployments today, Kubernetes is absolutely fantastic in Auto-pilot a
 ------------
 
 > Conclusion : ```Kubernetes``` lifted lot of ``` server management``` and helped in faster depployments & scaling system. Adaptability is much quicker, most of security and other concerns is being managed by Google. Kubernetes aims to offer a better orchestration management system on top of clustered infrastrcuture. Development on Kubernetes has been happening at storm-speed, and the [community of Kubernauts](https://kubernetes.io/community/) has grown bigger.
+
+------------
+
+
+##### Medium Blog : [medium.com/@sunnykrgupta/managing-fleet-on-kubernetes-8cac6483b64](https://medium.com/@sunnykrgupta/managing-fleet-on-kubernetes-8cac6483b64)
+
