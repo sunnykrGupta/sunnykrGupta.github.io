@@ -626,12 +626,24 @@ gcloud beta container node-pools update &amp;lt;NODEPOOL&amp;gt; --cluster &amp;
 &lt;p&gt;Geocoding is the process of converting addresses (like "1600 Amphitheatre Parkway, Mountain View, CA") into geographic coordinates (like latitude 37.423021 and longitude 122.083739) or reverse.&lt;/p&gt;
 &lt;h5&gt;Available Geocoder APIs&lt;/h5&gt;
 &lt;p&gt;There are several Geocoding service provided by different Map APIs, populars are listed below:
- - &lt;a href="https://developers.google.com/maps/documentation/geolocation/intro"&gt;Google Maps Geocoding V3 API&lt;/a&gt; (2500 per-day)
- - &lt;a href="http://www.geonames.org/about.html"&gt;Geonames&lt;/a&gt; (30000 per-day | 2000 per-hour)
- - &lt;a href="http://wiki.openstreetmap.org/wiki/Nominatim"&gt;Nominatim - Open Street Map&lt;/a&gt; (refer Usage Docs)
- - &lt;a href="https://tech.yandex.com/maps/doc/geocoder/desc/concepts/About-docpage/"&gt;Yandex Map API&lt;/a&gt;  (25,000 per-day)
- - &lt;a href="https://msdn.microsoft.com/en-us/library/ff428643.aspx"&gt;Bing  Map API (Microsoft)&lt;/a&gt; (refer Usage Docs)
- - &lt;a href="https://developer.yahoo.com/boss/geo/"&gt;Yahoo BOSS Finder&lt;/a&gt; (refer Usage Docs)&lt;/p&gt;
+ - &lt;a href="https://developers.google.com/maps/documentation/geolocation/intro"&gt;Google Maps Geocoding V3 API&lt;/a&gt; (2500 per-day)&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;
+&lt;p&gt;&lt;a href="http://www.geonames.org/about.html"&gt;Geonames&lt;/a&gt; (30000 per-day | 2000 per-hour)&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;&lt;a href="http://wiki.openstreetmap.org/wiki/Nominatim"&gt;Nominatim - Open Street Map&lt;/a&gt; (refer Usage Docs)&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;&lt;a href="https://tech.yandex.com/maps/doc/geocoder/desc/concepts/About-docpage/"&gt;Yandex Map API&lt;/a&gt;  (25,000 per-day)&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;&lt;a href="https://msdn.microsoft.com/en-us/library/ff428643.aspx"&gt;Bing  Map API (Microsoft)&lt;/a&gt; (refer Usage Docs)&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;&lt;a href="https://developer.yahoo.com/boss/geo/"&gt;Yahoo BOSS Finder&lt;/a&gt; (refer Usage Docs)&lt;/p&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
 &lt;blockquote&gt;
 &lt;p&gt;Note : Geocoder APIs may have request limts on per-day or per-IP or others. Increasing those limts can result in blacklisting. At the time of writing this post, limits are mentioned in brackets above.&lt;/p&gt;
 &lt;/blockquote&gt;
