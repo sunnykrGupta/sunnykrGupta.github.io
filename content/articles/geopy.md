@@ -20,10 +20,15 @@ Geocoding is the process of converting addresses (like "1600 Amphitheatre Parkwa
 #####Available Geocoder APIs
 There are several Geocoding service provided by different Map APIs, populars are listed below:
  - [Google Maps Geocoding V3 API](https://developers.google.com/maps/documentation/geolocation/intro) (2500 per-day)
+
  - [Geonames](http://www.geonames.org/about.html) (30000 per-day | 2000 per-hour)
+
  - [Nominatim - Open Street Map](http://wiki.openstreetmap.org/wiki/Nominatim) (refer Usage Docs)
+
  - [Yandex Map API](https://tech.yandex.com/maps/doc/geocoder/desc/concepts/About-docpage/)  (25,000 per-day)
+
  - [Bing  Map API (Microsoft)](https://msdn.microsoft.com/en-us/library/ff428643.aspx) (refer Usage Docs)
+
  - [Yahoo BOSS Finder](https://developer.yahoo.com/boss/geo/) (refer Usage Docs)
 
 > Note : Geocoder APIs may have request limts on per-day or per-IP or others. Increasing those limts can result in blacklisting. At the time of writing this post, limits are mentioned in brackets above.

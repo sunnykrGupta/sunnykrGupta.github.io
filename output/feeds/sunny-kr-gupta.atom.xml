@@ -1,7 +1,130 @@
 <?xml version="1.0" encoding="utf-8"?>
-<feed xmlns="http://www.w3.org/2005/Atom"><title>Daemon Blog - Sunny Kr Gupta</title><link href="https://sunnykrGupta.github.io/" rel="alternate"></link><link href="https://sunnykrGupta.github.io/feeds/sunny-kr-gupta.atom.xml" rel="self"></link><id>https://sunnykrGupta.github.io/</id><updated>2017-08-13T19:45:00+05:30</updated><entry><title>Managing fleet on Kubernetes</title><link href="https://sunnykrGupta.github.io/managing-fleet-on-kubernetes.html" rel="alternate"></link><published>2017-08-13T19:45:00+05:30</published><updated>2017-08-13T19:45:00+05:30</updated><author><name>Sunny Kr Gupta</name></author><id>tag:sunnykrgupta.github.io,2017-08-13:/managing-fleet-on-kubernetes.html</id><summary type="html">&lt;blockquote&gt;
-&lt;p&gt;Couple of months ago, we were tackling challenges with scalability of system and were in pursuit of finding right orchestration tools which can help in scaling system quickly. This draft is outline of things we have tried and learned along the way. A Quick glance of things we came across …&lt;/p&gt;&lt;/blockquote&gt;</summary><content type="html">&lt;blockquote&gt;
-&lt;p&gt;Couple of months ago, we were tackling challenges with scalability of system and were in pursuit of finding right orchestration tools which can help in scaling system quickly. This draft is outline of things we have tried and learned along the way. A Quick glance of things we came across while building fleet on Kubernetes.&lt;/p&gt;
+<feed xmlns="http://www.w3.org/2005/Atom"><title>Daemon Blog - Sunny Kr Gupta</title><link href="https://sunnykrGupta.github.io/" rel="alternate"></link><link href="https://sunnykrGupta.github.io/feeds/sunny-kr-gupta.atom.xml" rel="self"></link><id>https://sunnykrGupta.github.io/</id><updated>2017-09-04T22:51:50+05:30</updated><entry><title>Installation of VNC server on Ubuntu</title><link href="https://sunnykrGupta.github.io/installation-of-vnc-server-on-ubuntu.html" rel="alternate"></link><published>2017-09-04T22:51:50+05:30</published><updated>2017-09-04T22:51:50+05:30</updated><author><name>Sunny Kr Gupta</name></author><id>tag:sunnykrgupta.github.io,2017-09-04:/installation-of-vnc-server-on-ubuntu.html</id><summary type="html">&lt;p&gt;This blog is intended for people who wanted to install GUI or desktop environment on linux &lt;a href="https://en.wikipedia.org/wiki/Server_(computing)"&gt;servers&lt;/a&gt; running on &lt;a href="https://en.wikipedia.org/wiki/Cloud_computing"&gt;cloud&lt;/a&gt; and connect.&lt;/p&gt;
+&lt;p&gt;We are going to use VNC (Virtual Network Computing) protocol for accessing our remote desktop server.&lt;/p&gt;
+&lt;h4&gt;What is VNC ?&lt;/h4&gt;
+&lt;p&gt;&lt;a href="https://en.wikipedia.org/wiki/Virtual_Network_Computing"&gt;Virtual network computing&lt;/a&gt;, or VNC, is a graphical desktop …&lt;/p&gt;</summary><content type="html">&lt;p&gt;This blog is intended for people who wanted to install GUI or desktop environment on linux &lt;a href="https://en.wikipedia.org/wiki/Server_(computing)"&gt;servers&lt;/a&gt; running on &lt;a href="https://en.wikipedia.org/wiki/Cloud_computing"&gt;cloud&lt;/a&gt; and connect.&lt;/p&gt;
+&lt;p&gt;We are going to use VNC (Virtual Network Computing) protocol for accessing our remote desktop server.&lt;/p&gt;
+&lt;h4&gt;What is VNC ?&lt;/h4&gt;
+&lt;p&gt;&lt;a href="https://en.wikipedia.org/wiki/Virtual_Network_Computing"&gt;Virtual network computing&lt;/a&gt;, or VNC, is a graphical desktop sharing system that allows you to control one computer remotely from another. A VNC server transfers keyboard and mouse events, and displays the remote host’s screen via a network connection, which allows you to operate a full &lt;a href="https://en.wikipedia.org/wiki/Desktop_environment"&gt;desktop environment&lt;/a&gt;.&lt;/p&gt;
+&lt;p&gt;Basically ubuntu server and ubuntu cloud editions does not contains GUI, which needs to be installed before installing VNC server. Please note that server and cloud editions are carefully designed to utilize less hardware resources ( minimal environment ), installing GUI might leads to high hardware utilization.&lt;/p&gt;
+&lt;h4&gt;Why I needed desktop environment in remote server ?&lt;/h4&gt;
+&lt;p&gt;Just to explain a use case, let me tell me you how I ended up using VNC in first place. I was working on a problem which relates with cloud latency testing. My Friend, &lt;a href="https://www.linkedin.com/in/neekneeraj/"&gt;Neeraj&lt;/a&gt; &lt;em&gt;(whose work revolves around core JS research &amp;amp; development)&lt;/em&gt; developed a javascript code that makes an cross origin &lt;a href="(https://en.wikipedia.org/wiki/Web_API)"&gt;HTTP API&lt;/a&gt; call to a &lt;a href="https://en.wikipedia.org/wiki/Cloud_load_balancing"&gt;loadbalancer&lt;/a&gt; near to the geographical location of browser and response will be delivered from loadbalancer in geographic proximity. To test this setup, executing JS code and to use &lt;a href="https://developer.mozilla.org/en/docs/Tools/Browser_Console"&gt;developer console&lt;/a&gt; to see what's happening under the network layer, we were in need of a browser engine in different geographical location. I could have used some online paid or free service to get browser rented, services like &lt;a href="https://www.browserstack.com/"&gt;browserstack&lt;/a&gt; or other alternatives but that has free minutes based trial restrictions.&lt;/p&gt;
+&lt;hr&gt;
+&lt;h3&gt;Install a Desktop and VNC Server on Ubtunu 14.04&lt;/h3&gt;
+&lt;h4&gt;Step 1 - Install Ubuntu desktop&lt;/h4&gt;
+&lt;p&gt;Start installing below &lt;em&gt;gnome packages&lt;/em&gt; which helps VNC to load properly . These packages are required for all editions including &lt;em&gt;ubuntu desktop&lt;/em&gt; .&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="nv"&gt;$ &lt;/span&gt;sudo apt-get install --no-install-recommends ubuntu-desktop gnome-panel gnome-settings-daemon metacity nautilus gnome-terminal gnome-core
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;h4&gt;Step 2 - Install vnc4server package.&lt;/h4&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="nv"&gt;$ &lt;/span&gt;sudo apt-get install vnc4server
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;h4&gt;Step 3 - Make configuration changes in vncserver&lt;/h4&gt;
+&lt;p&gt;Open &lt;code&gt;/usr/bin/vncserver&lt;/code&gt; file and edit as follows . Before editing, make a backup copy.&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="nv"&gt;$ &lt;/span&gt;sudo cp /usr/bin/vncserver /usr/bin/vncserver.bkp
+
+&lt;span class="nv"&gt;$ &lt;/span&gt;sudo vim /usr/bin/vncserver
+
+&lt;span class="c"&gt;#Find this line &amp;quot;# exec /etc/X11/xinit/xinitrcnn&amp;quot;.&lt;/span&gt;
+&lt;span class="c"&gt;#and add these lines like below&lt;/span&gt;
+
+    &lt;span class="s2"&gt;&amp;quot;# exec /etc/X11/xinit/xinitrcnn&amp;quot;&lt;/span&gt;.
+       &lt;span class="s2"&gt;&amp;quot;gnome-panel &amp;amp;n&amp;quot;&lt;/span&gt;.
+       &lt;span class="s2"&gt;&amp;quot;gnome-settings-daemon &amp;amp;n&amp;quot;&lt;/span&gt;.
+       &lt;span class="s2"&gt;&amp;quot;metacity &amp;amp;n&amp;quot;&lt;/span&gt;.
+       &lt;span class="s2"&gt;&amp;quot;nautilus &amp;amp;n&amp;quot;&lt;/span&gt;.
+       &lt;span class="s2"&gt;&amp;quot;gnome-terminal &amp;amp;n&amp;quot;&lt;/span&gt;.
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;h4&gt;Step 4 - Start your vncserver&lt;/h4&gt;
+&lt;p&gt;Now type the command &lt;code&gt;vncserver&lt;/code&gt; to start VNC session. you will be prompted for creating new vnc password.&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="nv"&gt;$ &lt;/span&gt;vncserver
+You will require a password to access your desktops through VNC Clients.
+Password:******
+Verify:******
+
+xauth: file /root/.Xauthority does not exist
+New &lt;span class="s1"&gt;&amp;#39;ubuntu-desktop:1 (root)&amp;#39;&lt;/span&gt; desktop is ubuntu-desktop:1
+
+Starting applications specified in /root/.vnc/xstartup
+Log file is /root/.vnc/ubuntu-desktop:1.log
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;h4&gt;Step 5 - To check VNC server has started, follow&lt;/h4&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="nv"&gt;$ &lt;/span&gt;netstat -tulpn
+
+Proto Recv-Q Send-Q Local Address           Foreign Address         State       PID/Program name
+tcp        &lt;span class="m"&gt;0&lt;/span&gt;      &lt;span class="m"&gt;0&lt;/span&gt; 0.0.0.0:6001            0.0.0.0:*               LISTEN      28372/Xvnc4
+tcp6       &lt;span class="m"&gt;0&lt;/span&gt;      &lt;span class="m"&gt;0&lt;/span&gt; :::5901                 :::*                    LISTEN      28372/Xvnc4
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;blockquote&gt;
+&lt;p&gt;VNC server is running and listening on &lt;strong&gt;5901 port&lt;/strong&gt;. Make sure your firewall allows &lt;strong&gt;inbound&lt;/strong&gt; TCP connection to this port.&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;h4&gt;Step 6 - Configure your Firewall&lt;/h4&gt;
+&lt;p&gt;If &lt;strong&gt;firewall&lt;/strong&gt; is active, you need to open ports for inbound communication. If no firewall is enabled, you can skip this section.&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="c"&gt;#allow SSH&lt;/span&gt;
+&lt;span class="nv"&gt;$ &lt;/span&gt;sudo ufw allow OpenSSH
+
+&lt;span class="c"&gt;#allowing single port 5901 port&lt;/span&gt;
+&lt;span class="nv"&gt;$ &lt;/span&gt;sudo ufw allow 5901/tcp
+
+&lt;span class="c"&gt;#To allow series of port 5901 - 5910, follow&lt;/span&gt;
+&lt;span class="nv"&gt;$ &lt;/span&gt;sudo ufw allow 5901:5910/tcp
+
+&lt;span class="c"&gt;#To check firewall rules&lt;/span&gt;
+&lt;span class="nv"&gt;$ &lt;/span&gt;sudo  ufw status verbose
+
+Status: active
+Logging: on &lt;span class="o"&gt;(&lt;/span&gt;low&lt;span class="o"&gt;)&lt;/span&gt;
+Default: deny &lt;span class="o"&gt;(&lt;/span&gt;incoming&lt;span class="o"&gt;)&lt;/span&gt;, allow &lt;span class="o"&gt;(&lt;/span&gt;outgoing&lt;span class="o"&gt;)&lt;/span&gt;, disabled &lt;span class="o"&gt;(&lt;/span&gt;routed&lt;span class="o"&gt;)&lt;/span&gt;
+New profiles: skip
+
+To                         Action      From
+--                         ------      ----
+22/tcp &lt;span class="o"&gt;(&lt;/span&gt;OpenSSH&lt;span class="o"&gt;)&lt;/span&gt;           ALLOW IN    Anywhere
+5901:5910/tcp              ALLOW IN    Anywhere
+22/tcp &lt;span class="o"&gt;(&lt;/span&gt;OpenSSH &lt;span class="o"&gt;(&lt;/span&gt;v6&lt;span class="o"&gt;))&lt;/span&gt;      ALLOW IN    Anywhere &lt;span class="o"&gt;(&lt;/span&gt;v6&lt;span class="o"&gt;)&lt;/span&gt;
+5901:5910/tcp &lt;span class="o"&gt;(&lt;/span&gt;v6&lt;span class="o"&gt;)&lt;/span&gt;         ALLOW IN    Anywhere &lt;span class="o"&gt;(&lt;/span&gt;v6&lt;span class="o"&gt;)&lt;/span&gt;WW
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;blockquote&gt;
+&lt;p&gt;&lt;strong&gt;&lt;a href="https://www.digitalocean.com/community/tutorials/how-to-set-up-a-firewall-with-ufw-on-ubuntu-14-04"&gt;Good reads on configuring UFW firewall&lt;/a&gt;&lt;/strong&gt;&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;h4&gt;Step 7 - Connect to VNC Server&lt;/h4&gt;
+&lt;blockquote&gt;
+&lt;p&gt;Use any remote desktop connect client that allow VNC protocol. Use &lt;em&gt;&lt;a href="https://en.wikipedia.org/wiki/IP_address"&gt;IP address&lt;/a&gt;&lt;/em&gt; of server along with port where VNC server is listening.&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;div style="text-align: right"&gt;&lt;sub&gt;Connect -Remote Desktop Viewer&lt;/sub&gt;&lt;/div&gt;
+
+&lt;p&gt;&lt;img alt="VNC Connect" src="/images/vnc/vnc-connect.png" title="VNC Connect"&gt;&lt;/p&gt;
+&lt;blockquote&gt;
+&lt;p&gt;Once connected to your VNC server, you will see screen of remote server where you installed desktop GUI.&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;div style="text-align: right"&gt;&lt;sub&gt;Launch Firefox from Terminal&lt;/sub&gt;&lt;/div&gt;
+
+&lt;p&gt;&lt;img alt="Launch Firefox" src="/images/vnc/vnc-launch-firefox.png" title="Launch Firefox"&gt;&lt;/p&gt;
+&lt;blockquote&gt;
+&lt;p&gt;Browser screen running on remote server.&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;div style="text-align: right"&gt;&lt;sub&gt;Google UK&lt;/sub&gt;&lt;/div&gt;
+
+&lt;p&gt;&lt;img alt="Google UK" src="/images/vnc/vnc-google-uk.png" title="Google UK"&gt;&lt;/p&gt;
+&lt;p&gt;That’s it, your VNC server is working.&lt;/p&gt;
+&lt;blockquote&gt;
+&lt;p&gt;Here I created my linux server in london, UK. I opened firefox through terminal to reach out to URL &lt;em&gt;google.com&lt;/em&gt;. It opened google.co.uk domain based on regional search engine. You can do lot of other stuffs on VNC protocol to get things done from remote location.&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;hr&gt;
+&lt;h5&gt;Medium Blog : &lt;a href="https://medium.com/@sunnykrgupta/installation-of-vnc-server-on-ubuntu-1cf035370bd3"&gt;medium.com/@sunnykrgupta/installation-of-vnc-server-on-ubuntu-1cf035370bd3&lt;/a&gt;&lt;/h5&gt;</content><category term="vnc"></category><category term="vncserver"></category><category term="ubuntu"></category><category term="desktop installation"></category></entry><entry><title>Managing fleet on Kubernetes</title><link href="https://sunnykrGupta.github.io/managing-fleet-on-kubernetes.html" rel="alternate"></link><published>2017-08-13T19:45:00+05:30</published><updated>2017-08-13T19:45:00+05:30</updated><author><name>Sunny Kr Gupta</name></author><id>tag:sunnykrgupta.github.io,2017-08-13:/managing-fleet-on-kubernetes.html</id><summary type="html">&lt;blockquote&gt;
+&lt;p&gt;Couple of months ago, we were tackling challenges with scalability of system and were in pursuit of finding right orchestration tools which can help in scaling system quickly. This draft is outline of things we have tried and learned along the way, , most of things might sound familiar to you …&lt;/p&gt;&lt;/blockquote&gt;</summary><content type="html">&lt;blockquote&gt;
+&lt;p&gt;Couple of months ago, we were tackling challenges with scalability of system and were in pursuit of finding right orchestration tools which can help in scaling system quickly. This draft is outline of things we have tried and learned along the way, , most of things might sound familiar to you. A Quick glance of things we came across while building fleet on Kubernetes.&lt;/p&gt;
 &lt;/blockquote&gt;
 &lt;p&gt;We started exploring popular project managed by Google for orchestration management, &lt;strong&gt;&lt;a href="https://kubernetes.io/"&gt;Kubernetes&lt;/a&gt;&lt;/strong&gt; for DevOps. Starting with two weeks of learning curves, we get our working staging system in &lt;em&gt;kubes&lt;/em&gt; (kubernetes in short) and did small working setup to visualize the power of this orchestration framework.&lt;/p&gt;
 &lt;hr&gt;
@@ -14,7 +137,7 @@
 &lt;p&gt;Docker’s container-based platform allows highly portable workloads. Docker containers can run on a developer’s local laptop, on physical or virtual machines in a data center, on cloud providers, or in a mixture of environments.&lt;/p&gt;
 &lt;hr&gt;
 &lt;p&gt;We started with &lt;code&gt;Google Container Engine (GCE)&lt;/code&gt; to get things work quickly. We started with a cluster with few &lt;code&gt;10's of Nodes&lt;/code&gt;, each Node with configuration &lt;code&gt;12 vCore and 30 GB&lt;/code&gt; in &lt;strong&gt;&lt;a href="https://cloud.google.com/container-engine/docs/node-pools"&gt;default pool&lt;/a&gt;&lt;/strong&gt; to run stateless components.&lt;/p&gt;
-&lt;p&gt;Before we go in depth, we have done some research and found out we needed some &lt;em&gt;gears&lt;/em&gt; (concepts/tools/theory) before we board into container ship and sail out for cruise.&lt;/p&gt;
+&lt;p&gt;Before going in depth, we needs some &lt;em&gt;gears&lt;/em&gt; (concepts/tools/theory) to onboard into container ship and sail out for cruise.&lt;/p&gt;
 &lt;p&gt;We are dividing gears that we need to know into two parts, ie, first will be &lt;code&gt;Docker&lt;/code&gt; and second will focused on &lt;code&gt;Kubernetes&lt;/code&gt;.&lt;/p&gt;
 &lt;hr&gt;
 &lt;h4&gt;Part - I (Understanding Docker at Dock)&lt;/h4&gt;
@@ -22,7 +145,7 @@
 &lt;li&gt;
 &lt;p&gt;Stateless and stateful components.&lt;/p&gt;
 &lt;ul&gt;
-&lt;li&gt;In computing, a stateless protocol is a communications protocol in which no information is retained by either sender or receiver. The sender transmits a packet to the receiver and does not expect an acknowledgment of receipt. A UDP connection-oriented session is a stateless connection because neither systems maintains information about the session during its life.&lt;/li&gt;
+&lt;li&gt;In computing, a stateless protocol is a communication protocol in which no information is retained by either sender or receiver. The sender transmits a packet to the receiver and does not expect an acknowledgment of receipt. A UDP connection-oriented session is a stateless connection because neither systems maintains information about the session during its life.&lt;/li&gt;
 &lt;li&gt;In contrast, a protocol that requires keeping of the internal state on the server is known as a stateful protocol. A TCP connection-oriented session is a 'stateful' connection because both systems maintain information about the session itself during its life.&lt;/li&gt;
 &lt;/ul&gt;
 &lt;/li&gt;
@@ -241,13 +364,13 @@ Successfully built e3fae9852d94
 &lt;h4&gt;Part - II ( Understanding Kubernetes in Ocean )&lt;/h4&gt;
 &lt;ul&gt;
 &lt;li&gt;
-&lt;p&gt;Learning basics of kubernetes &amp;amp; &lt;a href="https://kubernetes.io/docs/tutorials/kubernetes-basics/"&gt;working flow training&lt;/a&gt;.&lt;/p&gt;
+&lt;p&gt;Learning basics of kubernetes &amp;amp; &lt;a href="https://kubernetes.io/docs/tutorials/kubernetes-basics/"&gt;work flow training&lt;/a&gt;.&lt;/p&gt;
 &lt;ul&gt;
 &lt;li&gt;Kubernetes is an open-source platform for automating deployment, scaling, and operations of application containers across clusters of hosts, providing container-centric infrastructure - Kubernetes.io&lt;/li&gt;
 &lt;/ul&gt;
 &lt;/li&gt;
 &lt;li&gt;
-&lt;p&gt;&lt;a href="https://kubernetes.io/docs/concepts/workloads/pods/pod/#what-is-a-pod"&gt;What are Pods! How container run inside a pod!&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;&lt;a href="https://kubernetes.io/docs/concepts/workloads/pods/pod/#what-is-a-pod"&gt;What are Pods? How container run inside a pod?&lt;/a&gt;&lt;/p&gt;
 &lt;ul&gt;
 &lt;li&gt;Pods are the atomic unit on the Kubernetes platform. A Pod is a Kubernetes abstraction that represents a group of one or more application containers (such as Nginx or redis), and some shared resources for those containers.&lt;/li&gt;
 &lt;/ul&gt;
@@ -257,7 +380,7 @@ Successfully built e3fae9852d94
 
 &lt;p&gt;&lt;img alt="Pods overview image" src="/images/kubes/module_03_pods.svg" title="Pods Overview"&gt;&lt;/p&gt;
 &lt;ul&gt;
-&lt;li&gt;&lt;a href="https://kubernetes.io/docs/concepts/nodes/node/#what-is-a-node"&gt;What are Nodes&lt;/a&gt; &lt;sub&gt;(also known as worker or minion, a single machine)&lt;/sub&gt;&lt;ul&gt;
+&lt;li&gt;&lt;a href="https://kubernetes.io/docs/concepts/nodes/node/#what-is-a-node"&gt;What are Nodes?&lt;/a&gt; &lt;sub&gt;(also known as worker or minion, a single machine)&lt;/sub&gt;&lt;ul&gt;
 &lt;li&gt;A Pod always runs inside a Node. A Node is a worker machine in Kubernetes and may be either a virtual or a physical machine, depending on the cluster. Node is controlled by Kubernetes Master. Kubernetes manages scheduling of pods in Nodes running in a cluster.&lt;/li&gt;
 &lt;/ul&gt;
 &lt;/li&gt;
@@ -266,7 +389,7 @@ Successfully built e3fae9852d94
 
 &lt;p&gt;&lt;img alt="Node overview image" src="/images/kubes/module_03_nodes.svg" title="Node Overview"&gt;&lt;/p&gt;
 &lt;ul&gt;
-&lt;li&gt;&lt;a href="https://kubernetes.io/docs/concepts/workloads/controllers/deployment/"&gt;What are deployments!&lt;/a&gt;&lt;ul&gt;
+&lt;li&gt;&lt;a href="https://kubernetes.io/docs/concepts/workloads/controllers/deployment/"&gt;What are deployments?&lt;/a&gt;&lt;ul&gt;
 &lt;li&gt;Deployments to create new resources, or replace existing ones by new ones by means of configuration defined. You can think of it as a supervisor of pods management.&lt;/li&gt;
 &lt;/ul&gt;
 &lt;/li&gt;
@@ -294,7 +417,7 @@ spec:
 
 &lt;ul&gt;
 &lt;li&gt;
-&lt;p&gt;&lt;a href="https://kubernetes.io/docs/concepts/workloads/controllers/replicaset/"&gt;What is replication controller and Replica sets!&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;&lt;a href="https://kubernetes.io/docs/concepts/workloads/controllers/replicaset/"&gt;What is replication controller and Replica sets?&lt;/a&gt;&lt;/p&gt;
 &lt;ul&gt;
 &lt;li&gt;A ReplicationController and Replica Sets ensures that a specified number of pod “replicas” are running at any one time. In other words, it makes sure that a pod or homogeneous set of pods are always up and available. If there are too many pods, it will kill some. If there are too few, it will start more.&lt;blockquote&gt;
 &lt;p&gt;In above &lt;code&gt;yaml&lt;/code&gt; file, you can see &lt;code&gt;replicas&lt;/code&gt; keyword, this is being managed by replication utility.&lt;/p&gt;
@@ -303,14 +426,14 @@ spec:
 &lt;/ul&gt;
 &lt;/li&gt;
 &lt;li&gt;
-&lt;p&gt;&lt;a href="https://kubernetes.io/docs/concepts/overview/components/"&gt;What is Kubernetes master!&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;&lt;a href="https://kubernetes.io/docs/concepts/overview/components/"&gt;What is Kubernetes master?&lt;/a&gt;&lt;/p&gt;
 &lt;ul&gt;
 &lt;li&gt;The controlling services in a Kubernetes cluster are called the master, or control plane, components. For example, master components are responsible for making global decisions about the cluster (e.g., scheduling), and detecting and responding to cluster events (e.g., starting up a new pod when a replication controller’s ‘replicas’ field is unsatisfied). Kubernetes provides a REST API supporting primarily CRUD operations on (mostly) persistent resources, which serve as the hub of its control plane.&lt;/li&gt;
 &lt;li&gt;&lt;a href="https://github.com/kubernetes/community/blob/master/contributors/design-proposals/architecture.md#architecture"&gt;Kubernetes Ecosystem consists of mutiple components.&lt;/a&gt;&lt;/li&gt;
 &lt;/ul&gt;
 &lt;/li&gt;
 &lt;li&gt;
-&lt;p&gt;&lt;a href="https://kubernetes.io/docs/concepts/services-networking/service/"&gt;What are services!&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;&lt;a href="https://kubernetes.io/docs/concepts/services-networking/service/"&gt;What are services?&lt;/a&gt;&lt;/p&gt;
 &lt;ul&gt;
 &lt;li&gt;A Kubernetes Service is an abstraction which defines a logical set of Pods and a policy by which to access them. The set of Pods targeted by a Service is (usually) determined by a Label Selector. Service keep on looking for pods which has specific labels assigned and keep tracks of those pods for request offloading.&lt;/li&gt;
 &lt;/ul&gt;
@@ -340,7 +463,7 @@ spec:
 
 
 &lt;ul&gt;
-&lt;li&gt;How to debug or &lt;a href="https://kubernetes.io/docs/user-guide/kubectl-cheatsheet/"&gt;get cluster info from command-line!&lt;/a&gt;&lt;ul&gt;
+&lt;li&gt;&lt;a href="https://kubernetes.io/docs/user-guide/kubectl-cheatsheet/"&gt;How to debug or get cluster info from command-line?&lt;/a&gt;&lt;ul&gt;
 &lt;li&gt;&lt;code&gt;kubectl&lt;/code&gt; is a command line interface for running commands against Kubernetes clusters.&lt;/li&gt;
 &lt;/ul&gt;
 &lt;/li&gt;
@@ -403,11 +526,11 @@ spec:
 &lt;p&gt;There comes kubes &lt;code&gt;services&lt;/code&gt;. We have plenty of APIs we need to expose to outside world. To make it happen, we have couple of kube services exposed using tcp loadbalancer which has been assigned public IP. Internally, these services keeps on doing service discovery using &lt;code&gt;label selector&lt;/code&gt; to find pods and attach it to this service, pods having same label will be targeted by a service. Its same concept of how we manage loadbalancer on cloud, attach VMs to a loadbalancer to offload incoming traffic.&lt;/p&gt;
 &lt;/li&gt;
 &lt;li&gt;
-&lt;p&gt;Resources running inside Kube ship knows each other very well. Each &lt;code&gt;services/pods&lt;/code&gt; can communicate by names assigned to each. Instead of using IPs (private) assigned to each of them, you can use names given as FQDN and its a good practise to use names instead of IPs because of dynamic nature of network resource allocation and resources get destroyed and created again in a container lifecycle management. Kube-DNS maintains all list of IPs internally assigned and helps finding resources by names.&lt;/p&gt;
+&lt;p&gt;Resources running inside Kube ship knows each other very well. Each &lt;code&gt;services/pods&lt;/code&gt; can communicate by names assigned to each. Instead of using IPs (private) assigned to each of them, you can use names given as FQDN, its a good practise to use names instead of IPs because of dynamic nature of network resource allocation since resources get destroyed and created again in a container lifecycle management. Kube-DNS maintains all list of IPs internally assigned and helps finding resources by names.&lt;/p&gt;
 &lt;/li&gt;
 &lt;/ul&gt;
 &lt;hr&gt;
-&lt;h4&gt;How to decide what resources you should allocate to your &lt;a href="https://kubernetes.io/docs/tasks/configure-pod-container/assign-cpu-ram-container/"&gt;pods resources&lt;/a&gt;?&lt;/h4&gt;
+&lt;h4&gt;&lt;a href="https://kubernetes.io/docs/tasks/configure-pod-container/assign-cpu-ram-container/"&gt;How to decide what resources you should allocate to your pods resources&lt;/a&gt;?&lt;/h4&gt;
 &lt;div class="highlight"&gt;&lt;pre&gt;Convention
 # RAM : Mi = MB, ie, 1024Mi is 1024 MB or 1GB
 # CPU : m = milicpu , ie, 100m cpu is 100 milicpu, or say 0.1 CPU
@@ -430,7 +553,7 @@ spec:
 &lt;/pre&gt;&lt;/div&gt;
 
 
-&lt;p&gt;Each container has its own requirements of resources (ie, CPU, RAM, disk, network etc), there comes requests &amp;amp; limits in kubes. This helps in keeping your nodes healthy. Many times due to bad limits or not defining limits, your pods can go crazy at utilization, eat any resources and can lead to node starvation and lead to Node becomes unhealthy and goes in &lt;code&gt;[Not Ready]&lt;/code&gt; state due to resource exhaustion. We had this multiple times at early stage and now we had fine tuned each pods resources based on its hunger behaviour.&lt;/p&gt;
+&lt;p&gt;Each container has its own requirements of resources (ie, CPU, RAM, disk, network etc), there comes requests &amp;amp; limits in kubes. This helps in keeping your nodes healthy. Many times due to bad limits or not defining limits, your pods can go crazy at utilization, they might eat any resources, can lead to node starvation that results in Nodes becomes unhealthy and goes in &lt;code&gt;[Not Ready]&lt;/code&gt; state due to resource exhaustion. We faced this multiple times at early stage and now we have fine tuned each pods resources based on its hunger behaviour.&lt;/p&gt;
 &lt;h5&gt;How to define Node resources in kubernetes cluster?&lt;/h5&gt;
 &lt;p&gt;Depends on container type &lt;sub&gt;(which you are running inside a pod)&lt;/sub&gt;, you can define different Node pools. Suppose you have modules named &lt;code&gt;Core.X, Core.Y and Core.Z&lt;/code&gt; , all of them needs &lt;code&gt;2 core, 2 GB&lt;/code&gt; each to run, then you can have &lt;strong&gt;Standard Node Pool&lt;/strong&gt; to run them. In this case, i will allocate following config for my Node pool.&lt;/p&gt;
 &lt;ul&gt;
@@ -485,12 +608,14 @@ gcloud beta container node-pools update &amp;lt;NODEPOOL&amp;gt; --cluster &amp;
 &lt;/pre&gt;&lt;/div&gt;
 
 
-&lt;p&gt;Pretty much all above understanding are based on what i learned in last six months of kubernetes running in production. Container management is easy to adapt and lot of new observation is yet to be discovered as we go along the way.&lt;/p&gt;
+&lt;p&gt;Pretty much all above understanding are based on what I learned in last six months of kubernetes running in production. Container management is easy to adapt and lot of new observation is yet to be discovered as we go along the way.&lt;/p&gt;
 &lt;p&gt;Looking at deployments today, Kubernetes is absolutely fantastic in Auto-pilot and doing self-healing jobs itself. We are running more than &lt;code&gt;1000 pods&lt;/code&gt; in cluster together and processing &lt;code&gt;10's of Billions of API calls per month&lt;/code&gt; and are pushing more to handle.&lt;/p&gt;
 &lt;hr&gt;
 &lt;blockquote&gt;
 &lt;p&gt;Conclusion : &lt;code&gt;Kubernetes&lt;/code&gt; lifted lot of &lt;code&gt;server management&lt;/code&gt; and helped in faster depployments &amp;amp; scaling system. Adaptability is much quicker, most of security and other concerns is being managed by Google. Kubernetes aims to offer a better orchestration management system on top of clustered infrastrcuture. Development on Kubernetes has been happening at storm-speed, and the &lt;a href="https://kubernetes.io/community/"&gt;community of Kubernauts&lt;/a&gt; has grown bigger.&lt;/p&gt;
-&lt;/blockquote&gt;</content><category term="kubernetes"></category><category term="docker"></category><category term="gce"></category><category term="gcr"></category><category term="container"></category></entry><entry><title>A Practical Guide to Geopy</title><link href="https://sunnykrGupta.github.io/a-practical-guide-to-geopy.html" rel="alternate"></link><published>2015-07-19T01:31:31+05:30</published><updated>2015-07-19T01:31:31+05:30</updated><author><name>Sunny Kr Gupta</name></author><id>tag:sunnykrgupta.github.io,2015-07-19:/a-practical-guide-to-geopy.html</id><summary type="html">&lt;p&gt;During my final major academic project, i was working with &lt;a href="http://twitter.com"&gt;Twitter&lt;/a&gt; data (ie. tweets). I did some research and found out approximately only 1% of all Tweets published on Twitter are geolocated (ie. have location information). This is a very small portion of the Tweets, and i needed almost every …&lt;/p&gt;</summary><content type="html">&lt;p&gt;During my final major academic project, i was working with &lt;a href="http://twitter.com"&gt;Twitter&lt;/a&gt; data (ie. tweets). I did some research and found out approximately only 1% of all Tweets published on Twitter are geolocated (ie. have location information). This is a very small portion of the Tweets, and i needed almost every tweets location to segregate data country-wise.
+&lt;/blockquote&gt;
+&lt;hr&gt;
+&lt;h5&gt;Medium Blog : &lt;a href="https://medium.com/@sunnykrgupta/managing-fleet-on-kubernetes-8cac6483b64"&gt;medium.com/@sunnykrgupta/managing-fleet-on-kubernetes-8cac6483b64&lt;/a&gt;&lt;/h5&gt;</content><category term="kubernetes"></category><category term="docker"></category><category term="gce"></category><category term="gcr"></category><category term="container"></category></entry><entry><title>A Practical Guide to Geopy</title><link href="https://sunnykrGupta.github.io/a-practical-guide-to-geopy.html" rel="alternate"></link><published>2015-07-19T01:31:31+05:30</published><updated>2015-07-19T01:31:31+05:30</updated><author><name>Sunny Kr Gupta</name></author><id>tag:sunnykrgupta.github.io,2015-07-19:/a-practical-guide-to-geopy.html</id><summary type="html">&lt;p&gt;During my final major academic project, i was working with &lt;a href="http://twitter.com"&gt;Twitter&lt;/a&gt; data (ie. tweets). I did some research and found out approximately only 1% of all Tweets published on Twitter are geolocated (ie. have location information). This is a very small portion of the Tweets, and i needed almost every …&lt;/p&gt;</summary><content type="html">&lt;p&gt;During my final major academic project, i was working with &lt;a href="http://twitter.com"&gt;Twitter&lt;/a&gt; data (ie. tweets). I did some research and found out approximately only 1% of all Tweets published on Twitter are geolocated (ie. have location information). This is a very small portion of the Tweets, and i needed almost every tweets location to segregate data country-wise.
   - How to resolve a string location to determine country ("Banagher", "Ipoh" etc )
   - How to resolve a Coordinate into country. ('4.581' - '101.082' etc)&lt;/p&gt;
 &lt;p&gt;There comes a &lt;a href="http://geopy.readthedocs.org/"&gt;Geopy&lt;/a&gt; to rescue us to this problem.&lt;/p&gt;
@@ -501,12 +626,24 @@ gcloud beta container node-pools update &amp;lt;NODEPOOL&amp;gt; --cluster &amp;
 &lt;p&gt;Geocoding is the process of converting addresses (like "1600 Amphitheatre Parkway, Mountain View, CA") into geographic coordinates (like latitude 37.423021 and longitude 122.083739) or reverse.&lt;/p&gt;
 &lt;h5&gt;Available Geocoder APIs&lt;/h5&gt;
 &lt;p&gt;There are several Geocoding service provided by different Map APIs, populars are listed below:
- - &lt;a href="https://developers.google.com/maps/documentation/geolocation/intro"&gt;Google Maps Geocoding V3 API&lt;/a&gt; (2500 per-day)
- - &lt;a href="http://www.geonames.org/about.html"&gt;Geonames&lt;/a&gt; (30000 per-day | 2000 per-hour)
- - &lt;a href="http://wiki.openstreetmap.org/wiki/Nominatim"&gt;Nominatim - Open Street Map&lt;/a&gt; (refer Usage Docs)
- - &lt;a href="https://tech.yandex.com/maps/doc/geocoder/desc/concepts/About-docpage/"&gt;Yandex Map API&lt;/a&gt;  (25,000 per-day)
- - &lt;a href="https://msdn.microsoft.com/en-us/library/ff428643.aspx"&gt;Bing  Map API (Microsoft)&lt;/a&gt; (refer Usage Docs)
- - &lt;a href="https://developer.yahoo.com/boss/geo/"&gt;Yahoo BOSS Finder&lt;/a&gt; (refer Usage Docs)&lt;/p&gt;
+ - &lt;a href="https://developers.google.com/maps/documentation/geolocation/intro"&gt;Google Maps Geocoding V3 API&lt;/a&gt; (2500 per-day)&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;
+&lt;p&gt;&lt;a href="http://www.geonames.org/about.html"&gt;Geonames&lt;/a&gt; (30000 per-day | 2000 per-hour)&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;&lt;a href="http://wiki.openstreetmap.org/wiki/Nominatim"&gt;Nominatim - Open Street Map&lt;/a&gt; (refer Usage Docs)&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;&lt;a href="https://tech.yandex.com/maps/doc/geocoder/desc/concepts/About-docpage/"&gt;Yandex Map API&lt;/a&gt;  (25,000 per-day)&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;&lt;a href="https://msdn.microsoft.com/en-us/library/ff428643.aspx"&gt;Bing  Map API (Microsoft)&lt;/a&gt; (refer Usage Docs)&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;&lt;a href="https://developer.yahoo.com/boss/geo/"&gt;Yahoo BOSS Finder&lt;/a&gt; (refer Usage Docs)&lt;/p&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
 &lt;blockquote&gt;
 &lt;p&gt;Note : Geocoder APIs may have request limts on per-day or per-IP or others. Increasing those limts can result in blacklisting. At the time of writing this post, limits are mentioned in brackets above.&lt;/p&gt;
 &lt;/blockquote&gt;
