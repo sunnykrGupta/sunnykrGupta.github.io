@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*- #
 from __future__ import unicode_literals
 
-AUTHOR = u'Sunny KUMAR'
+AUTHOR = u'Sunny Kumar'
 SITENAME = u'Daemon Blog'
 
 #Production Mode
@@ -11,7 +11,7 @@ SITEURL = 'https://sunnykrGupta.github.io'
 #Devel Mode, always give absolute URL
 #SITEURL = 'http://localhost:8000'
 
-THEME = "/home/daemonsl/Dropbox/boxSpace/CodeCave/pelican-svbhack"
+THEME = "/home/daemonsl/Dropbox/boxSpace/CodeCave/pelican-svbhack-responsive"
 
 TIMEZONE = 'Asia/Calcutta'
 DEFAULT_LANG = u'en'
@@ -38,7 +38,7 @@ CATEGORY_FEED_ATOM = None
 TRANSLATION_FEED_ATOM = None
 
 #to use Google Analytics, set this var to your UA-XYZ code
-GOOGLE_ANALYTICS="UA-63834161-1"
+GOOGLE_ANALYTICS = "UA-63834161-1"
 
 # Set this to your Disqus sitename to enable disqus comments in articles
 # Set the disqus Sitename here. Goto
@@ -54,6 +54,11 @@ TAGLINE="Data Engineer, DevOps on Kubernetes, SysAdmin, Programmer, Optimist, Fo
 
 # set this to True if you want to enable the Internet Defense League code
 INTERNET_DEFENSE_LEAGUE=True
+
+#Twitter Widget
+widget_profile_url = "https://twitter.com/Sunny_KrGupta"
+widget_profile_name = "@Sunny_KrGupta"
+widget_id_int = "605800181926199296"
 
 # Social widget
 SOCIAL = (
