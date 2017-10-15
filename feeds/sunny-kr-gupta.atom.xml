@@ -24,40 +24,41 @@
 &lt;p&gt;In this article, we are going to use a mongoDB server to export our data and going to import into BQ. There are several other ways to import data into BQ.&lt;/p&gt;
 &lt;p&gt;&lt;br&gt;&lt;/p&gt;
 &lt;h4&gt;1. Export data from MongoDB&lt;/h4&gt;
-&lt;p&gt;In this example, i have a database in mongoDB with name &lt;code&gt;restaurantdb&lt;/code&gt; with collection name &lt;code&gt;restaurantCollection&lt;/code&gt;. We are going to export using &lt;code&gt;mongoexport&lt;/code&gt; binary available with mongodb server tools.&lt;/p&gt;
+&lt;p&gt;&lt;img alt="MongoDB" src="/images/bq-series/part1/mongo-db-blog.jpeg"&gt;&lt;/p&gt;
+&lt;p&gt;In this example, i have a database in mongoDB server with name &lt;code&gt;restaurantdb&lt;/code&gt; with collection name &lt;code&gt;restaurantCollection&lt;/code&gt;. We are going to export using &lt;code&gt;mongoexport&lt;/code&gt; binary available with mongodb server tools.&lt;/p&gt;
 &lt;p&gt;&lt;img alt="MongoDB server" src="/images/bq-series/part1/mongoexport.png"&gt;&lt;/p&gt;
-&lt;div class="highlight"&gt;&lt;pre&gt;mongoexport -d restaurantdb -c restaurantCollection -o restaurant.json
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="nv"&gt;$ &lt;/span&gt;mongoexport -d restaurantdb -c restaurantCollection -o restaurant.json
 &lt;/pre&gt;&lt;/div&gt;
 
 
 &lt;p&gt;Once export is done, we can see content of &lt;code&gt;restaurant.json&lt;/code&gt; file&lt;/p&gt;
-&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="x"&gt;head -n 1 restaurant.json&lt;/span&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="nv"&gt;$ &lt;/span&gt;head -n &lt;span class="m"&gt;1&lt;/span&gt; restaurant.json
 
-&lt;span class="err"&gt;{&lt;/span&gt;&lt;span class="x"&gt; &amp;quot;_id&amp;quot; : &lt;/span&gt;&lt;span class="err"&gt;{&lt;/span&gt;&lt;span class="x"&gt; &amp;quot;&lt;/span&gt;&lt;span class="p"&gt;$&lt;/span&gt;&lt;span class="nv"&gt;oid&lt;/span&gt;&lt;span class="x"&gt;&amp;quot; : &amp;quot;55f14312c7447c3da7051b26&amp;quot; }, \&lt;/span&gt;
-&lt;span class="x"&gt;    &amp;quot;URL&amp;quot; : &amp;quot;http://www.just-eat.co.uk/restaurants-cn-chinese-cardiff/menu&amp;quot;, \&lt;/span&gt;
-&lt;span class="x"&gt;    &amp;quot;address&amp;quot; : &amp;quot;228 City Road&amp;quot;, &amp;quot;name&amp;quot; : &amp;quot;.CN Chinese&amp;quot;, \&lt;/span&gt;
-&lt;span class="x"&gt;    &amp;quot;outcode&amp;quot; : &amp;quot;CF24&amp;quot;, &amp;quot;postcode&amp;quot; : &amp;quot;3JH&amp;quot;, &amp;quot;type_of_food&amp;quot; : &amp;quot;Chinese&amp;quot; }&lt;/span&gt;
+&lt;span class="o"&gt;{&lt;/span&gt; &lt;span class="s2"&gt;&amp;quot;_id&amp;quot;&lt;/span&gt; : &lt;span class="o"&gt;{&lt;/span&gt; &lt;span class="s2"&gt;&amp;quot;&lt;/span&gt;&lt;span class="nv"&gt;$oid&lt;/span&gt;&lt;span class="s2"&gt;&amp;quot;&lt;/span&gt; : &lt;span class="s2"&gt;&amp;quot;55f14312c7447c3da7051b26&amp;quot;&lt;/span&gt; &lt;span class="o"&gt;}&lt;/span&gt;, &lt;span class="se"&gt;\&lt;/span&gt;
+    &lt;span class="s2"&gt;&amp;quot;URL&amp;quot;&lt;/span&gt; : &lt;span class="s2"&gt;&amp;quot;http://www.just-eat.co.uk/restaurants-cn-chinese-cardiff/menu&amp;quot;&lt;/span&gt;, &lt;span class="se"&gt;\&lt;/span&gt;
+    &lt;span class="s2"&gt;&amp;quot;address&amp;quot;&lt;/span&gt; : &lt;span class="s2"&gt;&amp;quot;228 City Road&amp;quot;&lt;/span&gt;, &lt;span class="s2"&gt;&amp;quot;name&amp;quot;&lt;/span&gt; : &lt;span class="s2"&gt;&amp;quot;.CN Chinese&amp;quot;&lt;/span&gt;, &lt;span class="se"&gt;\&lt;/span&gt;
+    &lt;span class="s2"&gt;&amp;quot;outcode&amp;quot;&lt;/span&gt; : &lt;span class="s2"&gt;&amp;quot;CF24&amp;quot;&lt;/span&gt;, &lt;span class="s2"&gt;&amp;quot;postcode&amp;quot;&lt;/span&gt; : &lt;span class="s2"&gt;&amp;quot;3JH&amp;quot;&lt;/span&gt;, &lt;span class="s2"&gt;&amp;quot;type_of_food&amp;quot;&lt;/span&gt; : &lt;span class="s2"&gt;&amp;quot;Chinese&amp;quot;&lt;/span&gt; &lt;span class="o"&gt;}&lt;/span&gt;
 
-&lt;span class="x"&gt;//pretty json&lt;/span&gt;
-&lt;span class="err"&gt;{&lt;/span&gt;&lt;span class="x"&gt;&lt;/span&gt;
-&lt;span class="x"&gt;    &amp;quot;name&amp;quot;: &amp;quot;.CN Chinese&amp;quot;,&lt;/span&gt;
-&lt;span class="x"&gt;    &amp;quot;URL&amp;quot;: &amp;quot;http://www.just-eat.co.uk/restaurants-cn-chinese-cardiff/menu&amp;quot;,&lt;/span&gt;
-&lt;span class="x"&gt;    &amp;quot;outcode&amp;quot;: &amp;quot;CF24&amp;quot;,&lt;/span&gt;
-&lt;span class="x"&gt;    &amp;quot;postcode&amp;quot;: &amp;quot;3JH&amp;quot;,&lt;/span&gt;
-&lt;span class="x"&gt;    &amp;quot;address&amp;quot;: &amp;quot;228 City Road&amp;quot;,&lt;/span&gt;
-&lt;span class="x"&gt;    &amp;quot;_id&amp;quot;: &lt;/span&gt;&lt;span class="err"&gt;{&lt;/span&gt;&lt;span class="x"&gt;&lt;/span&gt;
-&lt;span class="x"&gt;        &amp;quot;&lt;/span&gt;&lt;span class="p"&gt;$&lt;/span&gt;&lt;span class="nv"&gt;oid&lt;/span&gt;&lt;span class="x"&gt;&amp;quot;: &amp;quot;55f14312c7447c3da7051b26&amp;quot;&lt;/span&gt;
-&lt;span class="x"&gt;    },&lt;/span&gt;
-&lt;span class="x"&gt;    &amp;quot;type_of_food&amp;quot;: &amp;quot;Chinese&amp;quot;&lt;/span&gt;
-&lt;span class="x"&gt;}&lt;/span&gt;
+//pretty json
+&lt;span class="o"&gt;{&lt;/span&gt;
+    &lt;span class="s2"&gt;&amp;quot;name&amp;quot;&lt;/span&gt;: &lt;span class="s2"&gt;&amp;quot;.CN Chinese&amp;quot;&lt;/span&gt;,
+    &lt;span class="s2"&gt;&amp;quot;URL&amp;quot;&lt;/span&gt;: &lt;span class="s2"&gt;&amp;quot;http://www.just-eat.co.uk/restaurants-cn-chinese-cardiff/menu&amp;quot;&lt;/span&gt;,
+    &lt;span class="s2"&gt;&amp;quot;outcode&amp;quot;&lt;/span&gt;: &lt;span class="s2"&gt;&amp;quot;CF24&amp;quot;&lt;/span&gt;,
+    &lt;span class="s2"&gt;&amp;quot;postcode&amp;quot;&lt;/span&gt;: &lt;span class="s2"&gt;&amp;quot;3JH&amp;quot;&lt;/span&gt;,
+    &lt;span class="s2"&gt;&amp;quot;address&amp;quot;&lt;/span&gt;: &lt;span class="s2"&gt;&amp;quot;228 City Road&amp;quot;&lt;/span&gt;,
+    &lt;span class="s2"&gt;&amp;quot;_id&amp;quot;&lt;/span&gt;: &lt;span class="o"&gt;{&lt;/span&gt;
+        &lt;span class="s2"&gt;&amp;quot;&lt;/span&gt;&lt;span class="nv"&gt;$oid&lt;/span&gt;&lt;span class="s2"&gt;&amp;quot;&lt;/span&gt;: &lt;span class="s2"&gt;&amp;quot;55f14312c7447c3da7051b26&amp;quot;&lt;/span&gt;
+    &lt;span class="o"&gt;}&lt;/span&gt;,
+    &lt;span class="s2"&gt;&amp;quot;type_of_food&amp;quot;&lt;/span&gt;: &lt;span class="s2"&gt;&amp;quot;Chinese&amp;quot;&lt;/span&gt;
+&lt;span class="o"&gt;}&lt;/span&gt;
 &lt;/pre&gt;&lt;/div&gt;
 
 
 &lt;hr&gt;
 &lt;p&gt;&lt;br&gt;&lt;/p&gt;
 &lt;h4&gt;2. Prepare schema for Table&lt;/h4&gt;
-&lt;p&gt;Now we have our data ready in json format to be imported into BQ table. We need schema to design in order to import these records. Schema is skeleton of each field with datatype and the field not described in schema will not be imported. We have given all fields as NULLABLE ie, if field didn't came in any records BQ will define null value.&lt;/p&gt;
-&lt;div class="highlight"&gt;&lt;pre&gt;cat restaurantSchema.json
+&lt;p&gt;Now we have our data ready in json format to be imported into BQ table. We need schema to design in order to import these records. Schema is skeleton of each field with datatype and the field not described in schema will not be imported. We have given all fields as &lt;strong&gt;NULLABLE&lt;/strong&gt; ie, if field didn't came in any records BQ will define null value.&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="nv"&gt;$ &lt;/span&gt;cat restaurantSchema.json
 &lt;/pre&gt;&lt;/div&gt;
 
 
@@ -103,9 +104,9 @@
 &lt;p&gt;We have schema, data ready to be imported in BQ, but in order to talk to APIs of GCP services, we need Cloud SDK to be installed in our system. We are going to use &lt;code&gt;gcloud&lt;/code&gt; CLI tools in order to interact with our Cloud services running in GCP.&lt;/p&gt;
 &lt;p&gt;&lt;strong&gt;Installation : &lt;/strong&gt; &lt;a href="https://cloud.google.com/sdk/"&gt;https://cloud.google.com/sdk/&lt;/a&gt;&lt;/p&gt;
 &lt;p&gt;Once installation is done, run following command to verify account setup.&lt;/p&gt;
-&lt;div class="highlight"&gt;&lt;pre&gt;gcloud auth list
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="nv"&gt;$ &lt;/span&gt;gcloud auth list
 
-gcloud config list
+&lt;span class="nv"&gt;$ &lt;/span&gt;gcloud config list
 &lt;/pre&gt;&lt;/div&gt;
 
 
@@ -124,12 +125,12 @@ gcloud config list
 &lt;p&gt;&lt;img alt="Create Dataset Step 2" src="/images/bq-series/part1/create-ds-2.png"&gt;&lt;/p&gt;
 &lt;p&gt;&lt;br&gt;&lt;/p&gt;
 &lt;blockquote&gt;
-&lt;p&gt;To create dataset through &lt;code&gt;bq&lt;/code&gt; command line interface&lt;/p&gt;
+&lt;p&gt;To create dataset through &lt;code&gt;bq&lt;/code&gt; command line interface.&lt;/p&gt;
 &lt;/blockquote&gt;
-&lt;div class="highlight"&gt;&lt;pre&gt;bq mk -d --data_location=US   BQ_Dataset
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="nv"&gt;$ &lt;/span&gt;bq mk -d --data_location&lt;span class="o"&gt;=&lt;/span&gt;US   BQ_Dataset
 
 // Verify your dataset creation
-bq ls
+&lt;span class="nv"&gt;$ &lt;/span&gt;bq ls
 
     datasetId
  ----------------
@@ -155,7 +156,7 @@ bq ls
 &lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="n"&gt;Ex&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt; &lt;span class="n"&gt;bq&lt;/span&gt; &lt;span class="n"&gt;load&lt;/span&gt; &lt;span class="o"&gt;--&lt;/span&gt;&lt;span class="n"&gt;project_id&lt;/span&gt;&lt;span class="o"&gt;=&amp;lt;&lt;/span&gt;&lt;span class="n"&gt;PROJECT&lt;/span&gt;&lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="n"&gt;ID&lt;/span&gt;&lt;span class="o"&gt;&amp;gt;&lt;/span&gt; &lt;span class="o"&gt;--&lt;/span&gt;&lt;span class="n"&gt;source_format&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="n"&gt;NEWLINE_DELIMITED_JSON&lt;/span&gt; &lt;span class="o"&gt;\&lt;/span&gt;
     &lt;span class="n"&gt;mydataset&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="na"&gt;mytable&lt;/span&gt; &lt;span class="o"&gt;./&lt;/span&gt;&lt;span class="n"&gt;myfile&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="na"&gt;json&lt;/span&gt; &lt;span class="o"&gt;./&lt;/span&gt;&lt;span class="n"&gt;myschema&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="na"&gt;json&lt;/span&gt;
 
-&lt;span class="n"&gt;bq&lt;/span&gt; &lt;span class="n"&gt;load&lt;/span&gt; &lt;span class="o"&gt;--&lt;/span&gt;&lt;span class="n"&gt;project_id&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="n"&gt;mimetic&lt;/span&gt;&lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="n"&gt;slate&lt;/span&gt;&lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="mi"&gt;179915&lt;/span&gt;   &lt;span class="o"&gt;\&lt;/span&gt;
+&lt;span class="n"&gt;$&lt;/span&gt; &lt;span class="n"&gt;bq&lt;/span&gt; &lt;span class="n"&gt;load&lt;/span&gt; &lt;span class="o"&gt;--&lt;/span&gt;&lt;span class="n"&gt;project_id&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="n"&gt;mimetic&lt;/span&gt;&lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="n"&gt;slate&lt;/span&gt;&lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="mi"&gt;179915&lt;/span&gt;   &lt;span class="o"&gt;\&lt;/span&gt;
     &lt;span class="o"&gt;--&lt;/span&gt;&lt;span class="n"&gt;source_format&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="n"&gt;NEWLINE_DELIMITED_JSON&lt;/span&gt; &lt;span class="o"&gt;--&lt;/span&gt;&lt;span class="n"&gt;max_bad_records&lt;/span&gt; &lt;span class="mi"&gt;10&lt;/span&gt; &lt;span class="o"&gt;\&lt;/span&gt;
     &lt;span class="n"&gt;BQ_Dataset&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="na"&gt;Restaurant&lt;/span&gt; &lt;span class="o"&gt;./&lt;/span&gt;&lt;span class="n"&gt;restaurant&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="na"&gt;json&lt;/span&gt;  &lt;span class="o"&gt;./&lt;/span&gt;&lt;span class="n"&gt;restaurantSchema&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="na"&gt;json&lt;/span&gt;
 &lt;/pre&gt;&lt;/div&gt;
@@ -164,29 +165,30 @@ bq ls
 &lt;p&gt;&lt;code&gt;--max_bad_records 10&lt;/code&gt; are additional flags to allow 10 bad records while importing your job, exceeding this value will result in import failure.&lt;/p&gt;
 &lt;p&gt;&lt;br&gt;&lt;/p&gt;
 &lt;p&gt;&lt;strong&gt;Import through Cloud Storage&lt;/strong&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img alt="Cloud Storage" src="/images/bq-series/part1/google-cloud-storage.png"&gt;&lt;/p&gt;
 &lt;blockquote&gt;
 &lt;p&gt;Another methods to import the data through &lt;code&gt;Cloud Storage&lt;/code&gt;, this method is lot faster compared to above one.&lt;/p&gt;
 &lt;/blockquote&gt;
 &lt;p&gt;&lt;strong&gt;Read : &lt;/strong&gt; &lt;a href="https://cloud.google.com/storage/docs/creating-buckets"&gt;https://cloud.google.com/storage/docs/creating-buckets&lt;/a&gt;&lt;/p&gt;
 &lt;div class="highlight"&gt;&lt;pre&gt;//to create Cloud storage bucket for this example.
-gsutil mb  gs://bq-storage
+$ gsutil mb  gs://bq-storage
 
 //to verify bucket creation
-gsutil ls
+$ gsutil ls
 gs://bq-storage/
 &lt;/pre&gt;&lt;/div&gt;
 
 
 &lt;p&gt;Now , we will upload our data &lt;code&gt;restaurant.json&lt;/code&gt; to storage in bucket &lt;code&gt;gs://bq-storage/&lt;/code&gt;&lt;/p&gt;
 &lt;div class="highlight"&gt;&lt;pre&gt;//Run command to upload
-gsutil cp restaurant.json gs://bq-storage/restaurant.json
+$ gsutil cp restaurant.json gs://bq-storage/restaurant.json
 &lt;/pre&gt;&lt;/div&gt;
 
 
 &lt;p&gt;Now, we can use storage URL to import into BQ tables.&lt;/p&gt;
-&lt;div class="highlight"&gt;&lt;pre&gt;bq load --project_id=mimetic-slate-179915  \
-    --source_format=NEWLINE_DELIMITED_JSON --max_bad_records 10  \
-    BQ_Dataset.Restaurant \
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="nv"&gt;$ &lt;/span&gt;bq load --project_id&lt;span class="o"&gt;=&lt;/span&gt;mimetic-slate-179915  &lt;span class="se"&gt;\&lt;/span&gt;
+    --source_format&lt;span class="o"&gt;=&lt;/span&gt;NEWLINE_DELIMITED_JSON --max_bad_records &lt;span class="m"&gt;10&lt;/span&gt;  &lt;span class="se"&gt;\&lt;/span&gt;
+    BQ_Dataset.Restaurant &lt;span class="se"&gt;\&lt;/span&gt;
     gs://bq-storage/restaurant.json ./restaurantSchema.json
 &lt;/pre&gt;&lt;/div&gt;
 
@@ -194,7 +196,7 @@ gsutil cp restaurant.json gs://bq-storage/restaurant.json
 &lt;p&gt;&lt;br&gt;
 &lt;br&gt;&lt;/p&gt;
 &lt;p&gt;After &lt;code&gt;bq load&lt;/code&gt; finished, run following command to verify the table creation.&lt;/p&gt;
-&lt;div class="highlight"&gt;&lt;pre&gt;bq show BQ_Dataset.Restaurant
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="nv"&gt;$ &lt;/span&gt;bq show BQ_Dataset.Restaurant
 &lt;/pre&gt;&lt;/div&gt;
 
 
