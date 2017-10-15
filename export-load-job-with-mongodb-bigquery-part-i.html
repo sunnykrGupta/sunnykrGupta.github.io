@@ -78,6 +78,7 @@
 <p><strong>Why ?</strong> - BigQuery is NoOps—there is no infrastructure to manage and you don't need a database administrator—so you can focus on analyzing data to find meaningful insights, use familiar SQL, and take advantage of our pay-as-you-go model.</p>
 <p><strong>How ?</strong> - Signup to <a href="https://bigquery.cloud.google.com/">Google Cloud platform - GCP</a> using your google account, start loading your data and leverage the power of this NoOps system.</p>
 <hr>
+<p><br></p>
 <h3>Terminology in BigQuery</h3>
 <p><strong>Dataset</strong></p>
 <p>A dataset is contained within a specific project. Datasets enable you to organize and control access to your tables. A table must belong to a dataset, so you need to create at least one dataset before loading data into BigQuery.</p>
@@ -86,8 +87,10 @@
 <p><strong>Schema</strong></p>
 <p>Each Every table is defined by a schema that describes field names, types, and other information. You can specify the schema of a table during the initial table creation request, or you can create a table without a schema and declare the schema in the query or load job that first populates the table. If you need to change the schema later, you can update the schema.</p>
 <hr>
+<p><br></p>
 <h3>Loading Data into BigQuery</h3>
 <p>In this article, we are going to use a mongoDB server to export our data and going to import into BQ. There are several other ways to import data into BQ.</p>
+<p><br></p>
 <h4>1. Export data from MongoDB</h4>
 <p>In this example, i have a database in mongoDB with name <code>restaurantdb</code> with collection name <code>restaurantCollection</code>. We are going to export using <code>mongoexport</code> binary available with mongodb server tools.</p>
 <p><img alt="MongoDB server" src="/images/bq-series/part1/mongoexport.png"></p>
@@ -119,6 +122,7 @@
 
 
 <hr>
+<p><br></p>
 <h4>2. Prepare schema for Table</h4>
 <p>Now we have our data ready in json format to be imported into BQ table. We need schema to design in order to import these records. Schema is skeleton of each field with datatype and the field not described in schema will not be imported. We have given all fields as NULLABLE ie, if field didn't came in any records BQ will define null value.</p>
 <div class="highlight"><pre>cat restaurantSchema.json
@@ -162,6 +166,7 @@
 
 <p>Reference for schema : <a href="https://cloud.google.com/bigquery/docs/schemas">https://cloud.google.com/bigquery/docs/schemas</a></p>
 <hr>
+<p><br></p>
 <h4>3. Google Cloud SDK Installation</h4>
 <p>We have schema, data ready to be imported in BQ, but in order to talk to APIs of GCP services, we need Cloud SDK to be installed in our system. We are going to use <code>gcloud</code> CLI tools in order to interact with our Cloud services running in GCP.</p>
 <p><strong>Installation : </strong> <a href="https://cloud.google.com/sdk/">https://cloud.google.com/sdk/</a></p>
@@ -173,9 +178,10 @@ gcloud config list
 
 
 <hr>
+<p><br></p>
 <h4>4. Create BigQuery Dataset</h4>
-<p>Go to your BigQuery in google console. https://bigquery.cloud.google.com
-Follow below instruction to create dataset.</p>
+<p>Go to your BigQuery in google console. <a href="https://bigquery.cloud.google.com">https://bigquery.cloud.google.com</a></p>
+<p>Follow below instruction to create dataset.</p>
 <blockquote>
 <p><strong>Step 1:</strong></p>
 </blockquote>
@@ -184,6 +190,7 @@ Follow below instruction to create dataset.</p>
 <p><strong>Step 2:</strong></p>
 </blockquote>
 <p><img alt="Create Dataset Step 2" src="/images/bq-series/part1/create-ds-2.png"></p>
+<p><br></p>
 <blockquote>
 <p>To create dataset through <code>bq</code> command line interface</p>
 </blockquote>
@@ -200,6 +207,7 @@ bq ls
 
 <p><strong>Read :</strong> <a href="https://cloud.google.com/bigquery/docs/datasets#create-dataset">https://cloud.google.com/bigquery/docs/datasets#create-dataset</a></p>
 <hr>
+<p><br></p>
 <h4>5. Load data into BigQuery</h4>
 <p>Now, my directory consists two files ie, data and schema.</p>
 <div class="highlight"><pre><span class="nv">$ </span>tree
@@ -222,6 +230,7 @@ bq ls
 
 
 <p><code>--max_bad_records 10</code> are additional flags to allow 10 bad records while importing your job, exceeding this value will result in import failure.</p>
+<p><br></p>
 <p><strong>Import through Cloud Storage</strong></p>
 <blockquote>
 <p>Another methods to import the data through <code>Cloud Storage</code>, this method is lot faster compared to above one.</p>
@@ -250,20 +259,24 @@ gsutil cp restaurant.json gs://bq-storage/restaurant.json
 </pre></div>
 
 
+<p><br>
+<br></p>
 <p>After <code>bq load</code> finished, run following command to verify the table creation.</p>
 <div class="highlight"><pre>bq show BQ_Dataset.Restaurant
 </pre></div>
 
 
 <blockquote>
-<p>Output will be similar to this :</p>
+<p><strong>Output will be similar to this :</strong></p>
 </blockquote>
 <p><img alt="bq show" src="/images/bq-series/part1/bq-show.png"></p>
-<p>You can also verify in bigQuery UI after hitting refresh. Visit to table and click preview. You will start seeing records in table.</p>
+<p>You can also verify in bigQuery UI after hitting refresh. Visit to table and click <em>preview</em>. You will start seeing records in table.</p>
 <p><img alt="bq show" src="/images/bq-series/part1/table-preview.png"></p>
 <p><strong>More into bq CLI :</strong> <a href="https://cloud.google.com/storage/docs/creating-buckets">https://cloud.google.com/bigquery/bq-command-line-tool</a></p>
 <p><strong>More into gsutil CLI :</strong> <a href="https://cloud.google.com/storage/docs/quickstart-gsutil">https://cloud.google.com/storage/docs/quickstart-gsutil</a></p>
 <hr>
+<p><br>
+<br></p>
 <h3>SQL Query in BQ Table</h3>
 <p>We are going to run a simple query to show the output.</p>
 <div class="highlight"><pre>SELECT
@@ -280,6 +293,7 @@ GROUP BY
 
 <p><img alt="query" src="/images/bq-series/part1/query.png"></p>
 <hr>
+<p><br></p>
 <h3>Conclusion</h3>
 <ul>
 <li>BigQuery is a query service that allows you to run SQL-like queries against
