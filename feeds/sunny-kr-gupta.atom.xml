@@ -1,5 +1,237 @@
 <?xml version="1.0" encoding="utf-8"?>
-<feed xmlns="http://www.w3.org/2005/Atom"><title>Daemon Blog - Sunny Kr Gupta</title><link href="https://sunnykrGupta.github.io/" rel="alternate"></link><link href="https://sunnykrGupta.github.io/feeds/sunny-kr-gupta.atom.xml" rel="self"></link><id>https://sunnykrGupta.github.io/</id><updated>2017-09-04T22:51:50+05:30</updated><entry><title>Installation of VNC server on Ubuntu</title><link href="https://sunnykrGupta.github.io/installation-of-vnc-server-on-ubuntu.html" rel="alternate"></link><published>2017-09-04T22:51:50+05:30</published><updated>2017-09-04T22:51:50+05:30</updated><author><name>Sunny Kr Gupta</name></author><id>tag:sunnykrgupta.github.io,2017-09-04:/installation-of-vnc-server-on-ubuntu.html</id><summary type="html">&lt;p&gt;This blog is intended for people who wanted to install GUI or desktop environment on linux &lt;a href="https://en.wikipedia.org/wiki/Server_(computing)"&gt;servers&lt;/a&gt; running on &lt;a href="https://en.wikipedia.org/wiki/Cloud_computing"&gt;cloud&lt;/a&gt; and connect.&lt;/p&gt;
+<feed xmlns="http://www.w3.org/2005/Atom"><title>Daemon Blog - Sunny Kr Gupta</title><link href="https://sunnykrGupta.github.io/" rel="alternate"></link><link href="https://sunnykrGupta.github.io/feeds/sunny-kr-gupta.atom.xml" rel="self"></link><id>https://sunnykrGupta.github.io/</id><updated>2017-10-16T01:12:31+05:30</updated><entry><title>Export &amp; Load Job with MongoDB - BigQuery Part-I</title><link href="https://sunnykrGupta.github.io/export-load-job-with-mongodb-bigquery-part-i.html" rel="alternate"></link><published>2017-10-16T01:12:31+05:30</published><updated>2017-10-16T01:12:31+05:30</updated><author><name>Sunny Kr Gupta</name></author><id>tag:sunnykrgupta.github.io,2017-10-16:/export-load-job-with-mongodb-bigquery-part-i.html</id><summary type="html">&lt;p&gt;This blog is intended for audience who wanted to get into fundamentals of BigQuery (short for BQ) and related jobs needed to get your data inside BigQuery system.&lt;/p&gt;
+&lt;hr&gt;
+&lt;h3&gt;&lt;a href="https://cloud.google.com/bigquery/what-is-bigquery"&gt;Google BigQuery&lt;/a&gt;&lt;/h3&gt;
+&lt;p&gt;&lt;strong&gt;What ?&lt;/strong&gt; - BigQuery is Google's fully managed, petabyte scale, low cost analytics data warehouse.&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;Why ?&lt;/strong&gt; - BigQuery is NoOps—there is no …&lt;/p&gt;</summary><content type="html">&lt;p&gt;This blog is intended for audience who wanted to get into fundamentals of BigQuery (short for BQ) and related jobs needed to get your data inside BigQuery system.&lt;/p&gt;
+&lt;hr&gt;
+&lt;h3&gt;&lt;a href="https://cloud.google.com/bigquery/what-is-bigquery"&gt;Google BigQuery&lt;/a&gt;&lt;/h3&gt;
+&lt;p&gt;&lt;strong&gt;What ?&lt;/strong&gt; - BigQuery is Google's fully managed, petabyte scale, low cost analytics data warehouse.&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;Why ?&lt;/strong&gt; - BigQuery is NoOps—there is no infrastructure to manage and you don't need a database administrator—so you can focus on analyzing data to find meaningful insights, use familiar SQL, and take advantage of our pay-as-you-go model.&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;How ?&lt;/strong&gt; - Signup to &lt;a href="https://bigquery.cloud.google.com/"&gt;Google Cloud platform - GCP&lt;/a&gt; using your google account, start loading your data and leverage the power of this NoOps system.&lt;/p&gt;
+&lt;hr&gt;
+&lt;h3&gt;Terminology in BigQuery&lt;/h3&gt;
+&lt;p&gt;&lt;strong&gt;Dataset&lt;/strong&gt;&lt;/p&gt;
+&lt;p&gt;A dataset is contained within a specific project. Datasets enable you to organize and control access to your tables. A table must belong to a dataset, so you need to create at least one dataset before loading data into BigQuery.&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;Tables&lt;/strong&gt;&lt;/p&gt;
+&lt;p&gt;A BigQuery table contains individual records organized in rows, and a data type assigned to each column (also called a field).&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;Schema&lt;/strong&gt;&lt;/p&gt;
+&lt;p&gt;Each Every table is defined by a schema that describes field names, types, and other information. You can specify the schema of a table during the initial table creation request, or you can create a table without a schema and declare the schema in the query or load job that first populates the table. If you need to change the schema later, you can update the schema.&lt;/p&gt;
+&lt;hr&gt;
+&lt;h3&gt;Loading Data into BigQuery&lt;/h3&gt;
+&lt;p&gt;In this article, we are going to use a mongoDB server to export our data and going to import into BQ. There are several other ways to import data into BQ.&lt;/p&gt;
+&lt;h4&gt;1. Export data from MongoDB&lt;/h4&gt;
+&lt;p&gt;In this example, i have a database in mongoDB with name &lt;code&gt;restaurantdb&lt;/code&gt; with collection name &lt;code&gt;restaurantCollection&lt;/code&gt;. We are going to export using &lt;code&gt;mongoexport&lt;/code&gt; binary available with mongodb server tools.&lt;/p&gt;
+&lt;p&gt;&lt;img alt="MongoDB server" src="/images/bq-series/part1/mongoexport.png"&gt;&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;mongoexport -d restaurantdb -c restaurantCollection -o restaurant.json
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;Once export is done, we can see content of &lt;code&gt;restaurant.json&lt;/code&gt; file&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="x"&gt;head -n 1 restaurant.json&lt;/span&gt;
+
+&lt;span class="err"&gt;{&lt;/span&gt;&lt;span class="x"&gt; &amp;quot;_id&amp;quot; : &lt;/span&gt;&lt;span class="err"&gt;{&lt;/span&gt;&lt;span class="x"&gt; &amp;quot;&lt;/span&gt;&lt;span class="p"&gt;$&lt;/span&gt;&lt;span class="nv"&gt;oid&lt;/span&gt;&lt;span class="x"&gt;&amp;quot; : &amp;quot;55f14312c7447c3da7051b26&amp;quot; }, \&lt;/span&gt;
+&lt;span class="x"&gt;    &amp;quot;URL&amp;quot; : &amp;quot;http://www.just-eat.co.uk/restaurants-cn-chinese-cardiff/menu&amp;quot;, \&lt;/span&gt;
+&lt;span class="x"&gt;    &amp;quot;address&amp;quot; : &amp;quot;228 City Road&amp;quot;, &amp;quot;name&amp;quot; : &amp;quot;.CN Chinese&amp;quot;, \&lt;/span&gt;
+&lt;span class="x"&gt;    &amp;quot;outcode&amp;quot; : &amp;quot;CF24&amp;quot;, &amp;quot;postcode&amp;quot; : &amp;quot;3JH&amp;quot;, &amp;quot;type_of_food&amp;quot; : &amp;quot;Chinese&amp;quot; }&lt;/span&gt;
+
+&lt;span class="x"&gt;//pretty json&lt;/span&gt;
+&lt;span class="err"&gt;{&lt;/span&gt;&lt;span class="x"&gt;&lt;/span&gt;
+&lt;span class="x"&gt;    &amp;quot;name&amp;quot;: &amp;quot;.CN Chinese&amp;quot;,&lt;/span&gt;
+&lt;span class="x"&gt;    &amp;quot;URL&amp;quot;: &amp;quot;http://www.just-eat.co.uk/restaurants-cn-chinese-cardiff/menu&amp;quot;,&lt;/span&gt;
+&lt;span class="x"&gt;    &amp;quot;outcode&amp;quot;: &amp;quot;CF24&amp;quot;,&lt;/span&gt;
+&lt;span class="x"&gt;    &amp;quot;postcode&amp;quot;: &amp;quot;3JH&amp;quot;,&lt;/span&gt;
+&lt;span class="x"&gt;    &amp;quot;address&amp;quot;: &amp;quot;228 City Road&amp;quot;,&lt;/span&gt;
+&lt;span class="x"&gt;    &amp;quot;_id&amp;quot;: &lt;/span&gt;&lt;span class="err"&gt;{&lt;/span&gt;&lt;span class="x"&gt;&lt;/span&gt;
+&lt;span class="x"&gt;        &amp;quot;&lt;/span&gt;&lt;span class="p"&gt;$&lt;/span&gt;&lt;span class="nv"&gt;oid&lt;/span&gt;&lt;span class="x"&gt;&amp;quot;: &amp;quot;55f14312c7447c3da7051b26&amp;quot;&lt;/span&gt;
+&lt;span class="x"&gt;    },&lt;/span&gt;
+&lt;span class="x"&gt;    &amp;quot;type_of_food&amp;quot;: &amp;quot;Chinese&amp;quot;&lt;/span&gt;
+&lt;span class="x"&gt;}&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;hr&gt;
+&lt;h4&gt;2. Prepare schema for Table&lt;/h4&gt;
+&lt;p&gt;Now we have our data ready in json format to be imported into BQ table. We need schema to design in order to import these records. Schema is skeleton of each field with datatype and the field not described in schema will not be imported. We have given all fields as NULLABLE ie, if field didn't came in any records BQ will define null value.&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;cat restaurantSchema.json
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;div class="highlight"&gt;&lt;pre&gt;[
+    {
+        &amp;quot;name&amp;quot;: &amp;quot;name&amp;quot;,
+        &amp;quot;type&amp;quot;: &amp;quot;STRING&amp;quot;,
+        &amp;quot;mode&amp;quot;: &amp;quot;NULLABLE&amp;quot;
+    },
+    {
+        &amp;quot;name&amp;quot;: &amp;quot;URL&amp;quot;,
+        &amp;quot;type&amp;quot;: &amp;quot;STRING&amp;quot;,
+        &amp;quot;mode&amp;quot;: &amp;quot;NULLABLE&amp;quot;
+    },
+    {
+        &amp;quot;name&amp;quot;: &amp;quot;address&amp;quot;,
+        &amp;quot;type&amp;quot;: &amp;quot;STRING&amp;quot;,
+        &amp;quot;mode&amp;quot;: &amp;quot;NULLABLE&amp;quot;
+    },
+    {
+        &amp;quot;name&amp;quot;: &amp;quot;outcode&amp;quot;,
+        &amp;quot;type&amp;quot;: &amp;quot;STRING&amp;quot;,
+        &amp;quot;mode&amp;quot;: &amp;quot;NULLABLE&amp;quot;
+    },
+    {
+        &amp;quot;name&amp;quot;: &amp;quot;postcode&amp;quot;,
+        &amp;quot;type&amp;quot;: &amp;quot;STRING&amp;quot;,
+        &amp;quot;mode&amp;quot;: &amp;quot;NULLABLE&amp;quot;
+    },
+    {
+        &amp;quot;name&amp;quot;: &amp;quot;type_of_food&amp;quot;,
+        &amp;quot;type&amp;quot;: &amp;quot;STRING&amp;quot;,
+        &amp;quot;mode&amp;quot;: &amp;quot;NULLABLE&amp;quot;
+    }
+]
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;Reference for schema : &lt;a href="https://cloud.google.com/bigquery/docs/schemas"&gt;https://cloud.google.com/bigquery/docs/schemas&lt;/a&gt;&lt;/p&gt;
+&lt;hr&gt;
+&lt;h4&gt;3. Google Cloud SDK Installation&lt;/h4&gt;
+&lt;p&gt;We have schema, data ready to be imported in BQ, but in order to talk to APIs of GCP services, we need Cloud SDK to be installed in our system. We are going to use &lt;code&gt;gcloud&lt;/code&gt; CLI tools in order to interact with our Cloud services running in GCP.&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;Installation : &lt;/strong&gt; &lt;a href="https://cloud.google.com/sdk/"&gt;https://cloud.google.com/sdk/&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;Once installation is done, run following command to verify account setup.&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;gcloud auth list
+
+gcloud config list
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;hr&gt;
+&lt;h4&gt;4. Create BigQuery Dataset&lt;/h4&gt;
+&lt;p&gt;Go to your BigQuery in google console. https://bigquery.cloud.google.com
+Follow below instruction to create dataset.&lt;/p&gt;
+&lt;blockquote&gt;
+&lt;p&gt;&lt;strong&gt;Step 1:&lt;/strong&gt;&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;p&gt;&lt;img alt="Create Dataset Step 1" src="/images/bq-series/part1/create-ds-1.png"&gt;&lt;/p&gt;
+&lt;blockquote&gt;
+&lt;p&gt;&lt;strong&gt;Step 2:&lt;/strong&gt;&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;p&gt;&lt;img alt="Create Dataset Step 2" src="/images/bq-series/part1/create-ds-2.png"&gt;&lt;/p&gt;
+&lt;blockquote&gt;
+&lt;p&gt;To create dataset through &lt;code&gt;bq&lt;/code&gt; command line interface&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;bq mk -d --data_location=US   BQ_Dataset
+
+// Verify your dataset creation
+bq ls
+
+    datasetId
+ ----------------
+  BQ_Dataset
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;&lt;strong&gt;Read :&lt;/strong&gt; &lt;a href="https://cloud.google.com/bigquery/docs/datasets#create-dataset"&gt;https://cloud.google.com/bigquery/docs/datasets#create-dataset&lt;/a&gt;&lt;/p&gt;
+&lt;hr&gt;
+&lt;h4&gt;5. Load data into BigQuery&lt;/h4&gt;
+&lt;p&gt;Now, my directory consists two files ie, data and schema.&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="nv"&gt;$ &lt;/span&gt;tree
+.
+├── restaurant.json
+└── restaurantSchema.json
+
+&lt;span class="m"&gt;0&lt;/span&gt; directories, &lt;span class="m"&gt;2&lt;/span&gt; files
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;Run command to load data into BQ.  Once you submit load job, it will take seconds to minute depends on size of data you are importing into BQ table.&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="n"&gt;Ex&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt; &lt;span class="n"&gt;bq&lt;/span&gt; &lt;span class="n"&gt;load&lt;/span&gt; &lt;span class="o"&gt;--&lt;/span&gt;&lt;span class="n"&gt;project_id&lt;/span&gt;&lt;span class="o"&gt;=&amp;lt;&lt;/span&gt;&lt;span class="n"&gt;PROJECT&lt;/span&gt;&lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="n"&gt;ID&lt;/span&gt;&lt;span class="o"&gt;&amp;gt;&lt;/span&gt; &lt;span class="o"&gt;--&lt;/span&gt;&lt;span class="n"&gt;source_format&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="n"&gt;NEWLINE_DELIMITED_JSON&lt;/span&gt; &lt;span class="o"&gt;\&lt;/span&gt;
+    &lt;span class="n"&gt;mydataset&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="na"&gt;mytable&lt;/span&gt; &lt;span class="o"&gt;./&lt;/span&gt;&lt;span class="n"&gt;myfile&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="na"&gt;json&lt;/span&gt; &lt;span class="o"&gt;./&lt;/span&gt;&lt;span class="n"&gt;myschema&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="na"&gt;json&lt;/span&gt;
+
+&lt;span class="n"&gt;bq&lt;/span&gt; &lt;span class="n"&gt;load&lt;/span&gt; &lt;span class="o"&gt;--&lt;/span&gt;&lt;span class="n"&gt;project_id&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="n"&gt;mimetic&lt;/span&gt;&lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="n"&gt;slate&lt;/span&gt;&lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="mi"&gt;179915&lt;/span&gt;   &lt;span class="o"&gt;\&lt;/span&gt;
+    &lt;span class="o"&gt;--&lt;/span&gt;&lt;span class="n"&gt;source_format&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="n"&gt;NEWLINE_DELIMITED_JSON&lt;/span&gt; &lt;span class="o"&gt;--&lt;/span&gt;&lt;span class="n"&gt;max_bad_records&lt;/span&gt; &lt;span class="mi"&gt;10&lt;/span&gt; &lt;span class="o"&gt;\&lt;/span&gt;
+    &lt;span class="n"&gt;BQ_Dataset&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="na"&gt;Restaurant&lt;/span&gt; &lt;span class="o"&gt;./&lt;/span&gt;&lt;span class="n"&gt;restaurant&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="na"&gt;json&lt;/span&gt;  &lt;span class="o"&gt;./&lt;/span&gt;&lt;span class="n"&gt;restaurantSchema&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="na"&gt;json&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;&lt;code&gt;--max_bad_records 10&lt;/code&gt; are additional flags to allow 10 bad records while importing your job, exceeding this value will result in import failure.&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;Import through Cloud Storage&lt;/strong&gt;&lt;/p&gt;
+&lt;blockquote&gt;
+&lt;p&gt;Another methods to import the data through &lt;code&gt;Cloud Storage&lt;/code&gt;, this method is lot faster compared to above one.&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;p&gt;&lt;strong&gt;Read : &lt;/strong&gt; &lt;a href="https://cloud.google.com/storage/docs/creating-buckets"&gt;https://cloud.google.com/storage/docs/creating-buckets&lt;/a&gt;&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;//to create Cloud storage bucket for this example.
+gsutil mb  gs://bq-storage
+
+//to verify bucket creation
+gsutil ls
+gs://bq-storage/
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;Now , we will upload our data &lt;code&gt;restaurant.json&lt;/code&gt; to storage in bucket &lt;code&gt;gs://bq-storage/&lt;/code&gt;&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;//Run command to upload
+gsutil cp restaurant.json gs://bq-storage/restaurant.json
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;Now, we can use storage URL to import into BQ tables.&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;bq load --project_id=mimetic-slate-179915  \
+    --source_format=NEWLINE_DELIMITED_JSON --max_bad_records 10  \
+    BQ_Dataset.Restaurant \
+    gs://bq-storage/restaurant.json ./restaurantSchema.json
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;After &lt;code&gt;bq load&lt;/code&gt; finished, run following command to verify the table creation.&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;bq show BQ_Dataset.Restaurant
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;blockquote&gt;
+&lt;p&gt;Output will be similar to this :&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;p&gt;&lt;img alt="bq show" src="/images/bq-series/part1/bq-show.png"&gt;&lt;/p&gt;
+&lt;p&gt;You can also verify in bigQuery UI after hitting refresh. Visit to table and click preview. You will start seeing records in table.&lt;/p&gt;
+&lt;p&gt;&lt;img alt="bq show" src="/images/bq-series/part1/table-preview.png"&gt;&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;More into bq CLI :&lt;/strong&gt; &lt;a href="https://cloud.google.com/storage/docs/creating-buckets"&gt;https://cloud.google.com/bigquery/bq-command-line-tool&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;More into gsutil CLI :&lt;/strong&gt; &lt;a href="https://cloud.google.com/storage/docs/quickstart-gsutil"&gt;https://cloud.google.com/storage/docs/quickstart-gsutil&lt;/a&gt;&lt;/p&gt;
+&lt;hr&gt;
+&lt;h3&gt;SQL Query in BQ Table&lt;/h3&gt;
+&lt;p&gt;We are going to run a simple query to show the output.&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;SELECT
+  name,
+  address
+FROM
+  [mimetic-slate-179915:BQ_Dataset.Restaurant]
+WHERE
+  type_of_food = &amp;#39;Thai&amp;#39;
+GROUP BY
+  name, address
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;&lt;img alt="query" src="/images/bq-series/part1/query.png"&gt;&lt;/p&gt;
+&lt;hr&gt;
+&lt;h3&gt;Conclusion&lt;/h3&gt;
+&lt;ul&gt;
+&lt;li&gt;BigQuery is a query service that allows you to run SQL-like queries against
+multiple terabytes of data in a matter of seconds. The technology is one of the Google’s core technologies, like MapReduce and Bigtable, and has been used
+by Google internally for various analytic tasks since 2006.&lt;/li&gt;
+&lt;li&gt;While MapReduce is suitable for long-running batch processes such as data
+mining, BigQuery is the best choice for ad hoc OLAP/BI queries that require
+results as fast as possible.&lt;/li&gt;
+&lt;li&gt;Wildcard can also be applied into Bigquery tables to expand your computations to multiple tables.&lt;/li&gt;
+&lt;li&gt;BigQuery is the cloud-powered massively parallel
+query database that provides extremely high full-scan query performance
+and cost effectiveness compared to traditional data warehouse solutions
+and appliances&lt;/li&gt;
+&lt;/ul&gt;
+&lt;blockquote&gt;
+&lt;p&gt;&lt;strong&gt;Next from here:&lt;/strong&gt; Play around with more &lt;a href="https://cloud.google.com/bigquery/docs/how-to"&gt;functionality available in BigQuery&lt;/a&gt; and dive into it for more computation hungry jobs.&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;hr&gt;
+&lt;p&gt;That's all from this &lt;strong&gt;series Part-I&lt;/strong&gt;. Hope you get basic understanding of import jobs, storage and basic outline of BigQuery from this page. I have seen power of BigQuery in my workplace to crunch 100-120 TB of data and getting results in minute or two, its really incredibly awesome. I would appreciate a feedback via comments available below and claps on medium.&lt;/p&gt;
+&lt;p&gt;In next blog which is part of this series, i will be covering more into &lt;em&gt;Streaming feature available in Bigquery&lt;/em&gt; to push data in BQ tables in real-time to make it available for instant query on changing dataset.&lt;/p&gt;</content><category term="Google BigQuery"></category><category term="GCP"></category><category term="MongoDB"></category><category term="Cloud Storage"></category><category term="Google Cloud Platform"></category></entry><entry><title>Installation of VNC server on Ubuntu</title><link href="https://sunnykrGupta.github.io/installation-of-vnc-server-on-ubuntu.html" rel="alternate"></link><published>2017-09-04T22:51:50+05:30</published><updated>2017-09-04T22:51:50+05:30</updated><author><name>Sunny Kr Gupta</name></author><id>tag:sunnykrgupta.github.io,2017-09-04:/installation-of-vnc-server-on-ubuntu.html</id><summary type="html">&lt;p&gt;This blog is intended for people who wanted to install GUI or desktop environment on linux &lt;a href="https://en.wikipedia.org/wiki/Server_(computing)"&gt;servers&lt;/a&gt; running on &lt;a href="https://en.wikipedia.org/wiki/Cloud_computing"&gt;cloud&lt;/a&gt; and connect.&lt;/p&gt;
 &lt;p&gt;We are going to use VNC (Virtual Network Computing) protocol for accessing our remote desktop server.&lt;/p&gt;
 &lt;h4&gt;What is VNC ?&lt;/h4&gt;
 &lt;p&gt;&lt;a href="https://en.wikipedia.org/wiki/Virtual_Network_Computing"&gt;Virtual network computing&lt;/a&gt;, or VNC, is a graphical desktop …&lt;/p&gt;</summary><content type="html">&lt;p&gt;This blog is intended for people who wanted to install GUI or desktop environment on linux &lt;a href="https://en.wikipedia.org/wiki/Server_(computing)"&gt;servers&lt;/a&gt; running on &lt;a href="https://en.wikipedia.org/wiki/Cloud_computing"&gt;cloud&lt;/a&gt; and connect.&lt;/p&gt;
