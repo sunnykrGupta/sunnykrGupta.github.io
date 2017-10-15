@@ -1,5 +1,254 @@
 <?xml version="1.0" encoding="utf-8"?>
-<feed xmlns="http://www.w3.org/2005/Atom"><title>Daemon Blog - Sunny Kr Gupta</title><link href="http://localhost:8000/" rel="alternate"></link><link href="http://localhost:8000/feeds/sunny-kr-gupta.atom.xml" rel="self"></link><id>http://localhost:8000/</id><updated>2017-09-04T22:51:50+05:30</updated><entry><title>Installation of VNC server on Ubuntu</title><link href="http://localhost:8000/installation-of-vnc-server-on-ubuntu.html" rel="alternate"></link><published>2017-09-04T22:51:50+05:30</published><updated>2017-09-04T22:51:50+05:30</updated><author><name>Sunny Kr Gupta</name></author><id>tag:localhost,2017-09-04:/installation-of-vnc-server-on-ubuntu.html</id><summary type="html">&lt;p&gt;This blog is intended for people who wanted to install GUI or desktop environment on linux &lt;a href="https://en.wikipedia.org/wiki/Server_(computing)"&gt;servers&lt;/a&gt; running on &lt;a href="https://en.wikipedia.org/wiki/Cloud_computing"&gt;cloud&lt;/a&gt; and connect.&lt;/p&gt;
+<feed xmlns="http://www.w3.org/2005/Atom"><title>Daemon Blog - Sunny Kr Gupta</title><link href="https://sunnykrGupta.github.io/" rel="alternate"></link><link href="https://sunnykrGupta.github.io/feeds/sunny-kr-gupta.atom.xml" rel="self"></link><id>https://sunnykrGupta.github.io/</id><updated>2017-10-16T01:12:31+05:30</updated><entry><title>Export &amp; Load Job with MongoDB - BigQuery Part-I</title><link href="https://sunnykrGupta.github.io/export-load-job-with-mongodb-bigquery-part-i.html" rel="alternate"></link><published>2017-10-16T01:12:31+05:30</published><updated>2017-10-16T01:12:31+05:30</updated><author><name>Sunny Kr Gupta</name></author><id>tag:sunnykrgupta.github.io,2017-10-16:/export-load-job-with-mongodb-bigquery-part-i.html</id><summary type="html">&lt;p&gt;&lt;img alt="Google BigQuery" src="/images/bq-series/part1/bquery.svg"&gt;&lt;/p&gt;
+&lt;p&gt;This blog is intended for audience who wanted to get into fundamentals of BigQuery (short for BQ) and related jobs needed to get your data inside BigQuery system.&lt;/p&gt;
+&lt;h3&gt;&lt;a href="https://cloud.google.com/bigquery/what-is-bigquery"&gt;Google BigQuery&lt;/a&gt;&lt;/h3&gt;
+&lt;p&gt;&lt;strong&gt;What ?&lt;/strong&gt; - BigQuery is Google's fully managed, petabyte scale, low cost analytics data warehouse.&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;Why ?&lt;/strong&gt; - BigQuery is NoOps—there is no …&lt;/p&gt;</summary><content type="html">&lt;p&gt;&lt;img alt="Google BigQuery" src="/images/bq-series/part1/bquery.svg"&gt;&lt;/p&gt;
+&lt;p&gt;This blog is intended for audience who wanted to get into fundamentals of BigQuery (short for BQ) and related jobs needed to get your data inside BigQuery system.&lt;/p&gt;
+&lt;h3&gt;&lt;a href="https://cloud.google.com/bigquery/what-is-bigquery"&gt;Google BigQuery&lt;/a&gt;&lt;/h3&gt;
+&lt;p&gt;&lt;strong&gt;What ?&lt;/strong&gt; - BigQuery is Google's fully managed, petabyte scale, low cost analytics data warehouse.&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;Why ?&lt;/strong&gt; - BigQuery is NoOps—there is no infrastructure to manage and you don't need a database administrator—so you can focus on analyzing data to find meaningful insights, use familiar SQL, and take advantage of our pay-as-you-go model.&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;How ?&lt;/strong&gt; - Signup to &lt;a href="https://bigquery.cloud.google.com/"&gt;Google Cloud platform - GCP&lt;/a&gt; using your google account, start loading your data and leverage the power of this NoOps system.&lt;/p&gt;
+&lt;hr&gt;
+&lt;p&gt;&lt;br&gt;&lt;/p&gt;
+&lt;h3&gt;Terminology in BigQuery&lt;/h3&gt;
+&lt;p&gt;&lt;strong&gt;Dataset&lt;/strong&gt;&lt;/p&gt;
+&lt;p&gt;A dataset is contained within a specific project. Datasets enable you to organize and control access to your tables. A table must belong to a dataset, so you need to create at least one dataset before loading data into BigQuery.&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;Tables&lt;/strong&gt;&lt;/p&gt;
+&lt;p&gt;A BigQuery table contains individual records organized in rows, and a data type assigned to each column (also called a field).&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;Schema&lt;/strong&gt;&lt;/p&gt;
+&lt;p&gt;Each Every table is defined by a schema that describes field names, types, and other information. You can specify the schema of a table during the initial table creation request, or you can create a table without a schema and declare the schema in the query or load job that first populates the table. If you need to change the schema later, you can update the schema.&lt;/p&gt;
+&lt;hr&gt;
+&lt;p&gt;&lt;br&gt;&lt;/p&gt;
+&lt;h3&gt;Loading Data into BigQuery&lt;/h3&gt;
+&lt;p&gt;In this article, we are going to use a mongoDB server to export our data and going to import into BQ. There are several other ways to import data into BQ.&lt;/p&gt;
+&lt;p&gt;&lt;br&gt;&lt;/p&gt;
+&lt;h4&gt;1. Export data from MongoDB&lt;/h4&gt;
+&lt;p&gt;&lt;img alt="MongoDB" src="/images/bq-series/part1/mongo-db-blog.jpeg"&gt;&lt;/p&gt;
+&lt;p&gt;In this example, i have a database in mongoDB server with name &lt;code&gt;restaurantdb&lt;/code&gt; with collection name &lt;code&gt;restaurantCollection&lt;/code&gt;. We are going to export using &lt;code&gt;mongoexport&lt;/code&gt; binary available with mongodb server tools.&lt;/p&gt;
+&lt;p&gt;&lt;img alt="MongoDB server" src="/images/bq-series/part1/mongoexport.png"&gt;&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="nv"&gt;$ &lt;/span&gt;mongoexport -d restaurantdb -c restaurantCollection -o restaurant.json
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;Once export is done, we can see content of &lt;code&gt;restaurant.json&lt;/code&gt; file&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="nv"&gt;$ &lt;/span&gt;head -n &lt;span class="m"&gt;1&lt;/span&gt; restaurant.json
+
+&lt;span class="o"&gt;{&lt;/span&gt; &lt;span class="s2"&gt;&amp;quot;_id&amp;quot;&lt;/span&gt; : &lt;span class="o"&gt;{&lt;/span&gt; &lt;span class="s2"&gt;&amp;quot;&lt;/span&gt;&lt;span class="nv"&gt;$oid&lt;/span&gt;&lt;span class="s2"&gt;&amp;quot;&lt;/span&gt; : &lt;span class="s2"&gt;&amp;quot;55f14312c7447c3da7051b26&amp;quot;&lt;/span&gt; &lt;span class="o"&gt;}&lt;/span&gt;, &lt;span class="se"&gt;\&lt;/span&gt;
+    &lt;span class="s2"&gt;&amp;quot;URL&amp;quot;&lt;/span&gt; : &lt;span class="s2"&gt;&amp;quot;http://www.just-eat.co.uk/restaurants-cn-chinese-cardiff/menu&amp;quot;&lt;/span&gt;, &lt;span class="se"&gt;\&lt;/span&gt;
+    &lt;span class="s2"&gt;&amp;quot;address&amp;quot;&lt;/span&gt; : &lt;span class="s2"&gt;&amp;quot;228 City Road&amp;quot;&lt;/span&gt;, &lt;span class="s2"&gt;&amp;quot;name&amp;quot;&lt;/span&gt; : &lt;span class="s2"&gt;&amp;quot;.CN Chinese&amp;quot;&lt;/span&gt;, &lt;span class="se"&gt;\&lt;/span&gt;
+    &lt;span class="s2"&gt;&amp;quot;outcode&amp;quot;&lt;/span&gt; : &lt;span class="s2"&gt;&amp;quot;CF24&amp;quot;&lt;/span&gt;, &lt;span class="s2"&gt;&amp;quot;postcode&amp;quot;&lt;/span&gt; : &lt;span class="s2"&gt;&amp;quot;3JH&amp;quot;&lt;/span&gt;, &lt;span class="s2"&gt;&amp;quot;type_of_food&amp;quot;&lt;/span&gt; : &lt;span class="s2"&gt;&amp;quot;Chinese&amp;quot;&lt;/span&gt; &lt;span class="o"&gt;}&lt;/span&gt;
+
+//pretty json
+&lt;span class="o"&gt;{&lt;/span&gt;
+    &lt;span class="s2"&gt;&amp;quot;name&amp;quot;&lt;/span&gt;: &lt;span class="s2"&gt;&amp;quot;.CN Chinese&amp;quot;&lt;/span&gt;,
+    &lt;span class="s2"&gt;&amp;quot;URL&amp;quot;&lt;/span&gt;: &lt;span class="s2"&gt;&amp;quot;http://www.just-eat.co.uk/restaurants-cn-chinese-cardiff/menu&amp;quot;&lt;/span&gt;,
+    &lt;span class="s2"&gt;&amp;quot;outcode&amp;quot;&lt;/span&gt;: &lt;span class="s2"&gt;&amp;quot;CF24&amp;quot;&lt;/span&gt;,
+    &lt;span class="s2"&gt;&amp;quot;postcode&amp;quot;&lt;/span&gt;: &lt;span class="s2"&gt;&amp;quot;3JH&amp;quot;&lt;/span&gt;,
+    &lt;span class="s2"&gt;&amp;quot;address&amp;quot;&lt;/span&gt;: &lt;span class="s2"&gt;&amp;quot;228 City Road&amp;quot;&lt;/span&gt;,
+    &lt;span class="s2"&gt;&amp;quot;_id&amp;quot;&lt;/span&gt;: &lt;span class="o"&gt;{&lt;/span&gt;
+        &lt;span class="s2"&gt;&amp;quot;&lt;/span&gt;&lt;span class="nv"&gt;$oid&lt;/span&gt;&lt;span class="s2"&gt;&amp;quot;&lt;/span&gt;: &lt;span class="s2"&gt;&amp;quot;55f14312c7447c3da7051b26&amp;quot;&lt;/span&gt;
+    &lt;span class="o"&gt;}&lt;/span&gt;,
+    &lt;span class="s2"&gt;&amp;quot;type_of_food&amp;quot;&lt;/span&gt;: &lt;span class="s2"&gt;&amp;quot;Chinese&amp;quot;&lt;/span&gt;
+&lt;span class="o"&gt;}&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;hr&gt;
+&lt;p&gt;&lt;br&gt;&lt;/p&gt;
+&lt;h4&gt;2. Prepare schema for Table&lt;/h4&gt;
+&lt;p&gt;Now we have our data ready in json format to be imported into BQ table. We need schema to design in order to import these records. Schema is skeleton of each field with datatype and the field not described in schema will not be imported. We have given all fields as &lt;strong&gt;NULLABLE&lt;/strong&gt; ie, if field didn't came in any records BQ will define null value.&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="nv"&gt;$ &lt;/span&gt;cat restaurantSchema.json
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;div class="highlight"&gt;&lt;pre&gt;[
+    {
+        &amp;quot;name&amp;quot;: &amp;quot;name&amp;quot;,
+        &amp;quot;type&amp;quot;: &amp;quot;STRING&amp;quot;,
+        &amp;quot;mode&amp;quot;: &amp;quot;NULLABLE&amp;quot;
+    },
+    {
+        &amp;quot;name&amp;quot;: &amp;quot;URL&amp;quot;,
+        &amp;quot;type&amp;quot;: &amp;quot;STRING&amp;quot;,
+        &amp;quot;mode&amp;quot;: &amp;quot;NULLABLE&amp;quot;
+    },
+    {
+        &amp;quot;name&amp;quot;: &amp;quot;address&amp;quot;,
+        &amp;quot;type&amp;quot;: &amp;quot;STRING&amp;quot;,
+        &amp;quot;mode&amp;quot;: &amp;quot;NULLABLE&amp;quot;
+    },
+    {
+        &amp;quot;name&amp;quot;: &amp;quot;outcode&amp;quot;,
+        &amp;quot;type&amp;quot;: &amp;quot;STRING&amp;quot;,
+        &amp;quot;mode&amp;quot;: &amp;quot;NULLABLE&amp;quot;
+    },
+    {
+        &amp;quot;name&amp;quot;: &amp;quot;postcode&amp;quot;,
+        &amp;quot;type&amp;quot;: &amp;quot;STRING&amp;quot;,
+        &amp;quot;mode&amp;quot;: &amp;quot;NULLABLE&amp;quot;
+    },
+    {
+        &amp;quot;name&amp;quot;: &amp;quot;type_of_food&amp;quot;,
+        &amp;quot;type&amp;quot;: &amp;quot;STRING&amp;quot;,
+        &amp;quot;mode&amp;quot;: &amp;quot;NULLABLE&amp;quot;
+    }
+]
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;Reference for schema : &lt;a href="https://cloud.google.com/bigquery/docs/schemas"&gt;https://cloud.google.com/bigquery/docs/schemas&lt;/a&gt;&lt;/p&gt;
+&lt;hr&gt;
+&lt;p&gt;&lt;br&gt;&lt;/p&gt;
+&lt;h4&gt;3. Google Cloud SDK Installation&lt;/h4&gt;
+&lt;p&gt;We have schema, data ready to be imported in BQ, but in order to talk to APIs of GCP services, we need Cloud SDK to be installed in our system. We are going to use &lt;code&gt;gcloud&lt;/code&gt; CLI tools in order to interact with our Cloud services running in GCP.&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;Installation : &lt;/strong&gt; &lt;a href="https://cloud.google.com/sdk/"&gt;https://cloud.google.com/sdk/&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;Once installation is done, run following command to verify account setup.&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="nv"&gt;$ &lt;/span&gt;gcloud auth list
+
+&lt;span class="nv"&gt;$ &lt;/span&gt;gcloud config list
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;hr&gt;
+&lt;p&gt;&lt;br&gt;&lt;/p&gt;
+&lt;h4&gt;4. Create BigQuery Dataset&lt;/h4&gt;
+&lt;p&gt;Go to your BigQuery in google console. &lt;a href="https://bigquery.cloud.google.com"&gt;https://bigquery.cloud.google.com&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;Follow below instruction to create dataset.&lt;/p&gt;
+&lt;blockquote&gt;
+&lt;p&gt;&lt;strong&gt;Step 1:&lt;/strong&gt;&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;p&gt;&lt;img alt="Create Dataset Step 1" src="/images/bq-series/part1/create-ds-1.png"&gt;&lt;/p&gt;
+&lt;blockquote&gt;
+&lt;p&gt;&lt;strong&gt;Step 2:&lt;/strong&gt;&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;p&gt;&lt;img alt="Create Dataset Step 2" src="/images/bq-series/part1/create-ds-2.png"&gt;&lt;/p&gt;
+&lt;p&gt;&lt;br&gt;&lt;/p&gt;
+&lt;blockquote&gt;
+&lt;p&gt;To create dataset through &lt;code&gt;bq&lt;/code&gt; command line interface.&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="nv"&gt;$ &lt;/span&gt;bq mk -d --data_location&lt;span class="o"&gt;=&lt;/span&gt;US   BQ_Dataset
+
+// Verify your dataset creation
+&lt;span class="nv"&gt;$ &lt;/span&gt;bq ls
+
+    datasetId
+ ----------------
+  BQ_Dataset
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;&lt;strong&gt;Read :&lt;/strong&gt; &lt;a href="https://cloud.google.com/bigquery/docs/datasets#create-dataset"&gt;https://cloud.google.com/bigquery/docs/datasets#create-dataset&lt;/a&gt;&lt;/p&gt;
+&lt;hr&gt;
+&lt;p&gt;&lt;br&gt;&lt;/p&gt;
+&lt;h4&gt;5. Load data into BigQuery&lt;/h4&gt;
+&lt;p&gt;Now, my directory consists two files ie, data and schema.&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="nv"&gt;$ &lt;/span&gt;tree
+.
+├── restaurant.json
+└── restaurantSchema.json
+
+&lt;span class="m"&gt;0&lt;/span&gt; directories, &lt;span class="m"&gt;2&lt;/span&gt; files
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;Run command to load data into BQ.  Once you submit load job, it will take seconds to minute depends on size of data you are importing into BQ table.&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="n"&gt;Ex&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt; &lt;span class="n"&gt;bq&lt;/span&gt; &lt;span class="n"&gt;load&lt;/span&gt; &lt;span class="o"&gt;--&lt;/span&gt;&lt;span class="n"&gt;project_id&lt;/span&gt;&lt;span class="o"&gt;=&amp;lt;&lt;/span&gt;&lt;span class="n"&gt;PROJECT&lt;/span&gt;&lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="n"&gt;ID&lt;/span&gt;&lt;span class="o"&gt;&amp;gt;&lt;/span&gt; &lt;span class="o"&gt;--&lt;/span&gt;&lt;span class="n"&gt;source_format&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="n"&gt;NEWLINE_DELIMITED_JSON&lt;/span&gt; &lt;span class="o"&gt;\&lt;/span&gt;
+    &lt;span class="n"&gt;mydataset&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="na"&gt;mytable&lt;/span&gt; &lt;span class="o"&gt;./&lt;/span&gt;&lt;span class="n"&gt;myfile&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="na"&gt;json&lt;/span&gt; &lt;span class="o"&gt;./&lt;/span&gt;&lt;span class="n"&gt;myschema&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="na"&gt;json&lt;/span&gt;
+
+&lt;span class="n"&gt;$&lt;/span&gt; &lt;span class="n"&gt;bq&lt;/span&gt; &lt;span class="n"&gt;load&lt;/span&gt; &lt;span class="o"&gt;--&lt;/span&gt;&lt;span class="n"&gt;project_id&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="n"&gt;mimetic&lt;/span&gt;&lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="n"&gt;slate&lt;/span&gt;&lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="mi"&gt;179915&lt;/span&gt;   &lt;span class="o"&gt;\&lt;/span&gt;
+    &lt;span class="o"&gt;--&lt;/span&gt;&lt;span class="n"&gt;source_format&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="n"&gt;NEWLINE_DELIMITED_JSON&lt;/span&gt; &lt;span class="o"&gt;--&lt;/span&gt;&lt;span class="n"&gt;max_bad_records&lt;/span&gt; &lt;span class="mi"&gt;10&lt;/span&gt; &lt;span class="o"&gt;\&lt;/span&gt;
+    &lt;span class="n"&gt;BQ_Dataset&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="na"&gt;Restaurant&lt;/span&gt; &lt;span class="o"&gt;./&lt;/span&gt;&lt;span class="n"&gt;restaurant&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="na"&gt;json&lt;/span&gt;  &lt;span class="o"&gt;./&lt;/span&gt;&lt;span class="n"&gt;restaurantSchema&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="na"&gt;json&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;&lt;code&gt;--max_bad_records 10&lt;/code&gt; are additional flags to allow 10 bad records while importing your job, exceeding this value will result in import failure.&lt;/p&gt;
+&lt;p&gt;&lt;br&gt;&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;Import through Cloud Storage&lt;/strong&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img alt="Cloud Storage" src="/images/bq-series/part1/google-cloud-storage.png"&gt;&lt;/p&gt;
+&lt;blockquote&gt;
+&lt;p&gt;Another methods to import the data through &lt;code&gt;Cloud Storage&lt;/code&gt;, this method is lot faster compared to above one.&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;p&gt;&lt;strong&gt;Read : &lt;/strong&gt; &lt;a href="https://cloud.google.com/storage/docs/creating-buckets"&gt;https://cloud.google.com/storage/docs/creating-buckets&lt;/a&gt;&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;//to create Cloud storage bucket for this example.
+$ gsutil mb  gs://bq-storage
+
+//to verify bucket creation
+$ gsutil ls
+gs://bq-storage/
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;Now , we will upload our data &lt;code&gt;restaurant.json&lt;/code&gt; to storage in bucket &lt;code&gt;gs://bq-storage/&lt;/code&gt;&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;//Run command to upload
+$ gsutil cp restaurant.json gs://bq-storage/restaurant.json
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;Now, we can use storage URL to import into BQ tables.&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="nv"&gt;$ &lt;/span&gt;bq load --project_id&lt;span class="o"&gt;=&lt;/span&gt;mimetic-slate-179915  &lt;span class="se"&gt;\&lt;/span&gt;
+    --source_format&lt;span class="o"&gt;=&lt;/span&gt;NEWLINE_DELIMITED_JSON --max_bad_records &lt;span class="m"&gt;10&lt;/span&gt;  &lt;span class="se"&gt;\&lt;/span&gt;
+    BQ_Dataset.Restaurant &lt;span class="se"&gt;\&lt;/span&gt;
+    gs://bq-storage/restaurant.json ./restaurantSchema.json
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;&lt;br&gt;
+&lt;br&gt;&lt;/p&gt;
+&lt;p&gt;After &lt;code&gt;bq load&lt;/code&gt; finished, run following command to verify the table creation.&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="nv"&gt;$ &lt;/span&gt;bq show BQ_Dataset.Restaurant
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;blockquote&gt;
+&lt;p&gt;&lt;strong&gt;Output will be similar to this :&lt;/strong&gt;&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;p&gt;&lt;img alt="bq show" src="/images/bq-series/part1/bq-show.png"&gt;&lt;/p&gt;
+&lt;p&gt;You can also verify in bigQuery UI after hitting refresh. Visit to table and click &lt;em&gt;preview&lt;/em&gt;. You will start seeing records in table.&lt;/p&gt;
+&lt;p&gt;&lt;img alt="bq show" src="/images/bq-series/part1/table-preview.png"&gt;&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;More into bq CLI :&lt;/strong&gt; &lt;a href="https://cloud.google.com/storage/docs/creating-buckets"&gt;https://cloud.google.com/bigquery/bq-command-line-tool&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;More into gsutil CLI :&lt;/strong&gt; &lt;a href="https://cloud.google.com/storage/docs/quickstart-gsutil"&gt;https://cloud.google.com/storage/docs/quickstart-gsutil&lt;/a&gt;&lt;/p&gt;
+&lt;hr&gt;
+&lt;p&gt;&lt;br&gt;
+&lt;br&gt;&lt;/p&gt;
+&lt;h3&gt;SQL Query in BQ Table&lt;/h3&gt;
+&lt;p&gt;We are going to run a simple query to show the output.&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;SELECT
+  name,
+  address
+FROM
+  [mimetic-slate-179915:BQ_Dataset.Restaurant]
+WHERE
+  type_of_food = &amp;#39;Thai&amp;#39;
+GROUP BY
+  name, address
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;&lt;img alt="query" src="/images/bq-series/part1/query.png"&gt;&lt;/p&gt;
+&lt;hr&gt;
+&lt;p&gt;&lt;br&gt;&lt;/p&gt;
+&lt;h3&gt;Conclusion&lt;/h3&gt;
+&lt;ul&gt;
+&lt;li&gt;BigQuery is a query service that allows you to run SQL-like queries against
+multiple terabytes of data in a matter of seconds. The technology is one of the Google’s core technologies, like MapReduce and Bigtable, and has been used
+by Google internally for various analytic tasks since 2006.&lt;/li&gt;
+&lt;li&gt;While MapReduce is suitable for long-running batch processes such as data
+mining, BigQuery is the best choice for ad hoc OLAP/BI queries that require
+results as fast as possible.&lt;/li&gt;
+&lt;li&gt;Wildcard can also be applied into Bigquery tables to expand your computations to multiple tables.&lt;/li&gt;
+&lt;li&gt;BigQuery is the cloud-powered massively parallel
+query database that provides extremely high full-scan query performance
+and cost effectiveness compared to traditional data warehouse solutions
+and appliances&lt;/li&gt;
+&lt;/ul&gt;
+&lt;blockquote&gt;
+&lt;p&gt;&lt;strong&gt;Next from here:&lt;/strong&gt; Play around with more &lt;a href="https://cloud.google.com/bigquery/docs/how-to"&gt;functionality available in BigQuery&lt;/a&gt; and dive into it for more computation hungry jobs.&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;hr&gt;
+&lt;p&gt;That's all from this &lt;strong&gt;series Part-I&lt;/strong&gt;. Hope you get basic understanding of import jobs, storage and basic outline of BigQuery from this page. I have seen power of BigQuery in my workplace to crunch 100-120 TB of data and getting results in minute or two, its really incredibly awesome. I would appreciate a feedback via comments available below and claps on medium.&lt;/p&gt;
+&lt;h5&gt;Medium Blog : &lt;a href="https://medium.com/@sunnykrgupta"&gt;medium.com/@sunnykrgupta&lt;/a&gt;&lt;/h5&gt;
+&lt;p&gt;In next blog which is part of this series, i will be covering more into &lt;em&gt;Streaming feature available in Bigquery&lt;/em&gt; to push data in BQ tables in real-time to make it available for instant query on changing dataset.&lt;/p&gt;</content><category term="Google BigQuery"></category><category term="GCP"></category><category term="MongoDB"></category><category term="Cloud Storage"></category><category term="Google Cloud Platform"></category></entry><entry><title>Installation of VNC server on Ubuntu</title><link href="https://sunnykrGupta.github.io/installation-of-vnc-server-on-ubuntu.html" rel="alternate"></link><published>2017-09-04T22:51:50+05:30</published><updated>2017-09-04T22:51:50+05:30</updated><author><name>Sunny Kr Gupta</name></author><id>tag:sunnykrgupta.github.io,2017-09-04:/installation-of-vnc-server-on-ubuntu.html</id><summary type="html">&lt;p&gt;This blog is intended for people who wanted to install GUI or desktop environment on linux &lt;a href="https://en.wikipedia.org/wiki/Server_(computing)"&gt;servers&lt;/a&gt; running on &lt;a href="https://en.wikipedia.org/wiki/Cloud_computing"&gt;cloud&lt;/a&gt; and connect.&lt;/p&gt;
 &lt;p&gt;We are going to use VNC (Virtual Network Computing) protocol for accessing our remote desktop server.&lt;/p&gt;
 &lt;h4&gt;What is VNC ?&lt;/h4&gt;
 &lt;p&gt;&lt;a href="https://en.wikipedia.org/wiki/Virtual_Network_Computing"&gt;Virtual network computing&lt;/a&gt;, or VNC, is a graphical desktop …&lt;/p&gt;</summary><content type="html">&lt;p&gt;This blog is intended for people who wanted to install GUI or desktop environment on linux &lt;a href="https://en.wikipedia.org/wiki/Server_(computing)"&gt;servers&lt;/a&gt; running on &lt;a href="https://en.wikipedia.org/wiki/Cloud_computing"&gt;cloud&lt;/a&gt; and connect.&lt;/p&gt;
@@ -122,7 +371,7 @@ To                         Action      From
 &lt;p&gt;Here I created my linux server in london, UK. I opened firefox through terminal to reach out to URL &lt;em&gt;google.com&lt;/em&gt;. It opened google.co.uk domain based on regional search engine. You can do lot of other stuffs on VNC protocol to get things done from remote location.&lt;/p&gt;
 &lt;/blockquote&gt;
 &lt;hr&gt;
-&lt;h5&gt;Medium Blog : &lt;a href="https://medium.com/@sunnykrgupta/installation-of-vnc-server-on-ubuntu-1cf035370bd3"&gt;medium.com/@sunnykrgupta/installation-of-vnc-server-on-ubuntu-1cf035370bd3&lt;/a&gt;&lt;/h5&gt;</content><category term="vnc"></category><category term="vncserver"></category><category term="ubuntu"></category><category term="desktop installation"></category></entry><entry><title>Managing fleet on Kubernetes</title><link href="http://localhost:8000/managing-fleet-on-kubernetes.html" rel="alternate"></link><published>2017-08-13T19:45:00+05:30</published><updated>2017-08-13T19:45:00+05:30</updated><author><name>Sunny Kr Gupta</name></author><id>tag:localhost,2017-08-13:/managing-fleet-on-kubernetes.html</id><summary type="html">&lt;blockquote&gt;
+&lt;h5&gt;Medium Blog : &lt;a href="https://medium.com/@sunnykrgupta/installation-of-vnc-server-on-ubuntu-1cf035370bd3"&gt;medium.com/@sunnykrgupta/installation-of-vnc-server-on-ubuntu-1cf035370bd3&lt;/a&gt;&lt;/h5&gt;</content><category term="vnc"></category><category term="vncserver"></category><category term="ubuntu"></category><category term="desktop installation"></category></entry><entry><title>Managing fleet on Kubernetes</title><link href="https://sunnykrGupta.github.io/managing-fleet-on-kubernetes.html" rel="alternate"></link><published>2017-08-13T19:45:00+05:30</published><updated>2017-08-13T19:45:00+05:30</updated><author><name>Sunny Kr Gupta</name></author><id>tag:sunnykrgupta.github.io,2017-08-13:/managing-fleet-on-kubernetes.html</id><summary type="html">&lt;blockquote&gt;
 &lt;p&gt;Couple of months ago, we were tackling challenges with scalability of system and were in pursuit of finding right orchestration tools which can help in scaling system quickly. This draft is outline of things we have tried and learned along the way, , most of things might sound familiar to you …&lt;/p&gt;&lt;/blockquote&gt;</summary><content type="html">&lt;blockquote&gt;
 &lt;p&gt;Couple of months ago, we were tackling challenges with scalability of system and were in pursuit of finding right orchestration tools which can help in scaling system quickly. This draft is outline of things we have tried and learned along the way, , most of things might sound familiar to you. A Quick glance of things we came across while building fleet on Kubernetes.&lt;/p&gt;
 &lt;/blockquote&gt;
@@ -615,7 +864,7 @@ gcloud beta container node-pools update &amp;lt;NODEPOOL&amp;gt; --cluster &amp;
 &lt;p&gt;Conclusion : &lt;code&gt;Kubernetes&lt;/code&gt; lifted lot of &lt;code&gt;server management&lt;/code&gt; and helped in faster depployments &amp;amp; scaling system. Adaptability is much quicker, most of security and other concerns is being managed by Google. Kubernetes aims to offer a better orchestration management system on top of clustered infrastrcuture. Development on Kubernetes has been happening at storm-speed, and the &lt;a href="https://kubernetes.io/community/"&gt;community of Kubernauts&lt;/a&gt; has grown bigger.&lt;/p&gt;
 &lt;/blockquote&gt;
 &lt;hr&gt;
-&lt;h5&gt;Medium Blog : &lt;a href="https://medium.com/@sunnykrgupta/managing-fleet-on-kubernetes-8cac6483b64"&gt;medium.com/@sunnykrgupta/managing-fleet-on-kubernetes-8cac6483b64&lt;/a&gt;&lt;/h5&gt;</content><category term="kubernetes"></category><category term="docker"></category><category term="gce"></category><category term="gcr"></category><category term="container"></category></entry><entry><title>A Practical Guide to Geopy</title><link href="http://localhost:8000/a-practical-guide-to-geopy.html" rel="alternate"></link><published>2015-07-19T01:31:31+05:30</published><updated>2015-07-19T01:31:31+05:30</updated><author><name>Sunny Kr Gupta</name></author><id>tag:localhost,2015-07-19:/a-practical-guide-to-geopy.html</id><summary type="html">&lt;p&gt;During my final major academic project, i was working with &lt;a href="http://twitter.com"&gt;Twitter&lt;/a&gt; data (ie. tweets). I did some research and found out approximately only 1% of all Tweets published on Twitter are geolocated (ie. have location information). This is a very small portion of the Tweets, and i needed almost every …&lt;/p&gt;</summary><content type="html">&lt;p&gt;During my final major academic project, i was working with &lt;a href="http://twitter.com"&gt;Twitter&lt;/a&gt; data (ie. tweets). I did some research and found out approximately only 1% of all Tweets published on Twitter are geolocated (ie. have location information). This is a very small portion of the Tweets, and i needed almost every tweets location to segregate data country-wise.
+&lt;h5&gt;Medium Blog : &lt;a href="https://medium.com/@sunnykrgupta/managing-fleet-on-kubernetes-8cac6483b64"&gt;medium.com/@sunnykrgupta/managing-fleet-on-kubernetes-8cac6483b64&lt;/a&gt;&lt;/h5&gt;</content><category term="kubernetes"></category><category term="docker"></category><category term="gce"></category><category term="gcr"></category><category term="container"></category></entry><entry><title>A Practical Guide to Geopy</title><link href="https://sunnykrGupta.github.io/a-practical-guide-to-geopy.html" rel="alternate"></link><published>2015-07-19T01:31:31+05:30</published><updated>2015-07-19T01:31:31+05:30</updated><author><name>Sunny Kr Gupta</name></author><id>tag:sunnykrgupta.github.io,2015-07-19:/a-practical-guide-to-geopy.html</id><summary type="html">&lt;p&gt;During my final major academic project, i was working with &lt;a href="http://twitter.com"&gt;Twitter&lt;/a&gt; data (ie. tweets). I did some research and found out approximately only 1% of all Tweets published on Twitter are geolocated (ie. have location information). This is a very small portion of the Tweets, and i needed almost every …&lt;/p&gt;</summary><content type="html">&lt;p&gt;During my final major academic project, i was working with &lt;a href="http://twitter.com"&gt;Twitter&lt;/a&gt; data (ie. tweets). I did some research and found out approximately only 1% of all Tweets published on Twitter are geolocated (ie. have location information). This is a very small portion of the Tweets, and i needed almost every tweets location to segregate data country-wise.
   - How to resolve a string location to determine country ("Banagher", "Ipoh" etc )
   - How to resolve a Coordinate into country. ('4.581' - '101.082' etc)&lt;/p&gt;
 &lt;p&gt;There comes a &lt;a href="http://geopy.readthedocs.org/"&gt;Geopy&lt;/a&gt; to rescue us to this problem.&lt;/p&gt;
@@ -750,7 +999,7 @@ You can query a string of coordinate too, in above code replace the geolocator l
 
 
 &lt;p&gt;So simple right! for using other Geocoder Map APIs , refer to full documentation of &lt;a href="http://geopy.readthedocs.org/en/latest/#"&gt;Geopy&lt;/a&gt;. I hope you understands the working of Geocoder APIs and power of Geopy.
-&lt;/br&gt;Comment below if you come across any problem and give feedback. Thanks you all! Have a good day!&lt;/p&gt;</content><category term="Geopy"></category><category term="Geocoder"></category><category term="Python"></category><category term="GoogleV3"></category><category term="Yandex"></category><category term="Geonames"></category></entry><entry><title>Get Familiar with Python</title><link href="http://localhost:8000/get-familiar-with-python.html" rel="alternate"></link><published>2014-05-26T17:23:31+05:30</published><updated>2014-05-26T17:23:31+05:30</updated><author><name>Sunny Kr Gupta</name></author><id>tag:localhost,2014-05-26:/get-familiar-with-python.html</id><summary type="html">&lt;p&gt;Python is a powerful scripting language.&lt;/p&gt;
+&lt;/br&gt;Comment below if you come across any problem and give feedback. Thanks you all! Have a good day!&lt;/p&gt;</content><category term="Geopy"></category><category term="Geocoder"></category><category term="Python"></category><category term="GoogleV3"></category><category term="Yandex"></category><category term="Geonames"></category></entry><entry><title>Get Familiar with Python</title><link href="https://sunnykrGupta.github.io/get-familiar-with-python.html" rel="alternate"></link><published>2014-05-26T17:23:31+05:30</published><updated>2014-05-26T17:23:31+05:30</updated><author><name>Sunny Kr Gupta</name></author><id>tag:sunnykrgupta.github.io,2014-05-26:/get-familiar-with-python.html</id><summary type="html">&lt;p&gt;Python is a powerful scripting language.&lt;/p&gt;
 &lt;h4&gt;Guide's to Python :&lt;/h4&gt;
 &lt;ul&gt;
 &lt;li&gt;Learn about &lt;a href="http://en.wikipedia.org/wiki/REST"&gt;REST architecture&lt;/a&gt;.&lt;/li&gt;
@@ -795,7 +1044,7 @@ You can query a string of coordinate too, in above code replace the geolocator l
 &lt;li&gt;http://mail.python.org/mailman/listinfo/bangpypers&lt;/li&gt;
 &lt;li&gt;https://groups.google.com/forum/#!forum/django-users&lt;/li&gt;
 &lt;li&gt;http://mail.python.org/mailman/listinfo/ncr-python.in&lt;/li&gt;
-&lt;/ul&gt;</content><category term="python"></category></entry><entry><title>Octopress - Blog Frameworks</title><link href="http://localhost:8000/octopress-blog-frameworks.html" rel="alternate"></link><published>2014-05-26T17:23:31+05:30</published><updated>2014-05-26T17:23:31+05:30</updated><author><name>Sunny Kr Gupta</name></author><id>tag:localhost,2014-05-26:/octopress-blog-frameworks.html</id><summary type="html">&lt;p&gt;Hello, Everyone! This is blog post for helping you setup your own blog using Octopress framework running over Jekyll.
+&lt;/ul&gt;</content><category term="python"></category></entry><entry><title>Octopress - Blog Frameworks</title><link href="https://sunnykrGupta.github.io/octopress-blog-frameworks.html" rel="alternate"></link><published>2014-05-26T17:23:31+05:30</published><updated>2014-05-26T17:23:31+05:30</updated><author><name>Sunny Kr Gupta</name></author><id>tag:sunnykrgupta.github.io,2014-05-26:/octopress-blog-frameworks.html</id><summary type="html">&lt;p&gt;Hello, Everyone! This is blog post for helping you setup your own blog using Octopress framework running over Jekyll.
 I am Summer Intern at &lt;a href="http://www.ophio.co.in"&gt;Ophio&lt;/a&gt;, a New York based company. I have been given a task to set up my blog. My mentor Mr.&lt;a href="https://github.com/theskumar"&gt;Saurabh&lt;/a&gt; is a Senior Back-end Developer …&lt;/p&gt;</summary><content type="html">&lt;p&gt;Hello, Everyone! This is blog post for helping you setup your own blog using Octopress framework running over Jekyll.
 I am Summer Intern at &lt;a href="http://www.ophio.co.in"&gt;Ophio&lt;/a&gt;, a New York based company. I have been given a task to set up my blog. My mentor Mr.&lt;a href="https://github.com/theskumar"&gt;Saurabh&lt;/a&gt; is a Senior Back-end Developer. He developed many cool stuffs and active contibutor to open-source technology.&lt;/p&gt;
 &lt;h3&gt;Deployment of Octopress : Blog Frameworks for Hackers&lt;/h3&gt;
@@ -808,7 +1057,7 @@ I am Summer Intern at &lt;a href="http://www.ophio.co.in"&gt;Ophio&lt;/a&gt;, a 
 &lt;/ul&gt;
 &lt;p&gt;How to setup Octopress?? &lt;a href="http://octopress.org/docs/setup/"&gt;Go ahead&lt;/a&gt;.&lt;/p&gt;
 &lt;p&gt;Variety of theme available &lt;a href="https://github.com/imathis/octopress/wiki/3rd-Party-Octopress-Themes"&gt;here&lt;/a&gt;.&lt;/p&gt;
-&lt;p&gt;&lt;img alt="Responsive Blog" src="images/main-screenshot.png" title=" Octopress Image"&gt;&lt;/p&gt;</content><category term="Octopress"></category><category term="ruby"></category></entry><entry><title>Pelican Python Blogging Framework</title><link href="http://localhost:8000/pelican-python-blogging-framework.html" rel="alternate"></link><published>2014-05-26T17:23:31+05:30</published><updated>2014-05-26T17:23:31+05:30</updated><author><name>Sunny Kr Gupta</name></author><id>tag:localhost,2014-05-26:/pelican-python-blogging-framework.html</id><summary type="html">&lt;p&gt;Hello, Everyone! This is 2nd blog post about Pelican framework in python.&lt;/p&gt;
+&lt;p&gt;&lt;img alt="Responsive Blog" src="images/main-screenshot.png" title=" Octopress Image"&gt;&lt;/p&gt;</content><category term="Octopress"></category><category term="ruby"></category></entry><entry><title>Pelican Python Blogging Framework</title><link href="https://sunnykrGupta.github.io/pelican-python-blogging-framework.html" rel="alternate"></link><published>2014-05-26T17:23:31+05:30</published><updated>2014-05-26T17:23:31+05:30</updated><author><name>Sunny Kr Gupta</name></author><id>tag:sunnykrgupta.github.io,2014-05-26:/pelican-python-blogging-framework.html</id><summary type="html">&lt;p&gt;Hello, Everyone! This is 2nd blog post about Pelican framework in python.&lt;/p&gt;
 &lt;h4&gt;Deployment of Pelican : Blog Frameworks&lt;/h4&gt;
 &lt;p&gt;Pelican is a static site generator, written in Python. It strikes as
 a very interesting method as you can write your content purely in your favourite editor (in Markdown Flavour) and commit your …&lt;/p&gt;</summary><content type="html">&lt;p&gt;Hello, Everyone! This is 2nd blog post about Pelican framework in python.&lt;/p&gt;
@@ -829,4 +1078,4 @@ a very interesting method as you can write your content purely in your favourite
 &lt;p&gt;$ git push --all&lt;/p&gt;
 &lt;/li&gt;
 &lt;/ol&gt;
-&lt;p&gt;&lt;img alt="Responsive Blog" src="http://localhost:8000/images/Pelican.jpg" title="Pelican Image"&gt;&lt;/p&gt;</content><category term="pelican"></category><category term="python"></category></entry></feed>
+&lt;p&gt;&lt;img alt="Responsive Blog" src="https://sunnykrGupta.github.io/images/Pelican.jpg" title="Pelican Image"&gt;&lt;/p&gt;</content><category term="pelican"></category><category term="python"></category></entry></feed>
