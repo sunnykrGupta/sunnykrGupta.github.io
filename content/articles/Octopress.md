@@ -1,6 +1,6 @@
 Title: Octopress - Blog Frameworks
 Date: 2014-05-26 17:23:31
-Category: Blog
+Category: Blog,Series
 Tags: Octopress,ruby
 Author: Sunny Kr Gupta
 Status: published
