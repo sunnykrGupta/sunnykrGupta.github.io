@@ -16,8 +16,6 @@ hr {
   color: #eeeeee;
   background-color: #eeeeee;
   height: 1px;
-  /*height: 4px;
-  background-color: #797777; */
   border: none;
 }
 
@@ -201,7 +199,6 @@ main div#ending_message {
 
   aside hr {
     height: 4px;
-    /*background-color: #797777;8/
   }
 
   aside div#user_meta {
