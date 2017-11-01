@@ -11,12 +11,16 @@ a {
   color: #000000;
   text-decoration: none;
 }
+
 hr {
   color: #eeeeee;
-  background-color: #eeeeee;
-  height: 1px;
+  /*background-color: #eeeeee;
+  height: 1px; */
+  height: 4px;
+  background-color: #797777;
   border: none;
 }
+
 img {
   max-width: 100%;
 }
@@ -194,6 +198,12 @@ main div#ending_message {
   aside h3 {
     margin: 10px 0 0 0;
   }
+
+  aside hr {
+    height: 4px;
+    background-color: #797777;
+  }
+
   aside div#user_meta {
     max-width: 192px;
     text-align: right;
