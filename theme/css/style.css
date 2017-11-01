@@ -14,10 +14,10 @@ a {
 
 hr {
   color: #eeeeee;
-  /*background-color: #eeeeee;
-  height: 1px; */
-  height: 4px;
-  background-color: #797777;
+  background-color: #eeeeee;
+  height: 1px;
+  /*height: 4px;
+  background-color: #797777; */
   border: none;
 }
 
