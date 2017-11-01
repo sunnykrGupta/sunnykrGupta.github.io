@@ -1,0 +1,595 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <!-- ## for client-side less
+  <link rel="stylesheet/less" type="text/css" href="https://sunnykrGupta.github.io/theme/css/style.less">
+  <script src="http://cdnjs.cloudflare.com/ajax/libs/less.js/1.7.3/less.min.js" type="text/javascript"></script>
+  -->
+  <link rel="stylesheet" type="text/css" href="https://sunnykrGupta.github.io/theme/css/style.css">
+  <link rel="stylesheet" type="text/css" href="https://sunnykrGupta.github.io/theme/css/pygments.css">
+  <link rel="stylesheet" type="text/css" href="//fonts.googleapis.com/css?family=PT+Sans|PT+Serif|PT+Mono">
+
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="author" content="Sunny Kumar">
+  <meta name="description" content="Posts and writings by Sunny Kumar">
+
+
+<meta name="keywords" content="Google BigQuery, GCP, Redis, Google Cloud Platform">
+
+  <title>
+    Daemon Blog
+&ndash; Streaming with Redis - BigQuery Part-II  </title>
+
+<script type="text/javascript">
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-63834161-1', 'auto');
+  ga('send', 'pageview');
+
+</script>
+</head>
+
+<body>
+  <aside>
+    <div id="user_meta">
+      <a id="user_meta_logo" href="https://sunnykrGupta.github.io">
+        <img src="https://sunnykrGupta.github.io/images/logo.jpg" alt="logo">
+      </a>
+      <h3><a href="https://sunnykrGupta.github.io">Sunny Kumar</a></h3>
+      <p>Data Engineer, Programmer, DevOps on Kubernetes, Football Lover :D</p>
+      <nav>
+          <h4><a href="https://sunnykrGupta.github.io/pages/projects.html">Project</a></h4>
+          <h4><a href="https://sunnykrGupta.github.io/pages/about-me.html">About</a></h4>
+          <h4><a href="https://sunnykrGupta.github.io/pages/contact-me.html">Contact</a></h4>
+      </nav>
+    </div>
+  </aside>
+
+  <main>
+    <header>
+      <nav>
+          <a id="github" href="https://github.com/sunnykrGupta" target="_blank"><img src="https://sunnykrGupta.github.io/theme/images/Mono/webicon-github.png" alt="github"></a>
+          <a id="twitter" href="https://twitter.com/Sunny_KrGupta" target="_blank"><img src="https://sunnykrGupta.github.io/theme/images/Mono/webicon-twitter.png" alt="twitter"></a>
+          <a id="linkedin" href="https://www.linkedin.com/in/sunnykrgupta/" target="_blank"><img src="https://sunnykrGupta.github.io/theme/images/Mono/webicon-linkedin.png" alt="linkedin"></a>
+          <a id="googleplus" href="https://plus.google.com/u/0/+SunnyKrGUPTA" target="_blank"><img src="https://sunnykrGupta.github.io/theme/images/Mono/webicon-googleplus.png" alt="googleplus"></a>
+          <a id="mail" href="mailto:sunnygupta.kr@gmail.com" target="_blank"><img src="https://sunnykrGupta.github.io/theme/images/Mono/webicon-mail.png" alt="mail"></a>
+      </nav>
+      <br />
+      <p>
+        <a href="https://sunnykrGupta.github.io/index.html">Index</a> &nbsp;&nbsp; &brvbar; <a href="https://sunnykrGupta.github.io/archives.html">&nbsp;&nbsp;Archives</a>
+      </p>
+
+    </header>
+
+<article>
+  <div class="article_title">
+    <h3><a href="https://sunnykrGupta.github.io/streaming-with-redis-bigquery-part-ii.html">Streaming with Redis - BigQuery Part-II</a></h3>
+  </div>
+  <div class="article_text">
+    <p><img alt="Google BigQuery" src="/images/bq-series/part2/bq-stream.png"></p>
+<p>This post is 2nd part of 3 post series. In earlier post, we understood the fundamentals of BigQuery Load Jobs <strong><a href="https://sunnykrgupta.github.io/export-load-job-with-mongodb-bigquery-part-i.html">Export &amp; Load Job with MongoDB - BigQuery Part-I</a></strong>. In this post, we are going to dive into Streaming feature of BigQuery.</p>
+<p><br></p>
+<h3><a href="https://cloud.google.com/bigquery/streaming-data-into-bigquery">Streaming</a></h3>
+<p><strong>Why ?</strong> - Streaming helps in push our data into BigQuery (short for BQ) and helps in making data available for querying without delay of running load jobs.</p>
+<blockquote>
+<p>There are some trade-offs for choosing Streaming. Few are belows:</p>
+</blockquote>
+<ul>
+<li>We need follow few quotas like http body size, maximum rows / request etc while making streaming API calls.</li>
+<li>Written data in tables are not instantly available for copy or export jobs in bigquery, it will take upto 90 minutes to be made available whereas load based tables are available instantly.</li>
+<li>At the time of writing this post, charges incurs in streaming whereas load jobs are free.</li>
+</ul>
+<p>Keeping above in mind, we need to choose streaming vs load jobs in BigQuery.</p>
+<p><strong>Quotas :</strong> <a href="https://cloud.google.com/bigquery/quotas#streaminginserts">https://cloud.google.com/bigquery/quotas#streaminginserts</a></p>
+<p><br></p>
+<hr>
+<p><br></p>
+<h3>Streaming Data into BigQuery</h3>
+<p>In this article, we are going to use a <a href="https://redis.io">redis server</a> as a message broker to hold our data.</p>
+<p>We are going to prepare data and skeleton of data is going to be basic information of any person (username, name, birthdate, sex, address, email). With this information, we need schema and table in bigquery to be created in advance before streaming. Post table creation, we are going to run streaming program to ingest our data in bulk which will be read from redis and same will be written to bigquery table in real time.
+We are going to use <code>python</code> as our programming language.</p>
+<p><br></p>
+<h4>1. Prepare data in Redis</h4>
+<p><img alt="Redis" src="/images/bq-series/part2/redis.png"></p>
+<p>We are going to write a small python script to preapare data in <a href="https://redis.io/topics/data-types">redis List</a>.</p>
+<p><strong>Redis Installation :</strong> <a href="https://redis.io/download">https://redis.io/download</a></p>
+<p>If you have docker running, run redis inside container in simple command</p>
+<div class="highlight"><pre>docker run -d --name redis-streaming -p 6379:6379 redis
+</pre></div>
+
+
+<p>Script is going to do <a href="https://redis.io/commands/lpush">LPUSH command</a> into redis to insert data into list named as <code>redisList</code> . With the help of <code>Faker</code> library we are going to generate some fake profile as our data.</p>
+<p><strong>Faker :</strong> <a href="https://github.com/joke2k/faker">https://github.com/joke2k/faker</a></p>
+<table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre> 1
+ 2
+ 3
+ 4
+ 5
+ 6
+ 7
+ 8
+ 9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24</pre></div></td><td class="code"><div class="highlight"><pre><span class="c">#!/usr/bin/env python</span>
+
+<span class="kn">import</span> <span class="nn">redis</span>
+<span class="kn">import</span> <span class="nn">json</span><span class="o">,</span> <span class="nn">time</span>
+<span class="c">#Faker : https://github.com/joke2k/faker</span>
+<span class="kn">from</span> <span class="nn">faker</span> <span class="kn">import</span> <span class="n">Faker</span>
+
+<span class="n">streamRedis</span> <span class="o">=</span> <span class="n">redis</span><span class="o">.</span><span class="n">Redis</span><span class="p">(</span><span class="n">host</span><span class="o">=</span><span class="s">&#39;127.0.0.1&#39;</span><span class="p">,</span>
+             <span class="n">port</span><span class="o">=</span><span class="s">&#39;6379&#39;</span><span class="p">,</span>
+            <span class="n">password</span><span class="o">=</span><span class="s">&#39;&#39;</span><span class="p">)</span>
+
+<span class="n">fake</span> <span class="o">=</span> <span class="n">Faker</span><span class="p">()</span>
+
+<span class="k">def</span> <span class="nf">profile_generator</span><span class="p">():</span>
+    <span class="k">return</span> <span class="n">fake</span><span class="o">.</span><span class="n">simple_profile</span><span class="p">(</span><span class="n">sex</span><span class="o">=</span><span class="bp">None</span><span class="p">)</span>
+
+<span class="k">def</span> <span class="nf">main</span><span class="p">():</span>
+    <span class="k">while</span> <span class="bp">True</span><span class="p">:</span>
+        <span class="n">streamRedis</span><span class="o">.</span><span class="n">lpush</span><span class="p">(</span><span class="s">&quot;redisList&quot;</span><span class="p">,</span> <span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">profile_generator</span><span class="p">())</span> <span class="p">)</span>
+        <span class="c">#sleep 200ms</span>
+        <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mf">0.2</span><span class="p">)</span>
+
+<span class="k">if</span> <span class="n">__name__</span> <span class="o">==</span> <span class="s">&quot;__main__&quot;</span><span class="p">:</span>
+    <span class="n">main</span><span class="p">()</span>
+</pre></div>
+</td></tr></table>
+
+<p><br></p>
+<hr>
+<p><br></p>
+<h4>2. Inspect data and prepare schema for Table</h4>
+<blockquote>
+<p>Our data looks like :</p>
+</blockquote>
+<div class="highlight"><pre>{
+    &#39;username&#39;: u&#39;tarawade&#39;,
+    &#39;name&#39;: u&#39;Jennifer Lewis&#39;,
+    &#39;birthdate&#39;: &#39;2005-06-14&#39;,
+    &#39;sex&#39;: &#39;F&#39;,
+    &#39;address&#39;: u&#39;7134 Robinson Club Apt. 530\nPort Andreachester, GA 19011-6162&#39;,
+    &#39;mail&#39;: u&#39;tmorgan@yahoo.com&#39;
+}
+</pre></div>
+
+
+<blockquote>
+<p>For the above formatted data, below schema is going to work :</p>
+</blockquote>
+<div class="highlight"><pre>[
+    {
+        &quot;name&quot;: &quot;username&quot;, &quot;type&quot;: &quot;STRING&quot;, &quot;mode&quot;: &quot;NULLABLE&quot;
+    },
+    {
+        &quot;name&quot;: &quot;name&quot;, &quot;type&quot;: &quot;STRING&quot;, &quot;mode&quot;: &quot;NULLABLE&quot;
+    },
+    {
+        &quot;name&quot;: &quot;birthdate&quot;, &quot;type&quot;: &quot;STRING&quot;, &quot;mode&quot;: &quot;NULLABLE&quot;
+    },
+    {
+        &quot;name&quot;: &quot;sex&quot;, &quot;type&quot;: &quot;STRING&quot;, &quot;mode&quot;: &quot;NULLABLE&quot;
+    },
+    {
+        &quot;name&quot;: &quot;address&quot;, &quot;type&quot;: &quot;STRING&quot;, &quot;mode&quot;: &quot;NULLABLE&quot;
+    },
+    {
+        &quot;name&quot;: &quot;mail&quot;, &quot;type&quot;: &quot;STRING&quot;, &quot;mode&quot;: &quot;NULLABLE&quot;
+    }
+]
+</pre></div>
+
+
+<hr>
+<p><br></p>
+<h4>3. Create a table in BigQuery</h4>
+<p>We are going to create two python file, ie, <strong><code>createConfig.py</code></strong> that will keep schema configuration and other <strong><code>tableCreate.py</code></strong> that will execute the table creation API call to bigquery. We are going to use <strong><code>Google Application Default Credentials</code></strong> to authorize our python application to talk to bigquery APIs.</p>
+<div class="highlight"><pre><span class="nv">$ </span>cat createConfig.py
+
+<span class="nv">TableObject</span> <span class="o">=</span> <span class="o">{</span>
+    <span class="s2">&quot;tableReference&quot;</span>: <span class="o">{</span>
+      <span class="s2">&quot;projectId&quot;</span>: <span class="s2">&quot;mimetic-slate&quot;</span>,
+      <span class="s2">&quot;tableId&quot;</span>: <span class="s2">&quot;StreamTable&quot;</span>,
+      <span class="s2">&quot;datasetId&quot;</span>: <span class="s2">&quot;BQ_Dataset&quot;</span>,
+    <span class="o">}</span>,
+
+    <span class="s2">&quot;schema&quot;</span>: <span class="o">{</span>
+      <span class="s2">&quot;fields&quot;</span>: <span class="o">[</span>
+          <span class="o">{</span>
+              <span class="s2">&quot;name&quot;</span>: <span class="s2">&quot;username&quot;</span>,
+              <span class="s2">&quot;type&quot;</span>: <span class="s2">&quot;STRING&quot;</span>,
+              <span class="s2">&quot;mode&quot;</span>: <span class="s2">&quot;NULLABLE&quot;</span>
+          <span class="o">}</span>,
+          <span class="o">{</span>
+              <span class="s2">&quot;name&quot;</span>: <span class="s2">&quot;name&quot;</span>,
+              <span class="s2">&quot;type&quot;</span>: <span class="s2">&quot;STRING&quot;</span>,
+              <span class="s2">&quot;mode&quot;</span>: <span class="s2">&quot;NULLABLE&quot;</span>
+          <span class="o">}</span>,
+          <span class="o">{</span>
+              <span class="s2">&quot;name&quot;</span>: <span class="s2">&quot;birthdate&quot;</span>,
+              <span class="s2">&quot;type&quot;</span>: <span class="s2">&quot;STRING&quot;</span>,
+              <span class="s2">&quot;mode&quot;</span>: <span class="s2">&quot;NULLABLE&quot;</span>
+          <span class="o">}</span>,
+          <span class="o">{</span>
+              <span class="s2">&quot;name&quot;</span>: <span class="s2">&quot;sex&quot;</span>,
+              <span class="s2">&quot;type&quot;</span>: <span class="s2">&quot;STRING&quot;</span>,
+              <span class="s2">&quot;mode&quot;</span>: <span class="s2">&quot;NULLABLE&quot;</span>
+          <span class="o">}</span>,
+          <span class="o">{</span>
+              <span class="s2">&quot;name&quot;</span>: <span class="s2">&quot;address&quot;</span>,
+              <span class="s2">&quot;type&quot;</span>: <span class="s2">&quot;STRING&quot;</span>,
+              <span class="s2">&quot;mode&quot;</span>: <span class="s2">&quot;NULLABLE&quot;</span>
+          <span class="o">}</span>,
+          <span class="o">{</span>
+              <span class="s2">&quot;name&quot;</span>: <span class="s2">&quot;mail&quot;</span>,
+              <span class="s2">&quot;type&quot;</span>: <span class="s2">&quot;STRING&quot;</span>,
+              <span class="s2">&quot;mode&quot;</span>: <span class="s2">&quot;NULLABLE&quot;</span>
+          <span class="o">}</span>
+      <span class="o">]</span>,
+  <span class="o">}</span>,
+<span class="o">}</span>
+</pre></div>
+
+
+<p>We are going to use <strong> <a href="https://developers.google.com/api-client-library/python/">google-api-python-client</a></strong> library for interacting to our bigquery APIs.  Our main program look like which in turn make bigquery API calls.</p>
+<p>We are building service object by calling our API name and version supported by API. In this case we are using <strong><code>bigquery</code></strong> with version <strong><code>v2</code></strong>. This service object will be used to make tables related operation as of now we are going to <strong><code>insert</code></strong> a http call to make table.</p>
+<p><strong><code>GoogleCredentials.get_application_default()</code></strong> will read the credentials stored in my system. Either you need to export a variable mentioned in reference with service account key or you setup an google SDK which will store default credentials inside your home directory.</p>
+<div class="highlight"><pre>ls ~/.config/gcloud/*.json
+~/.config/gcloud/application_default_credentials.json
+</pre></div>
+
+
+<table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre> 1
+ 2
+ 3
+ 4
+ 5
+ 6
+ 7
+ 8
+ 9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25
+26</pre></div></td><td class="code"><div class="highlight"><pre><span class="c">#!/usr/bin/env python</span>
+
+<span class="kn">from</span> <span class="nn">googleapiclient</span> <span class="kn">import</span> <span class="n">discovery</span>
+<span class="kn">from</span> <span class="nn">oauth2client.client</span> <span class="kn">import</span> <span class="n">GoogleCredentials</span>
+<span class="kn">from</span> <span class="nn">tableCreate</span> <span class="kn">import</span> <span class="n">TableObject</span>
+
+
+<span class="k">def</span> <span class="nf">createTable</span><span class="p">(</span><span class="n">bigquery</span><span class="p">):</span>
+    <span class="n">tables</span> <span class="o">=</span> <span class="n">bigquery</span><span class="o">.</span><span class="n">tables</span><span class="p">()</span>
+
+    <span class="c">#insert utility make call to BQ API with payload \</span>
+    <span class="c">#(TableObject) contains schema and table-name information</span>
+    <span class="n">tableStatusObject</span> <span class="o">=</span> <span class="n">tables</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span> <span class="n">projectId</span><span class="o">=</span><span class="s">&#39;mimetic-slate&#39;</span><span class="p">,</span> \
+     <span class="n">datasetId</span><span class="o">=</span><span class="s">&#39;BQ_Dataset&#39;</span><span class="p">,</span> <span class="n">body</span><span class="o">=</span><span class="n">TableObject</span><span class="p">)</span><span class="o">.</span><span class="n">execute</span><span class="p">()</span>
+<span class="c"># [END]</span>
+
+<span class="k">def</span> <span class="nf">main</span><span class="p">():</span>
+    <span class="c">#to get credentials from my laptop</span>
+    <span class="n">credentials</span> <span class="o">=</span> <span class="n">GoogleCredentials</span><span class="o">.</span><span class="n">get_application_default</span><span class="p">()</span>
+    <span class="c"># Construct the service object for interacting with the BigQuery API.</span>
+    <span class="n">bigquery</span> <span class="o">=</span> <span class="n">discovery</span><span class="o">.</span><span class="n">build</span><span class="p">(</span><span class="s">&#39;bigquery&#39;</span><span class="p">,</span> <span class="s">&#39;v2&#39;</span><span class="p">,</span> <span class="n">credentials</span><span class="o">=</span><span class="n">credentials</span><span class="p">)</span>
+    <span class="n">createTable</span><span class="p">(</span><span class="n">bigquery</span><span class="p">)</span>
+
+<span class="k">if</span> <span class="n">__name__</span> <span class="o">==</span> <span class="s">&#39;__main__&#39;</span><span class="p">:</span>
+    <span class="n">main</span><span class="p">()</span>
+    <span class="k">print</span> <span class="s">&quot;BQ Table Creator !!&quot;</span>
+</pre></div>
+</td></tr></table>
+
+<p>Run above to program to create table with name <strong>StreamTable</strong> in bigquery dataset <strong><code>BQ_Dataset</code></strong>. Make sure you have dataset created already.</p>
+<p>You can verify table creation by visiting bigquery UI. Visit : <a href="https://bigquery.cloud.google.com">https://bigquery.cloud.google.com</a></p>
+<p>You can also verify table creation by running <code>bq</code> CLI commands</p>
+<div class="highlight"><pre><span class="nv">$ </span>bq ls BQ_Dataset    
+    tableId     Type    Labels   Time Partitioning  
+ ------------- ------- -------- -------------------
+  StreamTable   TABLE                               
+</pre></div>
+
+
+<p><img alt="bq show " src="/images/bq-series/part2/bq-show-2.png"></p>
+<p><strong>Reference </strong> :</p>
+<ul>
+<li>
+<p><strong>Table Creation : </strong> <a href="https://developers.google.com/resources/api-libraries/documentation/bigquery/v2/python/latest/bigquery_v2.tables.html">https://developers.google.com/resources/api-libraries/documentation/bigquery/v2/python/latest/bigquery_v2.tables.html</a></p>
+</li>
+<li>
+<p><strong>Google Application Default Credentials :</strong> <a href="https://developers.google.com/identity/protocols/application-default-credentials">https://developers.google.com/identity/protocols/application-default-credentials</a></p>
+</li>
+<li>
+<p><strong>Build the service object :</strong> <a href="https://developers.google.com/api-client-library/python/start/get_started#build-the-service-object">https://developers.google.com/api-client-library/python/start/get_started#build-the-service-object</a></p>
+</li>
+</ul>
+<p><br></p>
+<hr>
+<p><br></p>
+<h4>4. Streaming into Bigquery</h4>
+<p>Now, we have table created and data queued into redis list, We are ready to stream right away by running a python script, lets call this script <strong><code>bq-streamer.py</code></strong></p>
+<table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre> 1
+ 2
+ 3
+ 4
+ 5
+ 6
+ 7
+ 8
+ 9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25
+26
+27
+28
+29
+30
+31
+32
+33
+34
+35
+36
+37
+38
+39
+40
+41
+42
+43
+44
+45
+46
+47
+48
+49
+50
+51
+52
+53
+54
+55
+56
+57
+58
+59
+60
+61
+62
+63</pre></div></td><td class="code"><div class="highlight"><pre><span class="c">#!/usr/bin/env python</span>
+
+<span class="kn">from</span> <span class="nn">googleapiclient</span> <span class="kn">import</span> <span class="n">discovery</span>
+<span class="kn">from</span> <span class="nn">oauth2client.client</span> <span class="kn">import</span> <span class="n">GoogleCredentials</span>
+
+<span class="kn">import</span> <span class="nn">json</span><span class="o">,</span> <span class="nn">time</span><span class="o">,</span> <span class="nn">copy</span>
+<span class="kn">import</span> <span class="nn">redis</span>
+
+
+<span class="n">batchCount</span> <span class="o">=</span> <span class="mi">100</span>
+
+<span class="n">redisStream</span> <span class="o">=</span> <span class="n">redis</span><span class="o">.</span><span class="n">Redis</span><span class="p">(</span><span class="n">host</span><span class="o">=</span><span class="s">&#39;127.0.0.1&#39;</span><span class="p">,</span>
+             <span class="n">port</span><span class="o">=</span><span class="s">&#39;6379&#39;</span><span class="p">,</span>
+            <span class="n">password</span><span class="o">=</span><span class="s">&#39;&#39;</span><span class="p">)</span>
+
+<span class="n">streamObject</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s">&quot;rows&quot;</span><span class="p">:</span> <span class="p">[</span>
+      <span class="c">#{ &quot;json&quot;: {# Represents a single JSON object. } }</span>
+    <span class="p">],</span>
+ <span class="p">}</span>
+
+<span class="c">#[START Streaming batcher]</span>
+<span class="k">def</span> <span class="nf">streamBuilder</span><span class="p">():</span>
+    <span class="c">#Every API needs a refresh copy of dict</span>
+    <span class="n">newStreamObject</span> <span class="o">=</span> <span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span><span class="n">streamObject</span><span class="p">)</span>
+
+    <span class="n">currentCounter</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="k">while</span> <span class="n">currentCounter</span> <span class="o">&lt;</span> <span class="n">batchCount</span><span class="p">:</span>
+        <span class="n">packet</span> <span class="o">=</span> <span class="n">redisStream</span><span class="o">.</span><span class="n">brpop</span><span class="p">(</span><span class="s">&quot;redisList&quot;</span><span class="p">,</span>  <span class="n">timeout</span><span class="o">=</span><span class="mi">0</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span>
+        <span class="n">newStreamObject</span><span class="p">[</span><span class="s">&quot;rows&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">({</span><span class="s">&quot;json&quot;</span> <span class="p">:</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">packet</span><span class="p">)</span> <span class="p">})</span>
+        <span class="n">currentCounter</span> <span class="o">+=</span>  <span class="mi">1</span>
+
+    <span class="k">return</span> <span class="n">newStreamObject</span>
+<span class="c">#[END]</span>
+
+
+<span class="c"># [START Streaming Utility]</span>
+<span class="k">def</span> <span class="nf">streamUtils</span><span class="p">(</span><span class="n">bigquery</span><span class="p">):</span>
+    <span class="n">tabledata</span> <span class="o">=</span> <span class="n">bigquery</span><span class="o">.</span><span class="n">tabledata</span><span class="p">()</span>
+
+    <span class="c">#Run infinitely</span>
+    <span class="k">while</span> <span class="bp">True</span><span class="p">:</span>
+        <span class="n">streamBuildBatch</span> <span class="o">=</span> <span class="n">streamBuilder</span><span class="p">()</span>
+
+        <span class="c">#BQ API to insert bulk data into table</span>
+        <span class="n">insertStatusObject</span> <span class="o">=</span> <span class="n">tabledata</span><span class="o">.</span><span class="n">insertAll</span><span class="p">(</span><span class="n">projectId</span><span class="o">=</span><span class="s">&#39;mimetic-slate&#39;</span><span class="p">,</span> \
+        <span class="n">datasetId</span><span class="o">=</span><span class="s">&#39;BQ_Dataset&#39;</span><span class="p">,</span> <span class="n">tableId</span><span class="o">=</span><span class="s">&#39;StreamTable&#39;</span><span class="p">,</span> \
+        <span class="n">body</span><span class="o">=</span><span class="n">streamBuildBatch</span><span class="p">)</span><span class="o">.</span><span class="n">execute</span><span class="p">()</span>
+
+
+<span class="c"># [ MAIN]</span>
+<span class="k">def</span> <span class="nf">main</span><span class="p">():</span>
+    <span class="n">credentials</span> <span class="o">=</span> <span class="n">GoogleCredentials</span><span class="o">.</span><span class="n">get_application_default</span><span class="p">()</span>
+    <span class="c"># Construct the service object for interacting with the BigQuery API.</span>
+    <span class="n">bigquery</span> <span class="o">=</span> <span class="n">discovery</span><span class="o">.</span><span class="n">build</span><span class="p">(</span><span class="s">&#39;bigquery&#39;</span><span class="p">,</span> <span class="s">&#39;v2&#39;</span><span class="p">,</span> <span class="n">credentials</span><span class="o">=</span><span class="n">credentials</span><span class="p">)</span>
+
+    <span class="c">#Stream utility</span>
+    <span class="n">streamUtils</span><span class="p">(</span><span class="n">bigquery</span><span class="p">)</span>
+<span class="c"># [END]</span>
+
+
+<span class="k">if</span> <span class="n">__name__</span> <span class="o">==</span> <span class="s">&#39;__main__&#39;</span><span class="p">:</span>
+    <span class="n">main</span><span class="p">()</span>
+</pre></div>
+</td></tr></table>
+
+<p>Above program is going to read redis running on <code>127.0.0.1:6379</code> from list name <strong><code>redisList</code></strong> and build a dict object <strong><code>streamObject</code></strong> that is accepted by bq streaming API. We are calling <strong><code>insertAll</code></strong> utility to submit our streaming request to bigquery API.</p>
+<p><strong><code>insertAll</code></strong> takes <strong><code>projectId, datasetId, tableId</code></strong> as an argument and <strong><code>body</code></strong> which contains your data to be streamed.</p>
+<p>Script has been configured to <a href="https://redis.io/commands/brpop">pop</a> <code>100 entries</code> from redis list and prepare it to be pushed into table. Run <strong><code>bq-streamer.py</code></strong> script to start streaming data into bigquery table.</p>
+<div class="highlight"><pre>#JSON payload in body argument looks like when prepared bulk data
+{
+    &quot;rows&quot;: [
+        {
+            &quot;json&quot;: {
+                &quot;username&quot;: &quot;nicholaswagner&quot;,
+                &quot;name&quot;: &quot;Laura Scott&quot;,
+                &quot;birthdate&quot;: &quot;1970-11-30&quot;,
+                &quot;sex&quot;: &quot;F&quot;,
+                &quot;address&quot;: &quot;788 Faulkner Locks Suite 687\nSanfordside, FL 50804-6818&quot;,
+                &quot;mail&quot;: &quot;austinnathaniel@yahoo.com&quot;
+            }
+        },
+        {
+           &quot;json&quot;: {
+               &quot;username&quot;: &quot;david27&quot;,
+               &quot;name&quot;: &quot;Aaron Silva&quot;,
+               &quot;birthdate&quot;: &quot;2003-09-17&quot;,
+               &quot;sex&quot;: &quot;M&quot;,
+               &quot;address&quot;: &quot;57976 Collins Loaf Apt. 843\nMichaelfort, VA 79233&quot;,
+               &quot;mail&quot;: &quot;dbeck@hotmail.com&quot;
+           }
+        },
+        .....
+        more data
+        .....
+}
+</pre></div>
+
+
+<p><strong>Reference</strong> :</p>
+<ul>
+<li><strong>Streaming insertAll :</strong> <a href="https://developers.google.com/resources/api-libraries/documentation/bigquery/v2/python/latest/bigquery_v2.tabledata.html">https://developers.google.com/resources/api-libraries/documentation/bigquery/v2/python/latest/bigquery_v2.tabledata.html</a></li>
+</ul>
+<p><br></p>
+<hr>
+<p><br></p>
+<h4>5. Verify the data in BigQuery Table</h4>
+<p>After running streaming, you will start seeing something similar as shown below when you click table info. Clicking on preview will not show you any streamed data, it will a while to appear but it will be in buffer to be available for query instantly.</p>
+<div style="text-align: center"><u><b>Buffer Statistics</b></u></div>
+
+<p><img alt="streaming-1" src="/images/bq-series/part2/stream.png"></p>
+<div style="text-align: center"><u><b>Table Preview</b></u></div>
+
+<p><img alt="streaming-2" src="/images/bq-series/part2/preview-none.png"></p>
+<p><br></p>
+<hr>
+<p><br></p>
+<h3>SQL Query in BQ Table</h3>
+<p>We are going to run a simple query to show the output that shows your streamed data.</p>
+<div class="highlight"><pre>SELECT * FROM [mimetic-slate:BQ_Dataset.StreamTable]
+</pre></div>
+
+
+<div style="text-align: center"><u><b>Query Result</u></b></div>
+
+<p><img alt="query" src="/images/bq-series/part2/query-2.png"></p>
+<p><br></p>
+<hr>
+<p><br></p>
+<p><strong>Github reference</strong> : <a href="https://github.com/sunnykrGupta/Bigquery-series">https://github.com/sunnykrGupta/Bigquery-series</a></p>
+<p><br></p>
+<hr>
+<p><br></p>
+<h3>Conclusion</h3>
+<p>That's all from this <strong>series Part-II</strong>. Hope you get basic understanding of Streaming in BigQuery from this post. Streaming is helpful in cases when you want your data to be instantly available for query, helps in scenario where have an requirement of building real time analysis.</p>
+<p>I would appreciate feedback via comments. In next blog which is part of this series, i will be covering <strong>Patching and Updating table schema in Bigquery</strong> which is important when you wanted to add or update fields of table.</p>
+<hr>
+  </div>
+  <div class="article_meta">
+    <p>Posted on: Wed 01 November 2017</p>
+    <p>Category: <a href="https://sunnykrGupta.github.io/category/blog-series.html">Blog, Series</a>
+ &ndash; Tags:
+      <a href="https://sunnykrGupta.github.io/tag/google-bigquery.html">Google BigQuery</a>,      <a href="https://sunnykrGupta.github.io/tag/gcp.html">GCP</a>,      <a href="https://sunnykrGupta.github.io/tag/redis.html">Redis</a>,      <a href="https://sunnykrGupta.github.io/tag/google-cloud-platform.html">Google Cloud Platform</a>    </p>
+  </div>
+  <section>
+      <p id="post-share-links">
+          Share on:
+          <a href="https://twitter.com/home?status=Streaming%20with%20Redis%20-%20BigQuery%20Part-II%20https%3A//sunnykrGupta.github.io/streaming-with-redis-bigquery-part-ii.html" target="_blank" title="Share on Twitter"><img src="https://sunnykrGupta.github.io/theme/images/Share/twitter.svg" alt="twitter"></a>
+          <a href="https://www.facebook.com/sharer/sharer.php?u=https%3A//sunnykrGupta.github.io/streaming-with-redis-bigquery-part-ii.html" target="_blank" title="Share on Facebook"><img src="https://sunnykrGupta.github.io/theme/images/Share/facebook.svg" alt="facebook"></a>
+          <a href="https://plus.google.com/share?url=https%3A//sunnykrGupta.github.io/streaming-with-redis-bigquery-part-ii.html" target="_blank" title="Share on Google Plus"><img src="https://sunnykrGupta.github.io/theme/images/Share/googleplus.svg" alt="google+"></a>
+          <a href="mailto:?subject=Streaming%20with%20Redis%20-%20BigQuery%20Part-II&amp;body=https%3A//sunnykrGupta.github.io/streaming-with-redis-bigquery-part-ii.html" target="_blank" title="Share via Email"><img src="https://sunnykrGupta.github.io/theme/images/Share/mail.svg" alt="email"></a>
+      </p>
+  </section>
+
+  <div id="article_comments">
+    <div id="disqus_thread"></div>
+    <script type="text/javascript">
+        var disqus_identifier = "streaming-with-redis-bigquery-part-ii.html";
+        (function() {
+             var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+             dsq.src = 'https://sunnydaemon.disqus.com/embed.js';
+             (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+         })();
+    </script>
+  </div>
+
+</article>
+
+
+    <div id="ending_message">
+      <p>&copy; Sunny Kumar. Built using <a href="http://getpelican.com" target="_blank">Pelican</a>. Theme by Sunny Kumar on <a href="https://github.com/sunnykrgupta/pelican-svbhack-responsive" target="_blank">github</a>. Member of the <a href="http://internetdefenseleague.org">Internet Defense League</a>.</p>
+    </div>
+  </main>
+
+  <div id="right-feed">
+    <a class="twitter-timeline" href="" data-widget-id="605800181926199296">Tweets by </a>
+    <script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0],p=/^http:/.test(d.location)?'http':'https';if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src=p+"://platform.twitter.com/widgets.js";fjs.parentNode.insertBefore(js,fjs);}}(document,"script","twitter-wjs");</script>
+  </div>
+<script type="text/javascript">
+  window._idl = {};
+  _idl.variant = "banner";
+  (function() {
+    var idl = document.createElement('script');
+    idl.type = 'text/javascript';
+    idl.async = true;
+    idl.src = ('https:' == document.location.protocol ? 'https://' : 'http://') + 'members.internetdefenseleague.org/include/?url=' + (_idl.url || '') + '&campaign=' + (_idl.campaign || '') + '&variant=' + (_idl.variant || 'banner');
+    document.getElementsByTagName('body')[0].appendChild(idl);
+  })();
+</script>
+</body>
+</html>

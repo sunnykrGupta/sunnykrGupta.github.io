@@ -89,7 +89,7 @@
 <hr>
 <p><br></p>
 <h3>Loading Data into BigQuery</h3>
-<p>In this article, we are going to use a mongoDB server to export our data and going to import into BQ. There are several other ways to import data into BQ.</p>
+<p>In this post, we are going to use a mongoDB server to export our data and going to import into BQ. There are several other ways to import data into BQ.</p>
 <p><br></p>
 <h4>1. Export data from MongoDB</h4>
 <p><img alt="MongoDB" src="/images/bq-series/part1/mongo-db-blog.jpeg"></p>
@@ -224,7 +224,7 @@
 <div class="highlight"><pre><span class="n">Ex</span><span class="o">:</span> <span class="n">bq</span> <span class="n">load</span> <span class="o">--</span><span class="n">project_id</span><span class="o">=&lt;</span><span class="n">PROJECT</span><span class="o">-</span><span class="n">ID</span><span class="o">&gt;</span> <span class="o">--</span><span class="n">source_format</span><span class="o">=</span><span class="n">NEWLINE_DELIMITED_JSON</span> <span class="o">\</span>
     <span class="n">mydataset</span><span class="o">.</span><span class="na">mytable</span> <span class="o">./</span><span class="n">myfile</span><span class="o">.</span><span class="na">json</span> <span class="o">./</span><span class="n">myschema</span><span class="o">.</span><span class="na">json</span>
 
-<span class="n">$</span> <span class="n">bq</span> <span class="n">load</span> <span class="o">--</span><span class="n">project_id</span><span class="o">=</span><span class="n">mimetic</span><span class="o">-</span><span class="n">slate</span><span class="o">-</span><span class="mi">179915</span>   <span class="o">\</span>
+<span class="n">$</span> <span class="n">bq</span> <span class="n">load</span> <span class="o">--</span><span class="n">project_id</span><span class="o">=</span><span class="n">mimetic</span><span class="o">-</span><span class="n">slate</span>   <span class="o">\</span>
     <span class="o">--</span><span class="n">source_format</span><span class="o">=</span><span class="n">NEWLINE_DELIMITED_JSON</span> <span class="o">--</span><span class="n">max_bad_records</span> <span class="mi">10</span> <span class="o">\</span>
     <span class="n">BQ_Dataset</span><span class="o">.</span><span class="na">Restaurant</span> <span class="o">./</span><span class="n">restaurant</span><span class="o">.</span><span class="na">json</span>  <span class="o">./</span><span class="n">restaurantSchema</span><span class="o">.</span><span class="na">json</span>
 </pre></div>
@@ -254,7 +254,7 @@ $ gsutil cp restaurant.json gs://bq-storage/restaurant.json
 
 
 <p>Now, we can use storage path of object to import into BQ tables.</p>
-<div class="highlight"><pre><span class="nv">$ </span>bq load --project_id<span class="o">=</span>mimetic-slate-179915  <span class="se">\</span>
+<div class="highlight"><pre><span class="nv">$ </span>bq load --project_id<span class="o">=</span>mimetic-slate  <span class="se">\</span>
     --source_format<span class="o">=</span>NEWLINE_DELIMITED_JSON --max_bad_records <span class="m">10</span>  <span class="se">\</span>
     BQ_Dataset.Restaurant <span class="se">\</span>
     gs://bq-storage/restaurant.json ./restaurantSchema.json
@@ -285,7 +285,7 @@ $ gsutil cp restaurant.json gs://bq-storage/restaurant.json
   name,
   address
 FROM
-  [mimetic-slate-179915:BQ_Dataset.Restaurant]
+  [mimetic-slate:BQ_Dataset.Restaurant]
 WHERE
   type_of_food = &#39;Thai&#39;
 GROUP BY
@@ -294,6 +294,8 @@ GROUP BY
 
 
 <p><img alt="query" src="/images/bq-series/part1/query.png"></p>
+<hr>
+<p><strong>Github reference</strong> : <a href="https://github.com/sunnykrGupta/Bigquery-series">https://github.com/sunnykrGupta/Bigquery-series</a></p>
 <hr>
 <p><br></p>
 <h3>Conclusion</h3>
@@ -314,12 +316,9 @@ and appliances</li>
 <p><strong>Next from here:</strong> Play around with more <a href="https://cloud.google.com/bigquery/docs/how-to">functionality available in BigQuery</a> and dive into it for more computation hungry jobs.</p>
 </blockquote>
 <hr>
-<p>That's all from this <strong>series Part-I</strong>. Hope you get basic understanding of import jobs, storage and basic outline of BigQuery from this page. I have seen power of BigQuery in my workplace to crunch 100-120 TB of data and getting results in minute or two, its really incredibly awesome. I would appreciate a feedback via comments available below and claps on medium.</p>
-<hr>
-<p><strong>Github reference</strong> : <a href="https://github.com/sunnykrGupta/Bigquery-series">https://github.com/sunnykrGupta/Bigquery-series</a></p>
-<hr>
-<h5>Medium Blog : <a href="https://medium.com/@sunnykrgupta/export-load-job-with-mongodb-bigquery-part-i-64a00eb5266b">medium.com/@sunnykrgupta/export-load-job-with-mongodb-bigquery-part-i</a></h5>
+<p>That's all from this <strong>series Part-I</strong>. Hope you get basic understanding of import jobs, storage and basic outline of BigQuery from this post. I have seen power of BigQuery in my workplace to crunch 100-120 TB of data and getting results in minute or two, its really incredibly awesome. I would appreciate a feedback via comments available below and claps on medium.</p>
 <p>In next blog which is part of this series, i will be covering more into <em>Streaming feature available in Bigquery</em> to push data in BQ tables in real-time to make it available for instant query on changing dataset.</p>
+<h5>Medium Blog : <a href="https://medium.com/@sunnykrgupta/export-load-job-with-mongodb-bigquery-part-i-64a00eb5266b">medium.com/@sunnykrgupta/export-load-job-with-mongodb-bigquery-part-i</a></h5>
   </div>
   <div class="article_meta">
     <p>Posted on: Mon 16 October 2017</p>
