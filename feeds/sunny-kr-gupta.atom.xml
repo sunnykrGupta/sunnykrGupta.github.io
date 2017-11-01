@@ -185,7 +185,7 @@ $ gsutil cp restaurant.json gs://bq-storage/restaurant.json
 &lt;/pre&gt;&lt;/div&gt;
 
 
-&lt;p&gt;Now, we can use storage URL to import into BQ tables.&lt;/p&gt;
+&lt;p&gt;Now, we can use storage path of object to import into BQ tables.&lt;/p&gt;
 &lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="nv"&gt;$ &lt;/span&gt;bq load --project_id&lt;span class="o"&gt;=&lt;/span&gt;mimetic-slate-179915  &lt;span class="se"&gt;\&lt;/span&gt;
     --source_format&lt;span class="o"&gt;=&lt;/span&gt;NEWLINE_DELIMITED_JSON --max_bad_records &lt;span class="m"&gt;10&lt;/span&gt;  &lt;span class="se"&gt;\&lt;/span&gt;
     BQ_Dataset.Restaurant &lt;span class="se"&gt;\&lt;/span&gt;
@@ -247,6 +247,9 @@ and appliances&lt;/li&gt;
 &lt;/blockquote&gt;
 &lt;hr&gt;
 &lt;p&gt;That's all from this &lt;strong&gt;series Part-I&lt;/strong&gt;. Hope you get basic understanding of import jobs, storage and basic outline of BigQuery from this page. I have seen power of BigQuery in my workplace to crunch 100-120 TB of data and getting results in minute or two, its really incredibly awesome. I would appreciate a feedback via comments available below and claps on medium.&lt;/p&gt;
+&lt;hr&gt;
+&lt;p&gt;&lt;strong&gt;Github reference&lt;/strong&gt; : &lt;a href="https://github.com/sunnykrGupta/Bigquery-series"&gt;https://github.com/sunnykrGupta/Bigquery-series&lt;/a&gt;&lt;/p&gt;
+&lt;hr&gt;
 &lt;h5&gt;Medium Blog : &lt;a href="https://medium.com/@sunnykrgupta/export-load-job-with-mongodb-bigquery-part-i-64a00eb5266b"&gt;medium.com/@sunnykrgupta/export-load-job-with-mongodb-bigquery-part-i&lt;/a&gt;&lt;/h5&gt;
 &lt;p&gt;In next blog which is part of this series, i will be covering more into &lt;em&gt;Streaming feature available in Bigquery&lt;/em&gt; to push data in BQ tables in real-time to make it available for instant query on changing dataset.&lt;/p&gt;</content><category term="Google BigQuery"></category><category term="GCP"></category><category term="MongoDB"></category><category term="Cloud Storage"></category><category term="Google Cloud Platform"></category></entry><entry><title>Installation of VNC server on Ubuntu</title><link href="https://sunnykrGupta.github.io/installation-of-vnc-server-on-ubuntu.html" rel="alternate"></link><published>2017-09-04T22:51:50+05:30</published><updated>2017-09-04T22:51:50+05:30</updated><author><name>Sunny Kr Gupta</name></author><id>tag:sunnykrgupta.github.io,2017-09-04:/installation-of-vnc-server-on-ubuntu.html</id><summary type="html">&lt;p&gt;This blog is intended for people who wanted to install GUI or desktop environment on linux &lt;a href="https://en.wikipedia.org/wiki/Server_(computing)"&gt;servers&lt;/a&gt; running on &lt;a href="https://en.wikipedia.org/wiki/Cloud_computing"&gt;cloud&lt;/a&gt; and connect.&lt;/p&gt;
 &lt;p&gt;We are going to use VNC (Virtual Network Computing) protocol for accessing our remote desktop server.&lt;/p&gt;
