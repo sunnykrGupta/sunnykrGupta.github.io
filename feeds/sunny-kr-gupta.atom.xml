@@ -12,7 +12,7 @@
 &lt;p&gt;There are some trade-offs to choose Streaming. A few are belows :&lt;/p&gt;
 &lt;/blockquote&gt;
 &lt;ul&gt;
-&lt;li&gt;We to follow a few quotas like http body size, maximum rows / request etc while making streaming API calls.&lt;/li&gt;
+&lt;li&gt;We need to follow a few quotas like http body size, maximum rows / request etc while making streaming API calls.&lt;/li&gt;
 &lt;li&gt;Written data in tables are not instantly available for copy or for export jobs in bigquery, it will take upto 90 minutes to be made available while load based tables are available instantly.&lt;/li&gt;
 &lt;li&gt;At the time of writing this post, charges incurs in streaming whereas load jobs are free.&lt;/li&gt;
 &lt;/ul&gt;
