@@ -1,11 +1,11 @@
 Title: Contact Me
 Date: 2015-06-01 17:40
-Status: published
+Status: unpublished
 
 
 ----------------------------
 
-Drop a mail to me anytime at **sunnygupta.kr@gmail.com** ![email](|filename|../images/mail.png "Drop Mail")
+We can get in touch. **[sunnygupta.kr@gmail.com](mail:sunnygupta.kr@gmail.com)** ![email](|filename|../images/mail.png "Drop Mail")
 
 -----------------------------
 New Delhi -> Jammu -> **Bangalore**
