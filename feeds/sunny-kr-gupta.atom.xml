@@ -1,19 +1,19 @@
 <?xml version="1.0" encoding="utf-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom"><title>Daemon Blog - Sunny Kr Gupta</title><link href="https://sunnykrGupta.github.io/" rel="alternate"></link><link href="https://sunnykrGupta.github.io/feeds/sunny-kr-gupta.atom.xml" rel="self"></link><id>https://sunnykrGupta.github.io/</id><updated>2017-11-01T17:12:31+05:30</updated><entry><title>Streaming with Redis - BigQuery Part-II</title><link href="https://sunnykrGupta.github.io/streaming-with-redis-bigquery-part-ii.html" rel="alternate"></link><published>2017-11-01T17:12:31+05:30</published><updated>2017-11-01T17:12:31+05:30</updated><author><name>Sunny Kr Gupta</name></author><id>tag:sunnykrgupta.github.io,2017-11-01:/streaming-with-redis-bigquery-part-ii.html</id><summary type="html">&lt;p&gt;&lt;img alt="Google BigQuery" src="/images/bq-series/part2/bq-stream.png"&gt;&lt;/p&gt;
-&lt;p&gt;This post is 2nd part of 3 post series. In earlier post, we understood the fundamentals of BigQuery Load Jobs &lt;strong&gt;&lt;a href="https://sunnykrgupta.github.io/export-load-job-with-mongodb-bigquery-part-i.html"&gt;Export &amp;amp; Load Job with MongoDB - BigQuery Part-I&lt;/a&gt;&lt;/strong&gt;. In this post, we are going to dive into Streaming feature of BigQuery.&lt;/p&gt;
+&lt;p&gt;This post is 2nd part of 3-post series. In the earlier post, we understood the fundamentals of BigQuery Load Jobs &lt;strong&gt;&lt;a href="https://sunnykrgupta.github.io/export-load-job-with-mongodb-bigquery-part-i.html"&gt;Export &amp;amp; Load Job with MongoDB - BigQuery Part-I&lt;/a&gt;&lt;/strong&gt;. In this post, we are going to dive into Streaming feature of BigQuery.&lt;/p&gt;
 &lt;p&gt;&lt;br&gt;&lt;/p&gt;
 &lt;h3&gt;&lt;a href="https://cloud.google.com/bigquery/streaming-data-into-bigquery"&gt;Streaming&lt;/a&gt;&lt;/h3&gt;
-&lt;p&gt;&lt;strong&gt;Why ?&lt;/strong&gt; - Streaming helps in push our data into BigQuery …&lt;/p&gt;</summary><content type="html">&lt;p&gt;&lt;img alt="Google BigQuery" src="/images/bq-series/part2/bq-stream.png"&gt;&lt;/p&gt;
-&lt;p&gt;This post is 2nd part of 3 post series. In earlier post, we understood the fundamentals of BigQuery Load Jobs &lt;strong&gt;&lt;a href="https://sunnykrgupta.github.io/export-load-job-with-mongodb-bigquery-part-i.html"&gt;Export &amp;amp; Load Job with MongoDB - BigQuery Part-I&lt;/a&gt;&lt;/strong&gt;. In this post, we are going to dive into Streaming feature of BigQuery.&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;Why ?&lt;/strong&gt; - Streaming helps in pushing our data into BigQuery …&lt;/p&gt;</summary><content type="html">&lt;p&gt;&lt;img alt="Google BigQuery" src="/images/bq-series/part2/bq-stream.png"&gt;&lt;/p&gt;
+&lt;p&gt;This post is 2nd part of 3-post series. In the earlier post, we understood the fundamentals of BigQuery Load Jobs &lt;strong&gt;&lt;a href="https://sunnykrgupta.github.io/export-load-job-with-mongodb-bigquery-part-i.html"&gt;Export &amp;amp; Load Job with MongoDB - BigQuery Part-I&lt;/a&gt;&lt;/strong&gt;. In this post, we are going to dive into Streaming feature of BigQuery.&lt;/p&gt;
 &lt;p&gt;&lt;br&gt;&lt;/p&gt;
 &lt;h3&gt;&lt;a href="https://cloud.google.com/bigquery/streaming-data-into-bigquery"&gt;Streaming&lt;/a&gt;&lt;/h3&gt;
-&lt;p&gt;&lt;strong&gt;Why ?&lt;/strong&gt; - Streaming helps in push our data into BigQuery (short for BQ) and helps in making data available for querying without delay of running load jobs.&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;Why ?&lt;/strong&gt; - Streaming helps in pushing our data into BigQuery (short for BQ) and helps in making data available for query without delay of running load jobs.&lt;/p&gt;
 &lt;blockquote&gt;
-&lt;p&gt;There are some trade-offs for choosing Streaming. Few are belows:&lt;/p&gt;
+&lt;p&gt;There are some trade-offs to choose Streaming. A few are belows :&lt;/p&gt;
 &lt;/blockquote&gt;
 &lt;ul&gt;
-&lt;li&gt;We need follow few quotas like http body size, maximum rows / request etc while making streaming API calls.&lt;/li&gt;
-&lt;li&gt;Written data in tables are not instantly available for copy or export jobs in bigquery, it will take upto 90 minutes to be made available whereas load based tables are available instantly.&lt;/li&gt;
+&lt;li&gt;We to follow a few quotas like http body size, maximum rows / request etc while making streaming API calls.&lt;/li&gt;
+&lt;li&gt;Written data in tables are not instantly available for copy or for export jobs in bigquery, it will take upto 90 minutes to be made available while load based tables are available instantly.&lt;/li&gt;
 &lt;li&gt;At the time of writing this post, charges incurs in streaming whereas load jobs are free.&lt;/li&gt;
 &lt;/ul&gt;
 &lt;p&gt;Keeping above in mind, we need to choose streaming vs load jobs in BigQuery.&lt;/p&gt;
