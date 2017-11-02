@@ -50,7 +50,7 @@ STATIC_PATHS = ['images']
 USER_LOGO_URL=SITEURL+'/images/logo.jpg'
 
 # some text rendered right below the logo
-TAGLINE="Data Engineer, DevOps on Kubernetes, SysAdmin, Programmer, Optimist, Footballer :D"
+TAGLINE="Data Engineer, Programmer, DevOps on Kubernetes, Football Lover :D"
 
 # set this to True if you want to enable the Internet Defense League code
 INTERNET_DEFENSE_LEAGUE=True
@@ -75,4 +75,3 @@ DEFAULT_PAGINATION = 10
 #RELATIVE_URLS = True
 
 #DISPLAY_RECENT_POSTS_ON_SIDEBAR=True
-

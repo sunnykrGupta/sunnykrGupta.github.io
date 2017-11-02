@@ -48,7 +48,7 @@ Each Every table is defined by a schema that describes field names, types, and o
 
 ### Loading Data into BigQuery
 
-In this article, we are going to use a mongoDB server to export our data and going to import into BQ. There are several other ways to import data into BQ.
+In this post, we are going to use a mongoDB server to export our data and going to import into BQ. There are several other ways to import data into BQ.
 
 <br>
 
@@ -218,7 +218,7 @@ Run command to load data into BQ.  Once you submit load job, it will take second
 Ex: bq load --project_id=<PROJECT-ID> --source_format=NEWLINE_DELIMITED_JSON \
     mydataset.mytable ./myfile.json ./myschema.json
 
-$ bq load --project_id=mimetic-slate-179915   \
+$ bq load --project_id=mimetic-slate   \
     --source_format=NEWLINE_DELIMITED_JSON --max_bad_records 10 \
     BQ_Dataset.Restaurant ./restaurant.json  ./restaurantSchema.json
 ```
@@ -256,10 +256,10 @@ Now , we will upload our data `restaurant.json` to storage in bucket `gs://bq-st
 $ gsutil cp restaurant.json gs://bq-storage/restaurant.json
 ```
 
-Now, we can use storage URL to import into BQ tables.
+Now, we can use storage path of object to import into BQ tables.
 
 ```
-$ bq load --project_id=mimetic-slate-179915  \
+$ bq load --project_id=mimetic-slate  \
     --source_format=NEWLINE_DELIMITED_JSON --max_bad_records 10  \
     BQ_Dataset.Restaurant \
     gs://bq-storage/restaurant.json ./restaurantSchema.json
@@ -302,7 +302,7 @@ SELECT
   name,
   address
 FROM
-  [mimetic-slate-179915:BQ_Dataset.Restaurant]
+  [mimetic-slate:BQ_Dataset.Restaurant]
 WHERE
   type_of_food = 'Thai'
 GROUP BY
@@ -313,7 +313,11 @@ GROUP BY
 
 
 
---------------------------------
+---------------
+
+**Github reference** : [https://github.com/sunnykrGupta/Bigquery-series](https://github.com/sunnykrGupta/Bigquery-series)
+
+---------------
 
 <br>
 
@@ -337,11 +341,9 @@ and appliances
 ---------------
 
 
-That's all from this **series Part-I**. Hope you get basic understanding of import jobs, storage and basic outline of BigQuery from this page. I have seen power of BigQuery in my workplace to crunch 100-120 TB of data and getting results in minute or two, its really incredibly awesome. I would appreciate a feedback via comments available below and claps on medium.
-
-##### Medium Blog : [medium.com/@sunnykrgupta](https://medium.com/@sunnykrgupta)
+That's all from this **series Part-I**. Hope you get basic understanding of import jobs, storage and basic outline of BigQuery from this post. I have seen power of BigQuery in my workplace to crunch 100-120 TB of data and getting results in minute or two, its really incredibly awesome. I would appreciate a feedback via comments available below and claps on medium.
 
 In next blog which is part of this series, i will be covering more into *Streaming feature available in Bigquery* to push data in BQ tables in real-time to make it available for instant query on changing dataset.
 
 
-
+##### Medium Blog : [medium.com/@sunnykrgupta/export-load-job-with-mongodb-bigquery-part-i](https://medium.com/@sunnykrgupta/export-load-job-with-mongodb-bigquery-part-i-64a00eb5266b)
