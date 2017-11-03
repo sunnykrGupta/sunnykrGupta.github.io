@@ -10,19 +10,19 @@ Status: published
 ![Google BigQuery](/images/bq-series/part2/bq-stream.png)
 
 
-This post is 2nd part of 3 post series. In earlier post, we understood the fundamentals of BigQuery Load Jobs **[Export & Load Job with MongoDB - BigQuery Part-I](https://sunnykrgupta.github.io/export-load-job-with-mongodb-bigquery-part-i.html)**. In this post, we are going to dive into Streaming feature of BigQuery.
+This post is 2nd part of 3-post series. In the earlier post, we understood the fundamentals of BigQuery Load Jobs **[Export & Load Job with MongoDB - BigQuery Part-I](https://sunnykrgupta.github.io/export-load-job-with-mongodb-bigquery-part-i.html)**. In this post, we are going to dive into Streaming feature of BigQuery.
 
 <br>
 
 ### [Streaming](https://cloud.google.com/bigquery/streaming-data-into-bigquery)
 
-**Why ?** - Streaming helps in push our data into BigQuery (short for BQ) and helps in making data available for querying without delay of running load jobs.
+**Why ?** - Streaming helps in pushing our data into BigQuery (short for BQ) and helps in making data available for query without delay of running load jobs.
 
-> There are some trade-offs for choosing Streaming. Few are belows:
+> There are some trade-offs to choose Streaming. A few are belows :
 
-- We need follow few quotas like http body size, maximum rows / request etc while making streaming API calls.
-- Written data in tables are not instantly available for copy or export jobs in bigquery, it will take upto 90 minutes to be made available whereas load based tables are available instantly.
-- At the time of writing this post, charges incurs in streaming whereas load jobs are free.
+- We need to follow a few quotas like http body size, maximum rows / request etc while making streaming API calls.
+- Written data in tables are not instantly available for copy or for export jobs in bigquery, it will take upto 90 minutes to be made available while load based tables are available instantly.
+- At the time of writing this post, charges incurred in streaming whereas load jobs were free.
 
 
 Keeping above in mind, we need to choose streaming vs load jobs in BigQuery.
@@ -39,7 +39,7 @@ Keeping above in mind, we need to choose streaming vs load jobs in BigQuery.
 
 In this article, we are going to use a [redis server](https://redis.io) as a message broker to hold our data.
 
-We are going to prepare data and skeleton of data is going to be basic information of any person (username, name, birthdate, sex, address, email). With this information, we need schema and table in bigquery to be created in advance before streaming. Post table creation, we are going to run streaming program to ingest our data in bulk which will be read from redis and same will be written to bigquery table in real time.
+We are going to prepare data and the skeleton of data is going to be basic information of any person (username, name, birthdate, sex, address, email). As per this information, we need schema and table in bigquery to be created in advance before streaming. Post table creation, we are going to run streaming program to ingest our data in bulk which will be read from redis and same will be written to bigquery table in real time.
 We are going to use `python` as our programming language.
 
 <br>
@@ -56,12 +56,12 @@ We are going to write a small python script to preapare data in [redis List](htt
 
 
 
-If you have docker running, run redis inside container in simple command
+If you have docker running, run redis inside container with simple command
 ```
 docker run -d --name redis-streaming -p 6379:6379 redis
 ```
 
-Script is going to do [LPUSH command](https://redis.io/commands/lpush) into redis to insert data into list named as `redisList` . With the help of `Faker` library we are going to generate some fake profile as our data.
+Script is going to execute [LPUSH command](https://redis.io/commands/lpush) in redis to insert data into list named as `redisList` . With the help of `Faker` library we are going to generate some fake profile as our data.
 
 **Faker :** [https://github.com/joke2k/faker](https://github.com/joke2k/faker)
 
@@ -147,7 +147,7 @@ if __name__ == "__main__":
 
 #### 3. Create a table in BigQuery
 
-We are going to create two python file, ie, **`createConfig.py`** that will keep schema configuration and other **`tableCreate.py`** that will execute the table creation API call to bigquery. We are going to use **`Google Application Default Credentials`** to authorize our python application to talk to bigquery APIs.
+We are going to create two python file, ie, **`createConfig.py`** that will keep schema configuration and **`tableCreate.py`** that will execute the table creation API call to bigquery. We are going to use **`Google Application Default Credentials`** to authorize our python application to talk to bigquery APIs.
 
 ```
 $ cat createConfig.py
@@ -197,11 +197,11 @@ TableObject = {
 
 ```
 
-We are going to use ** [google-api-python-client](https://developers.google.com/api-client-library/python/)** library for interacting to our bigquery APIs.  Our main program look like which in turn make bigquery API calls.
+We are going to use ** [google-api-python-client](https://developers.google.com/api-client-library/python/)** library for interacting to our bigquery APIs.
 
 
 
-We are building service object by calling our API name and version supported by API. In this case we are using **`bigquery`** with version **`v2`**. This service object will be used to make tables related operation as of now we are going to **`insert`** a http call to make table.
+We are building service object by calling our API name and version supported by API. In this case we are using **`bigquery`** with version **`v2`**. This service object will be used to make tables related operation.  As of now we are going to use **`insert`** function to make table.
 
 **`GoogleCredentials.get_application_default()`** will read the credentials stored in my system. Either you need to export a variable mentioned in reference with service account key or you setup an google SDK which will store default credentials inside your home directory.
 
@@ -243,9 +243,9 @@ if __name__ == '__main__':
 ```
 
 
-Run above to program to create table with name **StreamTable** in bigquery dataset **`BQ_Dataset`**. Make sure you have dataset created already.
+Run above to program to create table with name **StreamTable** in bigquery dataset **`BQ_Dataset`**. Make sure you have created dataset already.
 
-You can verify table creation by visiting bigquery UI. Visit : [https://bigquery.cloud.google.com](https://bigquery.cloud.google.com)
+You can verify the table created by visiting bigquery UI. Visit : [https://bigquery.cloud.google.com](https://bigquery.cloud.google.com)
 
 
 
@@ -360,7 +360,7 @@ Script has been configured to [pop](https://redis.io/commands/brpop
 
 
 ```
-#JSON payload in body argument looks like when prepared bulk data
+#when bulk data is prepared, JSON payload in body argument would look like
 {
     "rows": [
         {
@@ -404,7 +404,7 @@ Script has been configured to [pop](https://redis.io/commands/brpop
 
 #### 5. Verify the data in BigQuery Table
 
-After running streaming, you will start seeing something similar as shown below when you click table info. Clicking on preview will not show you any streamed data, it will a while to appear but it will be in buffer to be available for query instantly.
+After running streaming, you will start seeing something similar as shown below when you click table info. Clicking on preview will not show you any streamed data, it will take a while to appear but it will be in buffer to be available for query instantly.
 
 <div style="text-align: center"><u><b>Buffer Statistics</b></u></div>
 
@@ -450,8 +450,8 @@ SELECT * FROM [mimetic-slate:BQ_Dataset.StreamTable]
 
 ### Conclusion
 
-That's all from this **series Part-II**. Hope you get basic understanding of Streaming in BigQuery from this post. Streaming is helpful in cases when you want your data to be instantly available for query, helps in scenario where have an requirement of building real time analysis.
+That's all from this **series Part-II**. Hope you will get basic understanding of Streaming in BigQuery from this post. Streaming is helpful in cases when you want your data to be instantly available for query, helps in scenario where have a requirement of building real time analysis.
 
-I would appreciate feedback via comments. In next blog which is part of this series, i will be covering **Patching and Updating table schema in Bigquery** which is important when you wanted to add or update fields of table.
+I would appreciate feedback via comments. In next blog which is part of this series, I will be covering **Patching and Updating table schema in Bigquery** which is important when you want to add or update fields on table.
 
 ---------------
