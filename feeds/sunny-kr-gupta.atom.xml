@@ -14,7 +14,7 @@
 &lt;ul&gt;
 &lt;li&gt;We need to follow a few quotas like http body size, maximum rows / request etc while making streaming API calls.&lt;/li&gt;
 &lt;li&gt;Written data in tables are not instantly available for copy or for export jobs in bigquery, it will take upto 90 minutes to be made available while load based tables are available instantly.&lt;/li&gt;
-&lt;li&gt;At the time of writing this post, charges incurs in streaming whereas load jobs are free.&lt;/li&gt;
+&lt;li&gt;At the time of writing this post, charges incurred in streaming whereas load jobs were free.&lt;/li&gt;
 &lt;/ul&gt;
 &lt;p&gt;Keeping above in mind, we need to choose streaming vs load jobs in BigQuery.&lt;/p&gt;
 &lt;p&gt;&lt;strong&gt;Quotas :&lt;/strong&gt; &lt;a href="https://cloud.google.com/bigquery/quotas#streaminginserts"&gt;https://cloud.google.com/bigquery/quotas#streaminginserts&lt;/a&gt;&lt;/p&gt;
@@ -23,19 +23,19 @@
 &lt;p&gt;&lt;br&gt;&lt;/p&gt;
 &lt;h3&gt;Streaming Data into BigQuery&lt;/h3&gt;
 &lt;p&gt;In this article, we are going to use a &lt;a href="https://redis.io"&gt;redis server&lt;/a&gt; as a message broker to hold our data.&lt;/p&gt;
-&lt;p&gt;We are going to prepare data and skeleton of data is going to be basic information of any person (username, name, birthdate, sex, address, email). With this information, we need schema and table in bigquery to be created in advance before streaming. Post table creation, we are going to run streaming program to ingest our data in bulk which will be read from redis and same will be written to bigquery table in real time.
+&lt;p&gt;We are going to prepare data and the skeleton of data is going to be basic information of any person (username, name, birthdate, sex, address, email). As per this information, we need schema and table in bigquery to be created in advance before streaming. Post table creation, we are going to run streaming program to ingest our data in bulk which will be read from redis and same will be written to bigquery table in real time.
 We are going to use &lt;code&gt;python&lt;/code&gt; as our programming language.&lt;/p&gt;
 &lt;p&gt;&lt;br&gt;&lt;/p&gt;
 &lt;h4&gt;1. Prepare data in Redis&lt;/h4&gt;
 &lt;p&gt;&lt;img alt="Redis" src="/images/bq-series/part2/redis.png"&gt;&lt;/p&gt;
 &lt;p&gt;We are going to write a small python script to preapare data in &lt;a href="https://redis.io/topics/data-types"&gt;redis List&lt;/a&gt;.&lt;/p&gt;
 &lt;p&gt;&lt;strong&gt;Redis Installation :&lt;/strong&gt; &lt;a href="https://redis.io/download"&gt;https://redis.io/download&lt;/a&gt;&lt;/p&gt;
-&lt;p&gt;If you have docker running, run redis inside container in simple command&lt;/p&gt;
+&lt;p&gt;If you have docker running, run redis inside container with simple command&lt;/p&gt;
 &lt;div class="highlight"&gt;&lt;pre&gt;docker run -d --name redis-streaming -p 6379:6379 redis
 &lt;/pre&gt;&lt;/div&gt;
 
 
-&lt;p&gt;Script is going to do &lt;a href="https://redis.io/commands/lpush"&gt;LPUSH command&lt;/a&gt; into redis to insert data into list named as &lt;code&gt;redisList&lt;/code&gt; . With the help of &lt;code&gt;Faker&lt;/code&gt; library we are going to generate some fake profile as our data.&lt;/p&gt;
+&lt;p&gt;Script is going to execute &lt;a href="https://redis.io/commands/lpush"&gt;LPUSH command&lt;/a&gt; in redis to insert data into list named as &lt;code&gt;redisList&lt;/code&gt; . With the help of &lt;code&gt;Faker&lt;/code&gt; library we are going to generate some fake profile as our data.&lt;/p&gt;
 &lt;p&gt;&lt;strong&gt;Faker :&lt;/strong&gt; &lt;a href="https://github.com/joke2k/faker"&gt;https://github.com/joke2k/faker&lt;/a&gt;&lt;/p&gt;
 &lt;table class="highlighttable"&gt;&lt;tr&gt;&lt;td class="linenos"&gt;&lt;div class="linenodiv"&gt;&lt;pre&gt; 1
  2
@@ -134,7 +134,7 @@ We are going to use &lt;code&gt;python&lt;/code&gt; as our programming language.
 &lt;hr&gt;
 &lt;p&gt;&lt;br&gt;&lt;/p&gt;
 &lt;h4&gt;3. Create a table in BigQuery&lt;/h4&gt;
-&lt;p&gt;We are going to create two python file, ie, &lt;strong&gt;&lt;code&gt;createConfig.py&lt;/code&gt;&lt;/strong&gt; that will keep schema configuration and other &lt;strong&gt;&lt;code&gt;tableCreate.py&lt;/code&gt;&lt;/strong&gt; that will execute the table creation API call to bigquery. We are going to use &lt;strong&gt;&lt;code&gt;Google Application Default Credentials&lt;/code&gt;&lt;/strong&gt; to authorize our python application to talk to bigquery APIs.&lt;/p&gt;
+&lt;p&gt;We are going to create two python file, ie, &lt;strong&gt;&lt;code&gt;createConfig.py&lt;/code&gt;&lt;/strong&gt; that will keep schema configuration and &lt;strong&gt;&lt;code&gt;tableCreate.py&lt;/code&gt;&lt;/strong&gt; that will execute the table creation API call to bigquery. We are going to use &lt;strong&gt;&lt;code&gt;Google Application Default Credentials&lt;/code&gt;&lt;/strong&gt; to authorize our python application to talk to bigquery APIs.&lt;/p&gt;
 &lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="nv"&gt;$ &lt;/span&gt;cat createConfig.py
 
 &lt;span class="nv"&gt;TableObject&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="o"&gt;{&lt;/span&gt;
@@ -182,8 +182,8 @@ We are going to use &lt;code&gt;python&lt;/code&gt; as our programming language.
 &lt;/pre&gt;&lt;/div&gt;
 
 
-&lt;p&gt;We are going to use &lt;strong&gt; &lt;a href="https://developers.google.com/api-client-library/python/"&gt;google-api-python-client&lt;/a&gt;&lt;/strong&gt; library for interacting to our bigquery APIs.  Our main program look like which in turn make bigquery API calls.&lt;/p&gt;
-&lt;p&gt;We are building service object by calling our API name and version supported by API. In this case we are using &lt;strong&gt;&lt;code&gt;bigquery&lt;/code&gt;&lt;/strong&gt; with version &lt;strong&gt;&lt;code&gt;v2&lt;/code&gt;&lt;/strong&gt;. This service object will be used to make tables related operation as of now we are going to &lt;strong&gt;&lt;code&gt;insert&lt;/code&gt;&lt;/strong&gt; a http call to make table.&lt;/p&gt;
+&lt;p&gt;We are going to use &lt;strong&gt; &lt;a href="https://developers.google.com/api-client-library/python/"&gt;google-api-python-client&lt;/a&gt;&lt;/strong&gt; library for interacting to our bigquery APIs.&lt;/p&gt;
+&lt;p&gt;We are building service object by calling our API name and version supported by API. In this case we are using &lt;strong&gt;&lt;code&gt;bigquery&lt;/code&gt;&lt;/strong&gt; with version &lt;strong&gt;&lt;code&gt;v2&lt;/code&gt;&lt;/strong&gt;. This service object will be used to make tables related operation.  As of now we are going to use &lt;strong&gt;&lt;code&gt;insert&lt;/code&gt;&lt;/strong&gt; function to make table.&lt;/p&gt;
 &lt;p&gt;&lt;strong&gt;&lt;code&gt;GoogleCredentials.get_application_default()&lt;/code&gt;&lt;/strong&gt; will read the credentials stored in my system. Either you need to export a variable mentioned in reference with service account key or you setup an google SDK which will store default credentials inside your home directory.&lt;/p&gt;
 &lt;div class="highlight"&gt;&lt;pre&gt;ls ~/.config/gcloud/*.json
 ~/.config/gcloud/application_default_credentials.json
@@ -244,8 +244,8 @@ We are going to use &lt;code&gt;python&lt;/code&gt; as our programming language.
 &lt;/pre&gt;&lt;/div&gt;
 &lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
 
-&lt;p&gt;Run above to program to create table with name &lt;strong&gt;StreamTable&lt;/strong&gt; in bigquery dataset &lt;strong&gt;&lt;code&gt;BQ_Dataset&lt;/code&gt;&lt;/strong&gt;. Make sure you have dataset created already.&lt;/p&gt;
-&lt;p&gt;You can verify table creation by visiting bigquery UI. Visit : &lt;a href="https://bigquery.cloud.google.com"&gt;https://bigquery.cloud.google.com&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;Run above to program to create table with name &lt;strong&gt;StreamTable&lt;/strong&gt; in bigquery dataset &lt;strong&gt;&lt;code&gt;BQ_Dataset&lt;/code&gt;&lt;/strong&gt;. Make sure you have created dataset already.&lt;/p&gt;
+&lt;p&gt;You can verify the table created by visiting bigquery UI. Visit : &lt;a href="https://bigquery.cloud.google.com"&gt;https://bigquery.cloud.google.com&lt;/a&gt;&lt;/p&gt;
 &lt;p&gt;You can also verify table creation by running &lt;code&gt;bq&lt;/code&gt; CLI commands&lt;/p&gt;
 &lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="nv"&gt;$ &lt;/span&gt;bq ls BQ_Dataset    
     tableId     Type    Labels   Time Partitioning  
@@ -403,7 +403,7 @@ We are going to use &lt;code&gt;python&lt;/code&gt; as our programming language.
 &lt;p&gt;Above program is going to read redis running on &lt;code&gt;127.0.0.1:6379&lt;/code&gt; from list name &lt;strong&gt;&lt;code&gt;redisList&lt;/code&gt;&lt;/strong&gt; and build a dict object &lt;strong&gt;&lt;code&gt;streamObject&lt;/code&gt;&lt;/strong&gt; that is accepted by bq streaming API. We are calling &lt;strong&gt;&lt;code&gt;insertAll&lt;/code&gt;&lt;/strong&gt; utility to submit our streaming request to bigquery API.&lt;/p&gt;
 &lt;p&gt;&lt;strong&gt;&lt;code&gt;insertAll&lt;/code&gt;&lt;/strong&gt; takes &lt;strong&gt;&lt;code&gt;projectId, datasetId, tableId&lt;/code&gt;&lt;/strong&gt; as an argument and &lt;strong&gt;&lt;code&gt;body&lt;/code&gt;&lt;/strong&gt; which contains your data to be streamed.&lt;/p&gt;
 &lt;p&gt;Script has been configured to &lt;a href="https://redis.io/commands/brpop"&gt;pop&lt;/a&gt; &lt;code&gt;100 entries&lt;/code&gt; from redis list and prepare it to be pushed into table. Run &lt;strong&gt;&lt;code&gt;bq-streamer.py&lt;/code&gt;&lt;/strong&gt; script to start streaming data into bigquery table.&lt;/p&gt;
-&lt;div class="highlight"&gt;&lt;pre&gt;#JSON payload in body argument looks like when prepared bulk data
+&lt;div class="highlight"&gt;&lt;pre&gt;#when bulk data is prepared, JSON payload in body argument would look like
 {
     &amp;quot;rows&amp;quot;: [
         {
@@ -441,7 +441,7 @@ We are going to use &lt;code&gt;python&lt;/code&gt; as our programming language.
 &lt;hr&gt;
 &lt;p&gt;&lt;br&gt;&lt;/p&gt;
 &lt;h4&gt;5. Verify the data in BigQuery Table&lt;/h4&gt;
-&lt;p&gt;After running streaming, you will start seeing something similar as shown below when you click table info. Clicking on preview will not show you any streamed data, it will a while to appear but it will be in buffer to be available for query instantly.&lt;/p&gt;
+&lt;p&gt;After running streaming, you will start seeing something similar as shown below when you click table info. Clicking on preview will not show you any streamed data, it will take a while to appear but it will be in buffer to be available for query instantly.&lt;/p&gt;
 &lt;div style="text-align: center"&gt;&lt;u&gt;&lt;b&gt;Buffer Statistics&lt;/b&gt;&lt;/u&gt;&lt;/div&gt;
 
 &lt;p&gt;&lt;img alt="streaming-1" src="/images/bq-series/part2/stream.png"&gt;&lt;/p&gt;
@@ -468,8 +468,8 @@ We are going to use &lt;code&gt;python&lt;/code&gt; as our programming language.
 &lt;hr&gt;
 &lt;p&gt;&lt;br&gt;&lt;/p&gt;
 &lt;h3&gt;Conclusion&lt;/h3&gt;
-&lt;p&gt;That's all from this &lt;strong&gt;series Part-II&lt;/strong&gt;. Hope you get basic understanding of Streaming in BigQuery from this post. Streaming is helpful in cases when you want your data to be instantly available for query, helps in scenario where have an requirement of building real time analysis.&lt;/p&gt;
-&lt;p&gt;I would appreciate feedback via comments. In next blog which is part of this series, i will be covering &lt;strong&gt;Patching and Updating table schema in Bigquery&lt;/strong&gt; which is important when you wanted to add or update fields of table.&lt;/p&gt;
+&lt;p&gt;That's all from this &lt;strong&gt;series Part-II&lt;/strong&gt;. Hope you will get basic understanding of Streaming in BigQuery from this post. Streaming is helpful in cases when you want your data to be instantly available for query, helps in scenario where have a requirement of building real time analysis.&lt;/p&gt;
+&lt;p&gt;I would appreciate feedback via comments. In next blog which is part of this series, I will be covering &lt;strong&gt;Patching and Updating table schema in Bigquery&lt;/strong&gt; which is important when you want to add or update fields on table.&lt;/p&gt;
 &lt;hr&gt;</content><category term="Google BigQuery"></category><category term="GCP"></category><category term="Redis"></category><category term="Google Cloud Platform"></category></entry><entry><title>Export &amp; Load Job with MongoDB - BigQuery Part-I</title><link href="https://sunnykrGupta.github.io/export-load-job-with-mongodb-bigquery-part-i.html" rel="alternate"></link><published>2017-10-16T01:12:31+05:30</published><updated>2017-10-16T01:12:31+05:30</updated><author><name>Sunny Kr Gupta</name></author><id>tag:sunnykrgupta.github.io,2017-10-16:/export-load-job-with-mongodb-bigquery-part-i.html</id><summary type="html">&lt;p&gt;&lt;img alt="Google BigQuery" src="/images/bq-series/part1/bquery.svg"&gt;&lt;/p&gt;
 &lt;p&gt;This blog is intended for audience who wanted to get into fundamentals of BigQuery (short for BQ) and related jobs needed to get your data inside BigQuery system.&lt;/p&gt;
 &lt;h3&gt;&lt;a href="https://cloud.google.com/bigquery/what-is-bigquery"&gt;Google BigQuery&lt;/a&gt;&lt;/h3&gt;
