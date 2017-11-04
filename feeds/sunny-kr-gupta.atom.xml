@@ -1,5 +1,180 @@
 <?xml version="1.0" encoding="utf-8"?>
-<feed xmlns="http://www.w3.org/2005/Atom"><title>Daemon Blog - Sunny Kr Gupta</title><link href="https://sunnykrGupta.github.io/" rel="alternate"></link><link href="https://sunnykrGupta.github.io/feeds/sunny-kr-gupta.atom.xml" rel="self"></link><id>https://sunnykrGupta.github.io/</id><updated>2017-11-01T17:12:31+05:30</updated><entry><title>Streaming with Redis - BigQuery Part-II</title><link href="https://sunnykrGupta.github.io/streaming-with-redis-bigquery-part-ii.html" rel="alternate"></link><published>2017-11-01T17:12:31+05:30</published><updated>2017-11-01T17:12:31+05:30</updated><author><name>Sunny Kr Gupta</name></author><id>tag:sunnykrgupta.github.io,2017-11-01:/streaming-with-redis-bigquery-part-ii.html</id><summary type="html">&lt;p&gt;&lt;img alt="Google BigQuery" src="/images/bq-series/part2/bq-stream.png"&gt;&lt;/p&gt;
+<feed xmlns="http://www.w3.org/2005/Atom"><title>Daemon Blog - Sunny Kr Gupta</title><link href="https://sunnykrGupta.github.io/" rel="alternate"></link><link href="https://sunnykrGupta.github.io/feeds/sunny-kr-gupta.atom.xml" rel="self"></link><id>https://sunnykrGupta.github.io/</id><updated>2017-11-01T17:12:31+05:30</updated><entry><title>Patch and Update Table - BigQuery Part-III</title><link href="https://sunnykrGupta.github.io/patch-and-update-table-bigquery-part-iii.html" rel="alternate"></link><published>2017-11-01T17:12:31+05:30</published><updated>2017-11-01T17:12:31+05:30</updated><author><name>Sunny Kr Gupta</name></author><id>tag:sunnykrgupta.github.io,2017-11-01:/patch-and-update-table-bigquery-part-iii.html</id><summary type="html">&lt;p&gt;&lt;img alt="Google BigQuery" src="/images/bq-series/part3/bigquery.png"&gt;&lt;/p&gt;
+&lt;p&gt;This post is 3rd part of 3-post series. In the earlier post, we understood the streaming in BigQuery &lt;strong&gt;&lt;a href="https://sunnykrgupta.github.io/streaming-with-redis-bigquery-part-ii.html"&gt;Streaming with Redis - BigQuery Part-II&lt;/a&gt;&lt;/strong&gt;. In this post, we are going to learn patching and updating table schemas.&lt;/p&gt;
+&lt;p&gt;&lt;br&gt;&lt;/p&gt;
+&lt;h3&gt;Update/Patch Table in BigQuery&lt;/h3&gt;
+&lt;p&gt;Table updation is important when you have data ready …&lt;/p&gt;</summary><content type="html">&lt;p&gt;&lt;img alt="Google BigQuery" src="/images/bq-series/part3/bigquery.png"&gt;&lt;/p&gt;
+&lt;p&gt;This post is 3rd part of 3-post series. In the earlier post, we understood the streaming in BigQuery &lt;strong&gt;&lt;a href="https://sunnykrgupta.github.io/streaming-with-redis-bigquery-part-ii.html"&gt;Streaming with Redis - BigQuery Part-II&lt;/a&gt;&lt;/strong&gt;. In this post, we are going to learn patching and updating table schemas.&lt;/p&gt;
+&lt;p&gt;&lt;br&gt;&lt;/p&gt;
+&lt;h3&gt;Update/Patch Table in BigQuery&lt;/h3&gt;
+&lt;p&gt;Table updation is important when you have data ready inside the table and suddenly you have a requirement of adding more fields in the table to do analysis.&lt;/p&gt;
+&lt;p&gt;Here, we are going to add a field and see the changes in the table after update operation.&lt;/p&gt;
+&lt;p&gt;&lt;br&gt;&lt;/p&gt;
+&lt;hr&gt;
+&lt;p&gt;&lt;br&gt;&lt;/p&gt;
+&lt;h4&gt;1. Add field into schema&lt;/h4&gt;
+&lt;p&gt;We are going to use same table &lt;strong&gt;&lt;code&gt;StreamTable&lt;/code&gt;&lt;/strong&gt; which we used earlier for streaming and introducing one more field as &lt;strong&gt;&lt;code&gt;UniqueSocialNumber&lt;/code&gt;&lt;/strong&gt; with datatype &lt;strong&gt;&lt;code&gt;INTEGER&lt;/code&gt;&lt;/strong&gt;. Lets add these changes to &lt;strong&gt;&lt;code&gt;schema.py&lt;/code&gt;&lt;/strong&gt; which will be used by our main program written in later steps.&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="nv"&gt;$ &lt;/span&gt;cat schema.py
+
+&lt;span class="c"&gt;#Add field schema&lt;/span&gt;
+&lt;span class="nv"&gt;TableObject&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="o"&gt;{&lt;/span&gt;
+    &lt;span class="s2"&gt;&amp;quot;tableReference&amp;quot;&lt;/span&gt;: &lt;span class="o"&gt;{&lt;/span&gt;
+      &lt;span class="s2"&gt;&amp;quot;projectId&amp;quot;&lt;/span&gt;: &lt;span class="s2"&gt;&amp;quot;mimetic-slate&amp;quot;&lt;/span&gt;,
+      &lt;span class="s2"&gt;&amp;quot;tableId&amp;quot;&lt;/span&gt;: &lt;span class="s2"&gt;&amp;quot;StreamTable&amp;quot;&lt;/span&gt;,
+      &lt;span class="s2"&gt;&amp;quot;datasetId&amp;quot;&lt;/span&gt;: &lt;span class="s2"&gt;&amp;quot;BQ_Dataset&amp;quot;&lt;/span&gt;,
+    &lt;span class="o"&gt;}&lt;/span&gt;,
+
+    &lt;span class="s2"&gt;&amp;quot;schema&amp;quot;&lt;/span&gt;: &lt;span class="o"&gt;{&lt;/span&gt;
+      &lt;span class="s2"&gt;&amp;quot;fields&amp;quot;&lt;/span&gt;: &lt;span class="o"&gt;[&lt;/span&gt;
+          &lt;span class="o"&gt;{&lt;/span&gt;
+              &lt;span class="s2"&gt;&amp;quot;name&amp;quot;&lt;/span&gt;: &lt;span class="s2"&gt;&amp;quot;username&amp;quot;&lt;/span&gt;,
+              &lt;span class="s2"&gt;&amp;quot;type&amp;quot;&lt;/span&gt;: &lt;span class="s2"&gt;&amp;quot;STRING&amp;quot;&lt;/span&gt;,
+              &lt;span class="s2"&gt;&amp;quot;mode&amp;quot;&lt;/span&gt;: &lt;span class="s2"&gt;&amp;quot;NULLABLE&amp;quot;&lt;/span&gt;
+          &lt;span class="o"&gt;}&lt;/span&gt;,
+          &lt;span class="o"&gt;{&lt;/span&gt;
+              &lt;span class="s2"&gt;&amp;quot;name&amp;quot;&lt;/span&gt;: &lt;span class="s2"&gt;&amp;quot;name&amp;quot;&lt;/span&gt;,
+              &lt;span class="s2"&gt;&amp;quot;type&amp;quot;&lt;/span&gt;: &lt;span class="s2"&gt;&amp;quot;STRING&amp;quot;&lt;/span&gt;,
+              &lt;span class="s2"&gt;&amp;quot;mode&amp;quot;&lt;/span&gt;: &lt;span class="s2"&gt;&amp;quot;NULLABLE&amp;quot;&lt;/span&gt;
+          &lt;span class="o"&gt;}&lt;/span&gt;,
+          &lt;span class="o"&gt;{&lt;/span&gt;
+              &lt;span class="s2"&gt;&amp;quot;name&amp;quot;&lt;/span&gt;: &lt;span class="s2"&gt;&amp;quot;birthdate&amp;quot;&lt;/span&gt;,
+              &lt;span class="s2"&gt;&amp;quot;type&amp;quot;&lt;/span&gt;: &lt;span class="s2"&gt;&amp;quot;STRING&amp;quot;&lt;/span&gt;,
+              &lt;span class="s2"&gt;&amp;quot;mode&amp;quot;&lt;/span&gt;: &lt;span class="s2"&gt;&amp;quot;NULLABLE&amp;quot;&lt;/span&gt;
+          &lt;span class="o"&gt;}&lt;/span&gt;,
+          &lt;span class="o"&gt;{&lt;/span&gt;
+              &lt;span class="s2"&gt;&amp;quot;name&amp;quot;&lt;/span&gt;: &lt;span class="s2"&gt;&amp;quot;sex&amp;quot;&lt;/span&gt;,
+              &lt;span class="s2"&gt;&amp;quot;type&amp;quot;&lt;/span&gt;: &lt;span class="s2"&gt;&amp;quot;STRING&amp;quot;&lt;/span&gt;,
+              &lt;span class="s2"&gt;&amp;quot;mode&amp;quot;&lt;/span&gt;: &lt;span class="s2"&gt;&amp;quot;NULLABLE&amp;quot;&lt;/span&gt;
+          &lt;span class="o"&gt;}&lt;/span&gt;,
+          &lt;span class="o"&gt;{&lt;/span&gt;
+              &lt;span class="s2"&gt;&amp;quot;name&amp;quot;&lt;/span&gt;: &lt;span class="s2"&gt;&amp;quot;address&amp;quot;&lt;/span&gt;,
+              &lt;span class="s2"&gt;&amp;quot;type&amp;quot;&lt;/span&gt;: &lt;span class="s2"&gt;&amp;quot;STRING&amp;quot;&lt;/span&gt;,
+              &lt;span class="s2"&gt;&amp;quot;mode&amp;quot;&lt;/span&gt;: &lt;span class="s2"&gt;&amp;quot;NULLABLE&amp;quot;&lt;/span&gt;
+          &lt;span class="o"&gt;}&lt;/span&gt;,
+          &lt;span class="o"&gt;{&lt;/span&gt;
+              &lt;span class="s2"&gt;&amp;quot;name&amp;quot;&lt;/span&gt;: &lt;span class="s2"&gt;&amp;quot;mail&amp;quot;&lt;/span&gt;,
+              &lt;span class="s2"&gt;&amp;quot;type&amp;quot;&lt;/span&gt;: &lt;span class="s2"&gt;&amp;quot;STRING&amp;quot;&lt;/span&gt;,
+              &lt;span class="s2"&gt;&amp;quot;mode&amp;quot;&lt;/span&gt;: &lt;span class="s2"&gt;&amp;quot;NULLABLE&amp;quot;&lt;/span&gt;
+          &lt;span class="o"&gt;}&lt;/span&gt;,
+          &lt;span class="o"&gt;{&lt;/span&gt;
+              &lt;span class="s2"&gt;&amp;quot;name&amp;quot;&lt;/span&gt;: &lt;span class="s2"&gt;&amp;quot;UniqueSocialNumber&amp;quot;&lt;/span&gt;,   &lt;span class="c"&gt;#New Field&lt;/span&gt;
+              &lt;span class="s2"&gt;&amp;quot;type&amp;quot;&lt;/span&gt;: &lt;span class="s2"&gt;&amp;quot;INTEGER&amp;quot;&lt;/span&gt;,
+              &lt;span class="s2"&gt;&amp;quot;mode&amp;quot;&lt;/span&gt;: &lt;span class="s2"&gt;&amp;quot;NULLABLE&amp;quot;&lt;/span&gt;
+          &lt;span class="o"&gt;}&lt;/span&gt;
+      &lt;span class="o"&gt;]&lt;/span&gt;,
+  &lt;span class="o"&gt;}&lt;/span&gt;,
+&lt;span class="o"&gt;}&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;&lt;br&gt;&lt;/p&gt;
+&lt;hr&gt;
+&lt;p&gt;&lt;br&gt;&lt;/p&gt;
+&lt;h4&gt;2. Patch/Update API in BigQuery&lt;/h4&gt;
+&lt;p&gt;We have &lt;code&gt;schema.py&lt;/code&gt; script ready and below is our main program &lt;strong&gt;&lt;code&gt;tablePatch.py&lt;/code&gt;&lt;/strong&gt; that will execute the table patch API call to bigquery.&lt;/p&gt;
+&lt;p&gt;We have two methods available in BigQuery to make updates in table.&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;strong&gt;&lt;code&gt;tables.patch&lt;/code&gt;&lt;/strong&gt; - This method only replaces fields that are provided in the resources&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;&lt;code&gt;tables.update&lt;/code&gt;&lt;/strong&gt; - This method replaces the entire table resource.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;&lt;br&gt;&lt;/p&gt;
+&lt;blockquote&gt;
+&lt;p&gt;&lt;strong&gt;Patch Example :&lt;/strong&gt;&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="err"&gt;$&lt;/span&gt; &lt;span class="n"&gt;cat&lt;/span&gt; &lt;span class="n"&gt;tablePatch&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;py&lt;/span&gt;
+
+&lt;span class="c"&gt;#!/usr/bin/env python&lt;/span&gt;
+
+&lt;span class="c"&gt;#https://developers.google.com/api-client-library/python/&lt;/span&gt;
+&lt;span class="kn"&gt;from&lt;/span&gt; &lt;span class="nn"&gt;googleapiclient&lt;/span&gt; &lt;span class="kn"&gt;import&lt;/span&gt; &lt;span class="n"&gt;discovery&lt;/span&gt;
+&lt;span class="kn"&gt;from&lt;/span&gt; &lt;span class="nn"&gt;oauth2client.client&lt;/span&gt; &lt;span class="kn"&gt;import&lt;/span&gt; &lt;span class="n"&gt;GoogleCredentials&lt;/span&gt;
+&lt;span class="kn"&gt;from&lt;/span&gt; &lt;span class="nn"&gt;schema&lt;/span&gt; &lt;span class="kn"&gt;import&lt;/span&gt; &lt;span class="n"&gt;TableObject&lt;/span&gt;
+
+
+&lt;span class="c"&gt;# [START Table Creater ]&lt;/span&gt;
+&lt;span class="k"&gt;def&lt;/span&gt; &lt;span class="nf"&gt;PatchTable&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;bigquery&lt;/span&gt;&lt;span class="p"&gt;):&lt;/span&gt;
+    &lt;span class="n"&gt;tables&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;bigquery&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;tables&lt;/span&gt;&lt;span class="p"&gt;()&lt;/span&gt;
+
+    &lt;span class="n"&gt;tableStatusObject&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;tables&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;patch&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;projectId&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="n"&gt;TableObject&lt;/span&gt;&lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="s"&gt;&amp;#39;tableReference&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;][&lt;/span&gt;&lt;span class="s"&gt;&amp;#39;projectId&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;],&lt;/span&gt; \
+                &lt;span class="n"&gt;datasetId&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="n"&gt;TableObject&lt;/span&gt;&lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="s"&gt;&amp;#39;tableReference&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;][&lt;/span&gt;&lt;span class="s"&gt;&amp;#39;datasetId&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;],&lt;/span&gt; \
+                &lt;span class="n"&gt;tableId&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="n"&gt;TableObject&lt;/span&gt;&lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="s"&gt;&amp;#39;tableReference&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;][&lt;/span&gt;&lt;span class="s"&gt;&amp;#39;tableId&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;],&lt;/span&gt; \
+                &lt;span class="n"&gt;body&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="n"&gt;TableObject&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;execute&lt;/span&gt;&lt;span class="p"&gt;()&lt;/span&gt;
+    &lt;span class="k"&gt;print&lt;/span&gt; &lt;span class="s"&gt;&amp;quot;&lt;/span&gt;&lt;span class="se"&gt;\n\n&lt;/span&gt;&lt;span class="s"&gt;Table Patched&amp;quot;&lt;/span&gt;
+&lt;span class="c"&gt;# [END]&lt;/span&gt;
+
+&lt;span class="k"&gt;def&lt;/span&gt; &lt;span class="nf"&gt;main&lt;/span&gt;&lt;span class="p"&gt;():&lt;/span&gt;
+    &lt;span class="c"&gt;#to get credentials from my laptop&lt;/span&gt;
+    &lt;span class="n"&gt;credentials&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;GoogleCredentials&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;get_application_default&lt;/span&gt;&lt;span class="p"&gt;()&lt;/span&gt;
+    &lt;span class="c"&gt;# Construct the service object for interacting with the BigQuery API.&lt;/span&gt;
+    &lt;span class="n"&gt;bigquery&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;discovery&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;build&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s"&gt;&amp;#39;bigquery&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="s"&gt;&amp;#39;v2&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;credentials&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="n"&gt;credentials&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+    &lt;span class="n"&gt;PatchTable&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;bigquery&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+
+&lt;span class="sd"&gt;&amp;#39;&amp;#39;&amp;#39;&lt;/span&gt;
+&lt;span class="sd"&gt;https://cloud.google.com/bigquery/docs/tables#update-schema&lt;/span&gt;
+&lt;span class="sd"&gt;&amp;#39;&amp;#39;&amp;#39;&lt;/span&gt;
+
+&lt;span class="k"&gt;if&lt;/span&gt; &lt;span class="n"&gt;__name__&lt;/span&gt; &lt;span class="o"&gt;==&lt;/span&gt; &lt;span class="s"&gt;&amp;#39;__main__&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;
+    &lt;span class="n"&gt;main&lt;/span&gt;&lt;span class="p"&gt;()&lt;/span&gt;
+    &lt;span class="k"&gt;print&lt;/span&gt; &lt;span class="s"&gt;&amp;quot;BQ Table Patch !!&amp;quot;&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;&lt;br&gt;&lt;/p&gt;
+&lt;blockquote&gt;
+&lt;p&gt;Update Example :&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;#instead of calling patch(), we call update() to apply updates
+tables.update(projectId=TableObject[&amp;#39;tableReference&amp;#39;][&amp;#39;projectId&amp;#39;],\
+                datasetId=TableObject[&amp;#39;tableReference&amp;#39;][&amp;#39;datasetId&amp;#39;],\
+                tableId=TableObject[&amp;#39;tableReference&amp;#39;][&amp;#39;tableId&amp;#39;], \
+                body=TableObject).execute()
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;&lt;br&gt;&lt;/p&gt;
+&lt;p&gt;After applying changes we can verify changes in schema of bigquery table.&lt;/p&gt;
+&lt;p&gt;Visit UI :&lt;a href="https://bigquery.cloud.google.com"&gt;https://bigquery.cloud.google.com&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;You can also verify table schema by running &lt;strong&gt;&lt;code&gt;bq&lt;/code&gt;&lt;/strong&gt; CLI commands&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="nv"&gt;$ &lt;/span&gt;bq show BQ_Dataset.StreamTable
+Table mimetic-slate:BQ_Dataset.StreamTable
+
+   Last modified                Schema               Total Rows   Total Bytes   Expiration   Time Partitioning   Labels  
+ ----------------- -------------------------------- ------------ ------------- ------------ ------------------- --------
+  &lt;span class="m"&gt;04&lt;/span&gt; Nov 15:48:43   &lt;span class="p"&gt;|&lt;/span&gt;-username: string              &lt;span class="m"&gt;451&lt;/span&gt;          &lt;span class="m"&gt;50837&lt;/span&gt;                                                  
+                    &lt;span class="p"&gt;|&lt;/span&gt;-name:string                                                                                      
+                    &lt;span class="p"&gt;|&lt;/span&gt;-birthdate:string                                                                                 
+                    &lt;span class="p"&gt;|&lt;/span&gt;-sex:string                                                                                       
+                    &lt;span class="p"&gt;|&lt;/span&gt;-address:string                                                                                   
+                    &lt;span class="p"&gt;|&lt;/span&gt;-mail:string                                                                                      
+                    &lt;span class="p"&gt;|&lt;/span&gt;-UniqueSocialNumber: integer
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;&lt;br&gt;&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;Reference &lt;/strong&gt; :&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;strong&gt;Table Patch and Update :&lt;/strong&gt; &lt;a href="https://developers.google.com/resources/api-libraries/documentation/bigquery/v2/python/latest/bigquery_v2.tables.html"&gt;https://developers.google.com/resources/api-libraries/documentation/bigquery/v2/python/latest/bigquery_v2.tables.html&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;&lt;br&gt;&lt;/p&gt;
+&lt;hr&gt;
+&lt;p&gt;&lt;br&gt;&lt;/p&gt;
+&lt;h4&gt;3. Preview of data in bigquery table&lt;/h4&gt;
+&lt;p&gt;Click on table preview to see new field. It will show &lt;strong&gt;&lt;code&gt;null&lt;/code&gt;&lt;/strong&gt; with old records. You can start streaming data which contains this newly added field to be written in table going forward.&lt;/p&gt;
+&lt;div style="text-align: center"&gt;&lt;u&gt;&lt;b&gt;Table Preview&lt;/b&gt;&lt;/u&gt;&lt;/div&gt;
+
+&lt;p&gt;&lt;img alt="New Field" src="/images/bq-series/part3/new-field.png"&gt;&lt;/p&gt;
+&lt;p&gt;&lt;br&gt;&lt;/p&gt;
+&lt;hr&gt;
+&lt;p&gt;&lt;br&gt;&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;Github reference&lt;/strong&gt; : &lt;a href="https://github.com/sunnykrGupta/Bigquery-series"&gt;https://github.com/sunnykrGupta/Bigquery-series&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;&lt;br&gt;&lt;/p&gt;
+&lt;hr&gt;
+&lt;p&gt;&lt;br&gt;&lt;/p&gt;
+&lt;h3&gt;Conclusion&lt;/h3&gt;
+&lt;p&gt;This was introduction to updation in BigQuery table, thus concludes our 3-post series.&lt;/p&gt;
+&lt;p&gt;From this series, we covered basic features of Google BigQuery serverless product. There are other similar product available on other clouds like AWS redshift, Azure SQL Data Warehouse which serve infinite computing resources like BigQuery.&lt;/p&gt;
+&lt;p&gt;Please comment your thoughts/feedback about this series.&lt;/p&gt;
+&lt;hr&gt;</content><category term="Google BigQuery"></category><category term="GCP"></category><category term="Google Cloud Platform"></category></entry><entry><title>Streaming with Redis - BigQuery Part-II</title><link href="https://sunnykrGupta.github.io/streaming-with-redis-bigquery-part-ii.html" rel="alternate"></link><published>2017-11-01T17:12:31+05:30</published><updated>2017-11-01T17:12:31+05:30</updated><author><name>Sunny Kr Gupta</name></author><id>tag:sunnykrgupta.github.io,2017-11-01:/streaming-with-redis-bigquery-part-ii.html</id><summary type="html">&lt;p&gt;&lt;img alt="Google BigQuery" src="/images/bq-series/part2/bq-stream.png"&gt;&lt;/p&gt;
 &lt;p&gt;This post is 2nd part of 3-post series. In the earlier post, we understood the fundamentals of BigQuery Load Jobs &lt;strong&gt;&lt;a href="https://sunnykrgupta.github.io/export-load-job-with-mongodb-bigquery-part-i.html"&gt;Export &amp;amp; Load Job with MongoDB - BigQuery Part-I&lt;/a&gt;&lt;/strong&gt;. In this post, we are going to dive into Streaming feature of BigQuery.&lt;/p&gt;
 &lt;p&gt;&lt;br&gt;&lt;/p&gt;
 &lt;h3&gt;&lt;a href="https://cloud.google.com/bigquery/streaming-data-into-bigquery"&gt;Streaming&lt;/a&gt;&lt;/h3&gt;
