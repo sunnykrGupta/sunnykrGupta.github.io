@@ -4,6 +4,7 @@ Category: Blog, Series
 Tags: Google BigQuery, GCP, MongoDB, Cloud Storage, Google Cloud Platform
 Author: Sunny Kr Gupta
 Status: published
+Summary: To get into fundamentals of Google BigQuery and related jobs needed to get your data inside BigQuery system. We are going to use a mongoDB server to export our data and going to import into BigQuery tables. There are several other ways to import data into bigquery.
 
 
 

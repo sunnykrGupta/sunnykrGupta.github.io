@@ -53,7 +53,7 @@ USER_LOGO_URL=SITEURL+'/images/logo.jpg'
 TAGLINE="Data Engineer, Programmer, DevOps on Kubernetes, Football Lover :D"
 
 # set this to True if you want to enable the Internet Defense League code
-INTERNET_DEFENSE_LEAGUE=True
+INTERNET_DEFENSE_LEAGUE=False
 
 #Twitter Widget
 widget_profile_url = "https://twitter.com/Sunny_KrGupta"
@@ -70,6 +70,11 @@ SOCIAL = (
         )
 
 DEFAULT_PAGINATION = 10
+
+#http://docs.getpelican.com/en/stable/settings.html
+#SUMMARY_MAX_LENGTH = 10  #Default 50
+
+WITH_FUTURE_DATES = True
 
 # Uncomment following line if you want document-relative URLs when developing
 #RELATIVE_URLS = True
