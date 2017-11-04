@@ -452,6 +452,6 @@ SELECT * FROM [mimetic-slate:BQ_Dataset.StreamTable]
 
 That's all from this **series Part-II**. Hope you will get basic understanding of Streaming in BigQuery from this post. Streaming is helpful in cases when you want your data to be instantly available for query, helps in scenario where have a requirement of building real time analysis.
 
-I would appreciate feedback via comments. In next blog which is part of this series, I will be covering **Patching and Updating table schema in Bigquery** which is important when you want to add or update fields on table.
+I would appreciate feedback via comments. In next blog which is part of this series, I will be covering **Patching and Updating table schema in Bigquery** which is important when you want to add fields in table.
 
 ---------------
