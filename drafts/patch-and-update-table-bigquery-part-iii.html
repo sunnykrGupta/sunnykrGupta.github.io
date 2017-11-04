@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <!-- ## for client-side less
+  <link rel="stylesheet/less" type="text/css" href="https://sunnykrGupta.github.io/theme/css/style.less">
+  <script src="http://cdnjs.cloudflare.com/ajax/libs/less.js/1.7.3/less.min.js" type="text/javascript"></script>
+  -->
+  <link rel="stylesheet" type="text/css" href="https://sunnykrGupta.github.io/theme/css/style.css">
+  <link rel="stylesheet" type="text/css" href="https://sunnykrGupta.github.io/theme/css/pygments.css">
+  <link rel="stylesheet" type="text/css" href="//fonts.googleapis.com/css?family=PT+Sans|PT+Serif|PT+Mono">
+
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="author" content="Sunny Kumar">
+  <meta name="description" content="Posts and writings by Sunny Kumar">
+
+
+<meta name="keywords" content="Google BigQuery, GCP, Google Cloud Platform">
+
+  <title>
+    Daemon Blog
+&ndash; Patch and Update Table - BigQuery Part-III  </title>
+
+<script type="text/javascript">
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-63834161-1', 'auto');
+  ga('send', 'pageview');
+
+</script>
+</head>
+
+<body>
+  <aside>
+    <div id="user_meta">
+      <a id="user_meta_logo" href="https://sunnykrGupta.github.io">
+        <img src="https://sunnykrGupta.github.io/images/logo.jpg" alt="logo">
+      </a>
+      <h3><a href="https://sunnykrGupta.github.io">Sunny Kumar</a></h3>
+      <p>Data Engineer, Programmer, DevOps on Kubernetes, Football Lover :D</p>
+
+      <hr>
+
+      <nav>
+          <h4><a href="https://sunnykrGupta.github.io/pages/projects.html">Projects</a></h4>
+          <h4><a href="https://sunnykrGupta.github.io/pages/about-me.html">About</a></h4>
+         <!--
+          <h4><a href="https://sunnykrGupta.github.io/pages/contact-me.html">Contact</a></h4>
+        -->
+      </nav>
+    </div>
+  </aside>
+
+  <main>
+    <header>
+      <nav>
+          <a id="github" href="https://github.com/sunnykrGupta" target="_blank"><img src="https://sunnykrGupta.github.io/theme/images/Mono/webicon-github.png" alt="github"></a>
+          <a id="twitter" href="https://twitter.com/Sunny_KrGupta" target="_blank"><img src="https://sunnykrGupta.github.io/theme/images/Mono/webicon-twitter.png" alt="twitter"></a>
+          <a id="linkedin" href="https://www.linkedin.com/in/sunnykrgupta/" target="_blank"><img src="https://sunnykrGupta.github.io/theme/images/Mono/webicon-linkedin.png" alt="linkedin"></a>
+          <a id="googleplus" href="https://plus.google.com/u/0/+SunnyKrGUPTA" target="_blank"><img src="https://sunnykrGupta.github.io/theme/images/Mono/webicon-googleplus.png" alt="googleplus"></a>
+          <a id="mail" href="mailto:sunnygupta.kr@gmail.com" target="_blank"><img src="https://sunnykrGupta.github.io/theme/images/Mono/webicon-mail.png" alt="mail"></a>
+      </nav>
+      <br />
+      <p>
+        <a href="https://sunnykrGupta.github.io/index.html">Index</a> &nbsp;&nbsp; &brvbar; <a href="https://sunnykrGupta.github.io/archives.html">&nbsp;&nbsp;Archives</a>
+      </p>
+
+    </header>
+
+<article>
+  <div class="article_title">
+    <h3><a href="https://sunnykrGupta.github.io/drafts/patch-and-update-table-bigquery-part-iii.html">Patch and Update Table - BigQuery Part-III</a></h3>
+  </div>
+  <div class="article_text">
+    <p><img alt="Google BigQuery" src="/images/bq-series/part3/bigquery.png"></p>
+<p>This post is 3rd part of 3-post series. In the earlier post, we understood the streaming in BigQuery <strong><a href="https://sunnykrgupta.github.io/streaming-with-redis-bigquery-part-ii.html">Streaming with Redis - BigQuery Part-II</a></strong>. In this post, we are going learn patching and updating table schemas.</p>
+<p><br></p>
+<h3>Update/Patch Table in BigQuery</h3>
+<p>Table updation is important when you have data ready inside the table and suddenly you have a requirement of adding more fields in table to do analysis.</p>
+<p>Here, we are going to add field and see the changes in table after update operation.</p>
+<p><br></p>
+<hr>
+<p><br></p>
+<h4>1. Add field into schema</h4>
+<p>We are going to use same table <strong><code>StreamTable</code></strong> which we used earlier for streaming and introducing one more field as <strong><code>UniqueSocialNumber</code></strong> with datatype <strong><code>INTEGER</code></strong>. Lets add these changes to <strong><code>schema.py</code></strong> which will be used by our main program written in later steps.</p>
+<div class="highlight"><pre><span class="nv">$ </span>cat schema.py
+
+<span class="c">#Add field schema</span>
+<span class="nv">TableObject</span> <span class="o">=</span> <span class="o">{</span>
+    <span class="s2">&quot;tableReference&quot;</span>: <span class="o">{</span>
+      <span class="s2">&quot;projectId&quot;</span>: <span class="s2">&quot;mimetic-slate&quot;</span>,
+      <span class="s2">&quot;tableId&quot;</span>: <span class="s2">&quot;StreamTable&quot;</span>,
+      <span class="s2">&quot;datasetId&quot;</span>: <span class="s2">&quot;BQ_Dataset&quot;</span>,
+    <span class="o">}</span>,
+
+    <span class="s2">&quot;schema&quot;</span>: <span class="o">{</span>
+      <span class="s2">&quot;fields&quot;</span>: <span class="o">[</span>
+          <span class="o">{</span>
+              <span class="s2">&quot;name&quot;</span>: <span class="s2">&quot;username&quot;</span>,
+              <span class="s2">&quot;type&quot;</span>: <span class="s2">&quot;STRING&quot;</span>,
+              <span class="s2">&quot;mode&quot;</span>: <span class="s2">&quot;NULLABLE&quot;</span>
+          <span class="o">}</span>,
+          <span class="o">{</span>
+              <span class="s2">&quot;name&quot;</span>: <span class="s2">&quot;name&quot;</span>,
+              <span class="s2">&quot;type&quot;</span>: <span class="s2">&quot;STRING&quot;</span>,
+              <span class="s2">&quot;mode&quot;</span>: <span class="s2">&quot;NULLABLE&quot;</span>
+          <span class="o">}</span>,
+          <span class="o">{</span>
+              <span class="s2">&quot;name&quot;</span>: <span class="s2">&quot;birthdate&quot;</span>,
+              <span class="s2">&quot;type&quot;</span>: <span class="s2">&quot;STRING&quot;</span>,
+              <span class="s2">&quot;mode&quot;</span>: <span class="s2">&quot;NULLABLE&quot;</span>
+          <span class="o">}</span>,
+          <span class="o">{</span>
+              <span class="s2">&quot;name&quot;</span>: <span class="s2">&quot;sex&quot;</span>,
+              <span class="s2">&quot;type&quot;</span>: <span class="s2">&quot;STRING&quot;</span>,
+              <span class="s2">&quot;mode&quot;</span>: <span class="s2">&quot;NULLABLE&quot;</span>
+          <span class="o">}</span>,
+          <span class="o">{</span>
+              <span class="s2">&quot;name&quot;</span>: <span class="s2">&quot;address&quot;</span>,
+              <span class="s2">&quot;type&quot;</span>: <span class="s2">&quot;STRING&quot;</span>,
+              <span class="s2">&quot;mode&quot;</span>: <span class="s2">&quot;NULLABLE&quot;</span>
+          <span class="o">}</span>,
+          <span class="o">{</span>
+              <span class="s2">&quot;name&quot;</span>: <span class="s2">&quot;mail&quot;</span>,
+              <span class="s2">&quot;type&quot;</span>: <span class="s2">&quot;STRING&quot;</span>,
+              <span class="s2">&quot;mode&quot;</span>: <span class="s2">&quot;NULLABLE&quot;</span>
+          <span class="o">}</span>,
+          <span class="o">{</span>
+              <span class="s2">&quot;name&quot;</span>: <span class="s2">&quot;UniqueSocialNumber&quot;</span>,   <span class="c">#New Field</span>
+              <span class="s2">&quot;type&quot;</span>: <span class="s2">&quot;INTEGER&quot;</span>,
+              <span class="s2">&quot;mode&quot;</span>: <span class="s2">&quot;NULLABLE&quot;</span>
+          <span class="o">}</span>
+      <span class="o">]</span>,
+  <span class="o">}</span>,
+<span class="o">}</span>
+</pre></div>
+
+
+<p><br></p>
+<hr>
+<p><br></p>
+<h4>2. Patch/Update API in BigQuery</h4>
+<p>We have <code>schema.py</code> script ready and below is our main program <strong><code>tablePatch.py</code></strong> that will execute the table patch API call to bigquery.</p>
+<p>We have two methods available in BigQuery to make updates in table.</p>
+<ul>
+<li><strong><code>tables.patch</code></strong> - This method only replaces fields that are provided in the resources</li>
+<li><strong><code>tables.update</code></strong> - This method replaces the entire table resource.</li>
+</ul>
+<p><br></p>
+<blockquote>
+<p><strong>Patch Example :</strong></p>
+</blockquote>
+<div class="highlight"><pre><span class="err">$</span> <span class="n">cat</span> <span class="n">tablePatch</span><span class="o">.</span><span class="n">py</span>
+
+<span class="c">#!/usr/bin/env python</span>
+
+<span class="c">#https://developers.google.com/api-client-library/python/</span>
+<span class="kn">from</span> <span class="nn">googleapiclient</span> <span class="kn">import</span> <span class="n">discovery</span>
+<span class="kn">from</span> <span class="nn">oauth2client.client</span> <span class="kn">import</span> <span class="n">GoogleCredentials</span>
+<span class="kn">from</span> <span class="nn">schema</span> <span class="kn">import</span> <span class="n">TableObject</span>
+
+
+<span class="c"># [START Table Creater ]</span>
+<span class="k">def</span> <span class="nf">PatchTable</span><span class="p">(</span><span class="n">bigquery</span><span class="p">):</span>
+    <span class="n">tables</span> <span class="o">=</span> <span class="n">bigquery</span><span class="o">.</span><span class="n">tables</span><span class="p">()</span>
+
+    <span class="n">tableStatusObject</span> <span class="o">=</span> <span class="n">tables</span><span class="o">.</span><span class="n">patch</span><span class="p">(</span><span class="n">projectId</span><span class="o">=</span><span class="n">TableObject</span><span class="p">[</span><span class="s">&#39;tableReference&#39;</span><span class="p">][</span><span class="s">&#39;projectId&#39;</span><span class="p">],</span> \
+                <span class="n">datasetId</span><span class="o">=</span><span class="n">TableObject</span><span class="p">[</span><span class="s">&#39;tableReference&#39;</span><span class="p">][</span><span class="s">&#39;datasetId&#39;</span><span class="p">],</span> \
+                <span class="n">tableId</span><span class="o">=</span><span class="n">TableObject</span><span class="p">[</span><span class="s">&#39;tableReference&#39;</span><span class="p">][</span><span class="s">&#39;tableId&#39;</span><span class="p">],</span> \
+                <span class="n">body</span><span class="o">=</span><span class="n">TableObject</span><span class="p">)</span><span class="o">.</span><span class="n">execute</span><span class="p">()</span>
+    <span class="k">print</span> <span class="s">&quot;</span><span class="se">\n\n</span><span class="s">Table Patched&quot;</span>
+<span class="c"># [END]</span>
+
+<span class="k">def</span> <span class="nf">main</span><span class="p">():</span>
+    <span class="c">#to get credentials from my laptop</span>
+    <span class="n">credentials</span> <span class="o">=</span> <span class="n">GoogleCredentials</span><span class="o">.</span><span class="n">get_application_default</span><span class="p">()</span>
+    <span class="c"># Construct the service object for interacting with the BigQuery API.</span>
+    <span class="n">bigquery</span> <span class="o">=</span> <span class="n">discovery</span><span class="o">.</span><span class="n">build</span><span class="p">(</span><span class="s">&#39;bigquery&#39;</span><span class="p">,</span> <span class="s">&#39;v2&#39;</span><span class="p">,</span> <span class="n">credentials</span><span class="o">=</span><span class="n">credentials</span><span class="p">)</span>
+    <span class="n">PatchTable</span><span class="p">(</span><span class="n">bigquery</span><span class="p">)</span>
+
+<span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">https://cloud.google.com/bigquery/docs/tables#update-schema</span>
+<span class="sd">&#39;&#39;&#39;</span>
+
+<span class="k">if</span> <span class="n">__name__</span> <span class="o">==</span> <span class="s">&#39;__main__&#39;</span><span class="p">:</span>
+    <span class="n">main</span><span class="p">()</span>
+    <span class="k">print</span> <span class="s">&quot;BQ Table Patch !!&quot;</span>
+</pre></div>
+
+
+<p><br></p>
+<blockquote>
+<p>Update Example :</p>
+</blockquote>
+<div class="highlight"><pre>#instead of calling patch(), we call update() to apply updates
+tables.update(projectId=TableObject[&#39;tableReference&#39;][&#39;projectId&#39;],\
+                datasetId=TableObject[&#39;tableReference&#39;][&#39;datasetId&#39;],\
+                tableId=TableObject[&#39;tableReference&#39;][&#39;tableId&#39;], \
+                body=TableObject).execute()
+</pre></div>
+
+
+<p><br></p>
+<p>After applying changes we can verify changes in schema of bigquery table.</p>
+<p>Visit UI :<a href="https://bigquery.cloud.google.com">https://bigquery.cloud.google.com</a></p>
+<p>You can also verify table schema by running <strong><code>bq</code></strong> CLI commands</p>
+<div class="highlight"><pre><span class="nv">$ </span>bq show BQ_Dataset.StreamTable
+Table mimetic-slate:BQ_Dataset.StreamTable
+
+   Last modified                Schema               Total Rows   Total Bytes   Expiration   Time Partitioning   Labels  
+ ----------------- -------------------------------- ------------ ------------- ------------ ------------------- --------
+  <span class="m">04</span> Nov 15:48:43   <span class="p">|</span>-username: string              <span class="m">451</span>          <span class="m">50837</span>                                                  
+                    <span class="p">|</span>-name:string                                                                                      
+                    <span class="p">|</span>-birthdate:string                                                                                 
+                    <span class="p">|</span>-sex:string                                                                                       
+                    <span class="p">|</span>-address:string                                                                                   
+                    <span class="p">|</span>-mail:string                                                                                      
+                    <span class="p">|</span>-UniqueSocialNumber: integer
+</pre></div>
+
+
+<p><br></p>
+<p><strong>Reference </strong> :</p>
+<ul>
+<li><strong>Table Patch and Update :</strong> <a href="https://developers.google.com/resources/api-libraries/documentation/bigquery/v2/python/latest/bigquery_v2.tables.html">https://developers.google.com/resources/api-libraries/documentation/bigquery/v2/python/latest/bigquery_v2.tables.html</a></li>
+</ul>
+<p><br></p>
+<hr>
+<p><br></p>
+<h4>3. Preview of data in bigquery table</h4>
+<p>Click on table preview to see new field. It will show <strong><code>null</code></strong> with old records. You can start streaming data which contains this newly added field to be written in table going forward.</p>
+<div style="text-align: center"><u><b>Table Preview</b></u></div>
+
+<p><img alt="New Field" src="/images/bq-series/part3/new-field.png"></p>
+<p><br></p>
+<hr>
+<p><br></p>
+<p><strong>Github reference</strong> : <a href="https://github.com/sunnykrGupta/Bigquery-series">https://github.com/sunnykrGupta/Bigquery-series</a></p>
+<p><br></p>
+<hr>
+<p><br></p>
+<h3>Conclusion</h3>
+<p>This was introduction to updation in BigQuery table, thus concludes our 3-post series.</p>
+<p>From this series, we covered basic features of Google BigQuery serverless product. There are other similar product available on other clouds like AWS redshift, Azure SQL Data Warehouse which serve infinite computing resources like BigQuery.</p>
+<p>Please comment your thoughts/feedback about this series.</p>
+<hr>
+  </div>
+  <div class="article_meta">
+    <p>Posted on: Wed 01 November 2017</p>
+    <p>Category: <a href="https://sunnykrGupta.github.io/category/blog-series.html">Blog, Series</a>
+ &ndash; Tags:
+      <a href="https://sunnykrGupta.github.io/tag/google-bigquery.html">Google BigQuery</a>,      <a href="https://sunnykrGupta.github.io/tag/gcp.html">GCP</a>,      <a href="https://sunnykrGupta.github.io/tag/google-cloud-platform.html">Google Cloud Platform</a>    </p>
+  </div>
+
+  <div id="article_comments">
+    <div id="disqus_thread"></div>
+    <script type="text/javascript">
+        var disqus_identifier = "drafts/patch-and-update-table-bigquery-part-iii.html";
+        (function() {
+             var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+             dsq.src = 'https://sunnydaemon.disqus.com/embed.js';
+             (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+         })();
+    </script>
+  </div>
+
+</article>
+
+
+    <div id="ending_message">
+      <p>&copy; Sunny Kumar. Built using <a href="http://getpelican.com" target="_blank">Pelican</a>. Theme by Sunny Kumar on <a href="https://github.com/sunnykrgupta/pelican-svbhack-responsive" target="_blank">github</a>. Member of the <a href="http://internetdefenseleague.org">Internet Defense League</a>.</p>
+    </div>
+  </main>
+
+  <div id="right-feed">
+    <a class="twitter-timeline" href="" data-widget-id="605800181926199296">Tweets by </a>
+    <script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0],p=/^http:/.test(d.location)?'http':'https';if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src=p+"://platform.twitter.com/widgets.js";fjs.parentNode.insertBefore(js,fjs);}}(document,"script","twitter-wjs");</script>
+  </div>
+<script type="text/javascript">
+  window._idl = {};
+  _idl.variant = "banner";
+  (function() {
+    var idl = document.createElement('script');
+    idl.type = 'text/javascript';
+    idl.async = true;
+    idl.src = ('https:' == document.location.protocol ? 'https://' : 'http://') + 'members.internetdefenseleague.org/include/?url=' + (_idl.url || '') + '&campaign=' + (_idl.campaign || '') + '&variant=' + (_idl.variant || 'banner');
+    document.getElementsByTagName('body')[0].appendChild(idl);
+  })();
+</script>
+</body>
+</html>
