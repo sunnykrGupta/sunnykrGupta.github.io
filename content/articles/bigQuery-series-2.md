@@ -4,6 +4,7 @@ Category: Blog, Series
 Tags: Google BigQuery, GCP, Redis, Google Cloud Platform
 Author: Sunny Kr Gupta
 Status: published
+Summary: Streaming helps in pushing our data into BigQuery (short for BQ) and helps in making data available for query without delay of running load jobs. In this post, we are going to dive into Streaming feature of BigQuery.
 
 
 

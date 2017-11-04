@@ -1,16 +1,16 @@
 Title: Patch and Update Table - BigQuery Part-III
-Date: 2017-11-01 17:12:31
+Date: 2017-11-05 11:12:31
 Category: Blog, Series
 Tags: Google BigQuery, GCP, Google Cloud Platform
 Author: Sunny Kr Gupta
-Status: draft
-
+Status: published
+Summary: Table updation is important when you have data ready inside the table and suddenly you have a requirement of adding more fields in the table to do analysis. In this post, we are going to dive into Streaming feature of BigQuery.
 
 
 ![Google BigQuery](/images/bq-series/part3/bigquery.png)
 
 
-This post is 3rd part of 3-post series. In the earlier post, we understood the streaming in BigQuery **[Streaming with Redis - BigQuery Part-II](https://sunnykrgupta.github.io/streaming-with-redis-bigquery-part-ii.html)**. In this post, we are going learn patching and updating table schemas.
+This post is 3rd part of 3-post series. In the earlier post, we understood the streaming in BigQuery **[Streaming with Redis - BigQuery Part-II](https://sunnykrgupta.github.io/streaming-with-redis-bigquery-part-ii.html)**. In this post, we are going to learn patching and updating table schemas.
 
 <br>
 
