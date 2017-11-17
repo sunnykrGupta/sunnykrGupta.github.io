@@ -65,7 +65,7 @@ SOCIAL = (
             ('github', 'https://github.com/sunnykrGupta'),
             ('twitter', 'https://twitter.com/Sunny_KrGupta'),
             ('linkedin', 'https://www.linkedin.com/in/sunnykrgupta/'),
-            ('googleplus', 'https://plus.google.com/u/0/+SunnyKrGUPTA'),
+            ('medium', 'https://medium.com/@sunnykrgupta/'),
             ('mail', 'mailto:sunnygupta.kr@gmail.com'),
         )
 
