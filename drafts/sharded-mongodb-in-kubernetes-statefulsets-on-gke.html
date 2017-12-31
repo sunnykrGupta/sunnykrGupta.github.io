@@ -457,7 +457,7 @@ kubectl get persistentvolumeclaims --namespace=daemonsl
 <p><br></p>
 <hr>
 <p><br></p>
-<h3>4 Configure Sharding</h3>
+<h3>4. Configure Sharding</h3>
 <p>Now, we have <code>mongos, configdb</code> and <code>maindb</code> up and running. We need to create Replicaset in MainDB servers that we are intending to make shard. We will run <code>rs.initiate()</code> command to make <code>PRIMARY</code> replica. Since we are going with one replica member in each shard. We will run initiate command in each of the <code>maindb</code> pod.</p>
 <div class="highlight"><pre><span></span><span class="nt">echo</span> <span class="s2">&quot;Replicaset Init mongodb-shard1-0 &quot;</span>
 <span class="nt">kubectl</span> <span class="nt">exec</span> <span class="nt">--namespace</span><span class="o">=</span><span class="nt">daemonsl</span> <span class="nt">mongodb-shard1-0</span> <span class="nt">-c</span> <span class="nt">mongodb-shard1-container</span> <span class="nt">--</span> <span class="nt">mongo</span> <span class="nt">--port</span> <span class="nt">27017</span> <span class="nt">--eval</span> <span class="s2">&quot;rs.initiate({_id: \&quot;Shard1\&quot;</span><span class="o">,</span> <span class="nt">version</span><span class="o">:</span> <span class="nt">1</span><span class="o">,</span> <span class="nt">members</span><span class="o">:</span> <span class="cp">[</span> <span class="p">{</span><span class="nx">_id</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span> <span class="nx">host</span><span class="p">:</span> <span class="o">\</span><span class="s2">&quot;mongodb-shard1-0.mongodb-shard1-headless-service.daemonsl.svc.cluster.local:27017</span><span class="se">\&quot;</span><span class="s2">} ] });&quot;</span>
@@ -508,6 +508,9 @@ $ mongo
 <li>Controlling Anti-Affinity for Mongod Replicas to avoid a Single Point of Failure</li>
 </ul>
 <hr>
+<p><strong>Github reference : <a href="https://github.com/sunnykrGupta/gke-mongodb-shards">https://github.com/sunnykrGupta/gke-mongodb-shards</a></strong></p>
+<p><strong>Credit :</strong> This blog is based on workdone by <a href="https://twitter.com/TheDonester">Paul Done</a></p>
+<hr>
 <h4>Must read below resources in order to get detailed understanding :</h4>
 <ul>
 <li><a href="https://kubernetes.io/docs/concepts/workloads/controllers/statefulset">https://kubernetes.io/docs/concepts/workloads/controllers/statefulset</a></li>
@@ -518,8 +521,6 @@ $ mongo
 <li><a href="http://blog.kubernetes.io/2017/03/dynamic-provisioning-and-storage-classes-kubernetes.html">http://blog.kubernetes.io/2017/03/dynamic-provisioning-and-storage-classes-kubernetes.html</a></li>
 <li><a href="http://blog.kubernetes.io/2017/03/advanced-scheduling-in-kubernetes.html">http://blog.kubernetes.io/2017/03/advanced-scheduling-in-kubernetes.html</a></li>
 </ul>
-<p><br></p>
-<p><strong>Credit :</strong> This blog is based on workdone by <a href="https://twitter.com/TheDonester">Paul Done</a></p>
 <hr>
   </div>
   <div class="article_meta">
