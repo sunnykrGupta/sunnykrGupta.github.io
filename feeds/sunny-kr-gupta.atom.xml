@@ -10,9 +10,9 @@
 &lt;p&gt;&lt;br&gt;&lt;/p&gt;
 &lt;h4&gt;1. Add field into schema&lt;/h4&gt;
 &lt;p&gt;We are going to use same table &lt;strong&gt;&lt;code&gt;StreamTable&lt;/code&gt;&lt;/strong&gt; which we used earlier for streaming and introducing one more field as &lt;strong&gt;&lt;code&gt;UniqueSocialNumber&lt;/code&gt;&lt;/strong&gt; with datatype &lt;strong&gt;&lt;code&gt;INTEGER&lt;/code&gt;&lt;/strong&gt;. Lets add these changes to &lt;strong&gt;&lt;code&gt;schema.py&lt;/code&gt;&lt;/strong&gt; which will be used by our main program written in later steps.&lt;/p&gt;
-&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="nv"&gt;$ &lt;/span&gt;cat schema.py
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;$ cat schema.py
 
-&lt;span class="c"&gt;#Add field schema&lt;/span&gt;
+&lt;span class="c1"&gt;#Add field schema&lt;/span&gt;
 &lt;span class="nv"&gt;TableObject&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="o"&gt;{&lt;/span&gt;
     &lt;span class="s2"&gt;&amp;quot;tableReference&amp;quot;&lt;/span&gt;: &lt;span class="o"&gt;{&lt;/span&gt;
       &lt;span class="s2"&gt;&amp;quot;projectId&amp;quot;&lt;/span&gt;: &lt;span class="s2"&gt;&amp;quot;mimetic-slate&amp;quot;&lt;/span&gt;,
@@ -53,7 +53,7 @@
               &lt;span class="s2"&gt;&amp;quot;mode&amp;quot;&lt;/span&gt;: &lt;span class="s2"&gt;&amp;quot;NULLABLE&amp;quot;&lt;/span&gt;
           &lt;span class="o"&gt;}&lt;/span&gt;,
           &lt;span class="o"&gt;{&lt;/span&gt;
-              &lt;span class="s2"&gt;&amp;quot;name&amp;quot;&lt;/span&gt;: &lt;span class="s2"&gt;&amp;quot;UniqueSocialNumber&amp;quot;&lt;/span&gt;,   &lt;span class="c"&gt;#New Field&lt;/span&gt;
+              &lt;span class="s2"&gt;&amp;quot;name&amp;quot;&lt;/span&gt;: &lt;span class="s2"&gt;&amp;quot;UniqueSocialNumber&amp;quot;&lt;/span&gt;,   &lt;span class="c1"&gt;#New Field&lt;/span&gt;
               &lt;span class="s2"&gt;&amp;quot;type&amp;quot;&lt;/span&gt;: &lt;span class="s2"&gt;&amp;quot;INTEGER&amp;quot;&lt;/span&gt;,
               &lt;span class="s2"&gt;&amp;quot;mode&amp;quot;&lt;/span&gt;: &lt;span class="s2"&gt;&amp;quot;NULLABLE&amp;quot;&lt;/span&gt;
           &lt;span class="o"&gt;}&lt;/span&gt;
@@ -77,41 +77,41 @@
 &lt;blockquote&gt;
 &lt;p&gt;&lt;strong&gt;Patch Example :&lt;/strong&gt;&lt;/p&gt;
 &lt;/blockquote&gt;
-&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="err"&gt;$&lt;/span&gt; &lt;span class="n"&gt;cat&lt;/span&gt; &lt;span class="n"&gt;tablePatch&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;py&lt;/span&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="err"&gt;$&lt;/span&gt; &lt;span class="n"&gt;cat&lt;/span&gt; &lt;span class="n"&gt;tablePatch&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;py&lt;/span&gt;
 
-&lt;span class="c"&gt;#!/usr/bin/env python&lt;/span&gt;
+&lt;span class="c1"&gt;#!/usr/bin/env python&lt;/span&gt;
 
-&lt;span class="c"&gt;#https://developers.google.com/api-client-library/python/&lt;/span&gt;
+&lt;span class="c1"&gt;#https://developers.google.com/api-client-library/python/&lt;/span&gt;
 &lt;span class="kn"&gt;from&lt;/span&gt; &lt;span class="nn"&gt;googleapiclient&lt;/span&gt; &lt;span class="kn"&gt;import&lt;/span&gt; &lt;span class="n"&gt;discovery&lt;/span&gt;
 &lt;span class="kn"&gt;from&lt;/span&gt; &lt;span class="nn"&gt;oauth2client.client&lt;/span&gt; &lt;span class="kn"&gt;import&lt;/span&gt; &lt;span class="n"&gt;GoogleCredentials&lt;/span&gt;
 &lt;span class="kn"&gt;from&lt;/span&gt; &lt;span class="nn"&gt;schema&lt;/span&gt; &lt;span class="kn"&gt;import&lt;/span&gt; &lt;span class="n"&gt;TableObject&lt;/span&gt;
 
 
-&lt;span class="c"&gt;# [START Table Creater ]&lt;/span&gt;
+&lt;span class="c1"&gt;# [START Table Creater ]&lt;/span&gt;
 &lt;span class="k"&gt;def&lt;/span&gt; &lt;span class="nf"&gt;PatchTable&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;bigquery&lt;/span&gt;&lt;span class="p"&gt;):&lt;/span&gt;
     &lt;span class="n"&gt;tables&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;bigquery&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;tables&lt;/span&gt;&lt;span class="p"&gt;()&lt;/span&gt;
 
-    &lt;span class="n"&gt;tableStatusObject&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;tables&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;patch&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;projectId&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="n"&gt;TableObject&lt;/span&gt;&lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="s"&gt;&amp;#39;tableReference&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;][&lt;/span&gt;&lt;span class="s"&gt;&amp;#39;projectId&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;],&lt;/span&gt; \
-                &lt;span class="n"&gt;datasetId&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="n"&gt;TableObject&lt;/span&gt;&lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="s"&gt;&amp;#39;tableReference&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;][&lt;/span&gt;&lt;span class="s"&gt;&amp;#39;datasetId&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;],&lt;/span&gt; \
-                &lt;span class="n"&gt;tableId&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="n"&gt;TableObject&lt;/span&gt;&lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="s"&gt;&amp;#39;tableReference&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;][&lt;/span&gt;&lt;span class="s"&gt;&amp;#39;tableId&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;],&lt;/span&gt; \
+    &lt;span class="n"&gt;tableStatusObject&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;tables&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;patch&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;projectId&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="n"&gt;TableObject&lt;/span&gt;&lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="s1"&gt;&amp;#39;tableReference&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;][&lt;/span&gt;&lt;span class="s1"&gt;&amp;#39;projectId&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;],&lt;/span&gt; \
+                &lt;span class="n"&gt;datasetId&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="n"&gt;TableObject&lt;/span&gt;&lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="s1"&gt;&amp;#39;tableReference&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;][&lt;/span&gt;&lt;span class="s1"&gt;&amp;#39;datasetId&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;],&lt;/span&gt; \
+                &lt;span class="n"&gt;tableId&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="n"&gt;TableObject&lt;/span&gt;&lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="s1"&gt;&amp;#39;tableReference&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;][&lt;/span&gt;&lt;span class="s1"&gt;&amp;#39;tableId&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;],&lt;/span&gt; \
                 &lt;span class="n"&gt;body&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="n"&gt;TableObject&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;execute&lt;/span&gt;&lt;span class="p"&gt;()&lt;/span&gt;
-    &lt;span class="k"&gt;print&lt;/span&gt; &lt;span class="s"&gt;&amp;quot;&lt;/span&gt;&lt;span class="se"&gt;\n\n&lt;/span&gt;&lt;span class="s"&gt;Table Patched&amp;quot;&lt;/span&gt;
-&lt;span class="c"&gt;# [END]&lt;/span&gt;
+    &lt;span class="k"&gt;print&lt;/span&gt; &lt;span class="s2"&gt;&amp;quot;&lt;/span&gt;&lt;span class="se"&gt;\n\n&lt;/span&gt;&lt;span class="s2"&gt;Table Patched&amp;quot;&lt;/span&gt;
+&lt;span class="c1"&gt;# [END]&lt;/span&gt;
 
 &lt;span class="k"&gt;def&lt;/span&gt; &lt;span class="nf"&gt;main&lt;/span&gt;&lt;span class="p"&gt;():&lt;/span&gt;
-    &lt;span class="c"&gt;#to get credentials from my laptop&lt;/span&gt;
+    &lt;span class="c1"&gt;#to get credentials from my laptop&lt;/span&gt;
     &lt;span class="n"&gt;credentials&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;GoogleCredentials&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;get_application_default&lt;/span&gt;&lt;span class="p"&gt;()&lt;/span&gt;
-    &lt;span class="c"&gt;# Construct the service object for interacting with the BigQuery API.&lt;/span&gt;
-    &lt;span class="n"&gt;bigquery&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;discovery&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;build&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s"&gt;&amp;#39;bigquery&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="s"&gt;&amp;#39;v2&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;credentials&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="n"&gt;credentials&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+    &lt;span class="c1"&gt;# Construct the service object for interacting with the BigQuery API.&lt;/span&gt;
+    &lt;span class="n"&gt;bigquery&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;discovery&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;build&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s1"&gt;&amp;#39;bigquery&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="s1"&gt;&amp;#39;v2&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;credentials&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="n"&gt;credentials&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
     &lt;span class="n"&gt;PatchTable&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;bigquery&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
 
 &lt;span class="sd"&gt;&amp;#39;&amp;#39;&amp;#39;&lt;/span&gt;
 &lt;span class="sd"&gt;https://cloud.google.com/bigquery/docs/tables#update-schema&lt;/span&gt;
 &lt;span class="sd"&gt;&amp;#39;&amp;#39;&amp;#39;&lt;/span&gt;
 
-&lt;span class="k"&gt;if&lt;/span&gt; &lt;span class="n"&gt;__name__&lt;/span&gt; &lt;span class="o"&gt;==&lt;/span&gt; &lt;span class="s"&gt;&amp;#39;__main__&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;
+&lt;span class="k"&gt;if&lt;/span&gt; &lt;span class="vm"&gt;__name__&lt;/span&gt; &lt;span class="o"&gt;==&lt;/span&gt; &lt;span class="s1"&gt;&amp;#39;__main__&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;
     &lt;span class="n"&gt;main&lt;/span&gt;&lt;span class="p"&gt;()&lt;/span&gt;
-    &lt;span class="k"&gt;print&lt;/span&gt; &lt;span class="s"&gt;&amp;quot;BQ Table Patch !!&amp;quot;&lt;/span&gt;
+    &lt;span class="k"&gt;print&lt;/span&gt; &lt;span class="s2"&gt;&amp;quot;BQ Table Patch !!&amp;quot;&lt;/span&gt;
 &lt;/pre&gt;&lt;/div&gt;
 
 
@@ -119,7 +119,7 @@
 &lt;blockquote&gt;
 &lt;p&gt;Update Example :&lt;/p&gt;
 &lt;/blockquote&gt;
-&lt;div class="highlight"&gt;&lt;pre&gt;#instead of calling patch(), we call update() to apply updates
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;#instead of calling patch(), we call update() to apply updates
 tables.update(projectId=TableObject[&amp;#39;tableReference&amp;#39;][&amp;#39;projectId&amp;#39;],\
                 datasetId=TableObject[&amp;#39;tableReference&amp;#39;][&amp;#39;datasetId&amp;#39;],\
                 tableId=TableObject[&amp;#39;tableReference&amp;#39;][&amp;#39;tableId&amp;#39;], \
@@ -131,12 +131,12 @@ tables.update(projectId=TableObject[&amp;#39;tableReference&amp;#39;][&amp;#39;p
 &lt;p&gt;After applying changes we can verify changes in schema of bigquery table.&lt;/p&gt;
 &lt;p&gt;Visit UI :&lt;a href="https://bigquery.cloud.google.com"&gt;https://bigquery.cloud.google.com&lt;/a&gt;&lt;/p&gt;
 &lt;p&gt;You can also verify table schema by running &lt;strong&gt;&lt;code&gt;bq&lt;/code&gt;&lt;/strong&gt; CLI commands&lt;/p&gt;
-&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="nv"&gt;$ &lt;/span&gt;bq show BQ_Dataset.StreamTable
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;$ bq show BQ_Dataset.StreamTable
 Table mimetic-slate:BQ_Dataset.StreamTable
 
    Last modified                Schema               Total Rows   Total Bytes   Expiration   Time Partitioning   Labels  
  ----------------- -------------------------------- ------------ ------------- ------------ ------------------- --------
-  &lt;span class="m"&gt;04&lt;/span&gt; Nov 15:48:43   &lt;span class="p"&gt;|&lt;/span&gt;-username: string              &lt;span class="m"&gt;451&lt;/span&gt;          &lt;span class="m"&gt;50837&lt;/span&gt;                                                  
+  &lt;span class="m"&gt;04&lt;/span&gt; Nov &lt;span class="m"&gt;15&lt;/span&gt;:48:43   &lt;span class="p"&gt;|&lt;/span&gt;-username: string              &lt;span class="m"&gt;451&lt;/span&gt;          &lt;span class="m"&gt;50837&lt;/span&gt;                                                  
                     &lt;span class="p"&gt;|&lt;/span&gt;-name:string                                                                                      
                     &lt;span class="p"&gt;|&lt;/span&gt;-birthdate:string                                                                                 
                     &lt;span class="p"&gt;|&lt;/span&gt;-sex:string                                                                                       
@@ -198,7 +198,7 @@ We are going to use &lt;code&gt;python&lt;/code&gt; as our programming language.
 &lt;p&gt;We are going to write a small python script to preapare data in &lt;a href="https://redis.io/topics/data-types"&gt;redis List&lt;/a&gt;.&lt;/p&gt;
 &lt;p&gt;&lt;strong&gt;Redis Installation :&lt;/strong&gt; &lt;a href="https://redis.io/download"&gt;https://redis.io/download&lt;/a&gt;&lt;/p&gt;
 &lt;p&gt;If you have docker running, run redis inside container with simple command&lt;/p&gt;
-&lt;div class="highlight"&gt;&lt;pre&gt;docker run -d --name redis-streaming -p 6379:6379 redis
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;docker run -d --name redis-streaming -p 6379:6379 redis
 &lt;/pre&gt;&lt;/div&gt;
 
 
@@ -227,16 +227,16 @@ We are going to use &lt;code&gt;python&lt;/code&gt; as our programming language.
 21
 22
 23
-24&lt;/pre&gt;&lt;/div&gt;&lt;/td&gt;&lt;td class="code"&gt;&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="c"&gt;#!/usr/bin/env python&lt;/span&gt;
+24&lt;/pre&gt;&lt;/div&gt;&lt;/td&gt;&lt;td class="code"&gt;&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="ch"&gt;#!/usr/bin/env python&lt;/span&gt;
 
 &lt;span class="kn"&gt;import&lt;/span&gt; &lt;span class="nn"&gt;redis&lt;/span&gt;
 &lt;span class="kn"&gt;import&lt;/span&gt; &lt;span class="nn"&gt;json&lt;/span&gt;&lt;span class="o"&gt;,&lt;/span&gt; &lt;span class="nn"&gt;time&lt;/span&gt;
-&lt;span class="c"&gt;#Faker : https://github.com/joke2k/faker&lt;/span&gt;
+&lt;span class="c1"&gt;#Faker : https://github.com/joke2k/faker&lt;/span&gt;
 &lt;span class="kn"&gt;from&lt;/span&gt; &lt;span class="nn"&gt;faker&lt;/span&gt; &lt;span class="kn"&gt;import&lt;/span&gt; &lt;span class="n"&gt;Faker&lt;/span&gt;
 
-&lt;span class="n"&gt;streamRedis&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;redis&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;Redis&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;host&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="s"&gt;&amp;#39;127.0.0.1&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
-             &lt;span class="n"&gt;port&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="s"&gt;&amp;#39;6379&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
-            &lt;span class="n"&gt;password&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="s"&gt;&amp;#39;&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;span class="n"&gt;streamRedis&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;redis&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;Redis&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;host&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="s1"&gt;&amp;#39;127.0.0.1&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+             &lt;span class="n"&gt;port&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="s1"&gt;&amp;#39;6379&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+            &lt;span class="n"&gt;password&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="s1"&gt;&amp;#39;&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
 
 &lt;span class="n"&gt;fake&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;Faker&lt;/span&gt;&lt;span class="p"&gt;()&lt;/span&gt;
 
@@ -245,11 +245,11 @@ We are going to use &lt;code&gt;python&lt;/code&gt; as our programming language.
 
 &lt;span class="k"&gt;def&lt;/span&gt; &lt;span class="nf"&gt;main&lt;/span&gt;&lt;span class="p"&gt;():&lt;/span&gt;
     &lt;span class="k"&gt;while&lt;/span&gt; &lt;span class="bp"&gt;True&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;
-        &lt;span class="n"&gt;streamRedis&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;lpush&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s"&gt;&amp;quot;redisList&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;json&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;dumps&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;profile_generator&lt;/span&gt;&lt;span class="p"&gt;())&lt;/span&gt; &lt;span class="p"&gt;)&lt;/span&gt;
-        &lt;span class="c"&gt;#sleep 200ms&lt;/span&gt;
+        &lt;span class="n"&gt;streamRedis&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;lpush&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s2"&gt;&amp;quot;redisList&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;json&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;dumps&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;profile_generator&lt;/span&gt;&lt;span class="p"&gt;())&lt;/span&gt; &lt;span class="p"&gt;)&lt;/span&gt;
+        &lt;span class="c1"&gt;#sleep 200ms&lt;/span&gt;
         &lt;span class="n"&gt;time&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;sleep&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="mf"&gt;0.2&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
 
-&lt;span class="k"&gt;if&lt;/span&gt; &lt;span class="n"&gt;__name__&lt;/span&gt; &lt;span class="o"&gt;==&lt;/span&gt; &lt;span class="s"&gt;&amp;quot;__main__&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;
+&lt;span class="k"&gt;if&lt;/span&gt; &lt;span class="vm"&gt;__name__&lt;/span&gt; &lt;span class="o"&gt;==&lt;/span&gt; &lt;span class="s2"&gt;&amp;quot;__main__&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;
     &lt;span class="n"&gt;main&lt;/span&gt;&lt;span class="p"&gt;()&lt;/span&gt;
 &lt;/pre&gt;&lt;/div&gt;
 &lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
@@ -261,7 +261,7 @@ We are going to use &lt;code&gt;python&lt;/code&gt; as our programming language.
 &lt;blockquote&gt;
 &lt;p&gt;Our data looks like :&lt;/p&gt;
 &lt;/blockquote&gt;
-&lt;div class="highlight"&gt;&lt;pre&gt;{
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;{
     &amp;#39;username&amp;#39;: u&amp;#39;tarawade&amp;#39;,
     &amp;#39;name&amp;#39;: u&amp;#39;Jennifer Lewis&amp;#39;,
     &amp;#39;birthdate&amp;#39;: &amp;#39;2005-06-14&amp;#39;,
@@ -275,7 +275,7 @@ We are going to use &lt;code&gt;python&lt;/code&gt; as our programming language.
 &lt;blockquote&gt;
 &lt;p&gt;For the above formatted data, below schema is going to work :&lt;/p&gt;
 &lt;/blockquote&gt;
-&lt;div class="highlight"&gt;&lt;pre&gt;[
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;[
     {
         &amp;quot;name&amp;quot;: &amp;quot;username&amp;quot;, &amp;quot;type&amp;quot;: &amp;quot;STRING&amp;quot;, &amp;quot;mode&amp;quot;: &amp;quot;NULLABLE&amp;quot;
     },
@@ -302,7 +302,7 @@ We are going to use &lt;code&gt;python&lt;/code&gt; as our programming language.
 &lt;p&gt;&lt;br&gt;&lt;/p&gt;
 &lt;h4&gt;3. Create a table in BigQuery&lt;/h4&gt;
 &lt;p&gt;We are going to create two python file, ie, &lt;strong&gt;&lt;code&gt;createConfig.py&lt;/code&gt;&lt;/strong&gt; that will keep schema configuration and &lt;strong&gt;&lt;code&gt;tableCreate.py&lt;/code&gt;&lt;/strong&gt; that will execute the table creation API call to bigquery. We are going to use &lt;strong&gt;&lt;code&gt;Google Application Default Credentials&lt;/code&gt;&lt;/strong&gt; to authorize our python application to talk to bigquery APIs.&lt;/p&gt;
-&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="nv"&gt;$ &lt;/span&gt;cat createConfig.py
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;$ cat createConfig.py
 
 &lt;span class="nv"&gt;TableObject&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="o"&gt;{&lt;/span&gt;
     &lt;span class="s2"&gt;&amp;quot;tableReference&amp;quot;&lt;/span&gt;: &lt;span class="o"&gt;{&lt;/span&gt;
@@ -352,7 +352,7 @@ We are going to use &lt;code&gt;python&lt;/code&gt; as our programming language.
 &lt;p&gt;We are going to use &lt;strong&gt; &lt;a href="https://developers.google.com/api-client-library/python/"&gt;google-api-python-client&lt;/a&gt;&lt;/strong&gt; library for interacting to our bigquery APIs.&lt;/p&gt;
 &lt;p&gt;We are building service object by calling our API name and version supported by API. In this case we are using &lt;strong&gt;&lt;code&gt;bigquery&lt;/code&gt;&lt;/strong&gt; with version &lt;strong&gt;&lt;code&gt;v2&lt;/code&gt;&lt;/strong&gt;. This service object will be used to make tables related operation.  As of now we are going to use &lt;strong&gt;&lt;code&gt;insert&lt;/code&gt;&lt;/strong&gt; function to make table.&lt;/p&gt;
 &lt;p&gt;&lt;strong&gt;&lt;code&gt;GoogleCredentials.get_application_default()&lt;/code&gt;&lt;/strong&gt; will read the credentials stored in my system. Either you need to export a variable mentioned in reference with service account key or you setup an google SDK which will store default credentials inside your home directory.&lt;/p&gt;
-&lt;div class="highlight"&gt;&lt;pre&gt;ls ~/.config/gcloud/*.json
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;ls ~/.config/gcloud/*.json
 ~/.config/gcloud/application_default_credentials.json
 &lt;/pre&gt;&lt;/div&gt;
 
@@ -382,7 +382,7 @@ We are going to use &lt;code&gt;python&lt;/code&gt; as our programming language.
 23
 24
 25
-26&lt;/pre&gt;&lt;/div&gt;&lt;/td&gt;&lt;td class="code"&gt;&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="c"&gt;#!/usr/bin/env python&lt;/span&gt;
+26&lt;/pre&gt;&lt;/div&gt;&lt;/td&gt;&lt;td class="code"&gt;&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="ch"&gt;#!/usr/bin/env python&lt;/span&gt;
 
 &lt;span class="kn"&gt;from&lt;/span&gt; &lt;span class="nn"&gt;googleapiclient&lt;/span&gt; &lt;span class="kn"&gt;import&lt;/span&gt; &lt;span class="n"&gt;discovery&lt;/span&gt;
 &lt;span class="kn"&gt;from&lt;/span&gt; &lt;span class="nn"&gt;oauth2client.client&lt;/span&gt; &lt;span class="kn"&gt;import&lt;/span&gt; &lt;span class="n"&gt;GoogleCredentials&lt;/span&gt;
@@ -392,29 +392,29 @@ We are going to use &lt;code&gt;python&lt;/code&gt; as our programming language.
 &lt;span class="k"&gt;def&lt;/span&gt; &lt;span class="nf"&gt;createTable&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;bigquery&lt;/span&gt;&lt;span class="p"&gt;):&lt;/span&gt;
     &lt;span class="n"&gt;tables&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;bigquery&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;tables&lt;/span&gt;&lt;span class="p"&gt;()&lt;/span&gt;
 
-    &lt;span class="c"&gt;#insert utility make call to BQ API with payload \&lt;/span&gt;
-    &lt;span class="c"&gt;#(TableObject) contains schema and table-name information&lt;/span&gt;
-    &lt;span class="n"&gt;tableStatusObject&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;tables&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;insert&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt; &lt;span class="n"&gt;projectId&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="s"&gt;&amp;#39;mimetic-slate&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; \
-     &lt;span class="n"&gt;datasetId&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="s"&gt;&amp;#39;BQ_Dataset&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;body&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="n"&gt;TableObject&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;execute&lt;/span&gt;&lt;span class="p"&gt;()&lt;/span&gt;
-&lt;span class="c"&gt;# [END]&lt;/span&gt;
+    &lt;span class="c1"&gt;#insert utility make call to BQ API with payload \&lt;/span&gt;
+    &lt;span class="c1"&gt;#(TableObject) contains schema and table-name information&lt;/span&gt;
+    &lt;span class="n"&gt;tableStatusObject&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;tables&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;insert&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt; &lt;span class="n"&gt;projectId&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="s1"&gt;&amp;#39;mimetic-slate&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; \
+     &lt;span class="n"&gt;datasetId&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="s1"&gt;&amp;#39;BQ_Dataset&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;body&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="n"&gt;TableObject&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;execute&lt;/span&gt;&lt;span class="p"&gt;()&lt;/span&gt;
+&lt;span class="c1"&gt;# [END]&lt;/span&gt;
 
 &lt;span class="k"&gt;def&lt;/span&gt; &lt;span class="nf"&gt;main&lt;/span&gt;&lt;span class="p"&gt;():&lt;/span&gt;
-    &lt;span class="c"&gt;#to get credentials from my laptop&lt;/span&gt;
+    &lt;span class="c1"&gt;#to get credentials from my laptop&lt;/span&gt;
     &lt;span class="n"&gt;credentials&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;GoogleCredentials&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;get_application_default&lt;/span&gt;&lt;span class="p"&gt;()&lt;/span&gt;
-    &lt;span class="c"&gt;# Construct the service object for interacting with the BigQuery API.&lt;/span&gt;
-    &lt;span class="n"&gt;bigquery&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;discovery&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;build&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s"&gt;&amp;#39;bigquery&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="s"&gt;&amp;#39;v2&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;credentials&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="n"&gt;credentials&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+    &lt;span class="c1"&gt;# Construct the service object for interacting with the BigQuery API.&lt;/span&gt;
+    &lt;span class="n"&gt;bigquery&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;discovery&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;build&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s1"&gt;&amp;#39;bigquery&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="s1"&gt;&amp;#39;v2&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;credentials&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="n"&gt;credentials&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
     &lt;span class="n"&gt;createTable&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;bigquery&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
 
-&lt;span class="k"&gt;if&lt;/span&gt; &lt;span class="n"&gt;__name__&lt;/span&gt; &lt;span class="o"&gt;==&lt;/span&gt; &lt;span class="s"&gt;&amp;#39;__main__&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;
+&lt;span class="k"&gt;if&lt;/span&gt; &lt;span class="vm"&gt;__name__&lt;/span&gt; &lt;span class="o"&gt;==&lt;/span&gt; &lt;span class="s1"&gt;&amp;#39;__main__&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;
     &lt;span class="n"&gt;main&lt;/span&gt;&lt;span class="p"&gt;()&lt;/span&gt;
-    &lt;span class="k"&gt;print&lt;/span&gt; &lt;span class="s"&gt;&amp;quot;BQ Table Creator !!&amp;quot;&lt;/span&gt;
+    &lt;span class="k"&gt;print&lt;/span&gt; &lt;span class="s2"&gt;&amp;quot;BQ Table Creator !!&amp;quot;&lt;/span&gt;
 &lt;/pre&gt;&lt;/div&gt;
 &lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
 
 &lt;p&gt;Run above to program to create table with name &lt;strong&gt;StreamTable&lt;/strong&gt; in bigquery dataset &lt;strong&gt;&lt;code&gt;BQ_Dataset&lt;/code&gt;&lt;/strong&gt;. Make sure you have created dataset already.&lt;/p&gt;
 &lt;p&gt;You can verify the table created by visiting bigquery UI. Visit : &lt;a href="https://bigquery.cloud.google.com"&gt;https://bigquery.cloud.google.com&lt;/a&gt;&lt;/p&gt;
 &lt;p&gt;You can also verify table creation by running &lt;code&gt;bq&lt;/code&gt; CLI commands&lt;/p&gt;
-&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="nv"&gt;$ &lt;/span&gt;bq ls BQ_Dataset    
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;$ bq ls BQ_Dataset    
     tableId     Type    Labels   Time Partitioning  
  ------------- ------- -------- -------------------
   StreamTable   TABLE                               
@@ -501,7 +501,7 @@ We are going to use &lt;code&gt;python&lt;/code&gt; as our programming language.
 60
 61
 62
-63&lt;/pre&gt;&lt;/div&gt;&lt;/td&gt;&lt;td class="code"&gt;&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="c"&gt;#!/usr/bin/env python&lt;/span&gt;
+63&lt;/pre&gt;&lt;/div&gt;&lt;/td&gt;&lt;td class="code"&gt;&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="ch"&gt;#!/usr/bin/env python&lt;/span&gt;
 
 &lt;span class="kn"&gt;from&lt;/span&gt; &lt;span class="nn"&gt;googleapiclient&lt;/span&gt; &lt;span class="kn"&gt;import&lt;/span&gt; &lt;span class="n"&gt;discovery&lt;/span&gt;
 &lt;span class="kn"&gt;from&lt;/span&gt; &lt;span class="nn"&gt;oauth2client.client&lt;/span&gt; &lt;span class="kn"&gt;import&lt;/span&gt; &lt;span class="n"&gt;GoogleCredentials&lt;/span&gt;
@@ -512,57 +512,57 @@ We are going to use &lt;code&gt;python&lt;/code&gt; as our programming language.
 
 &lt;span class="n"&gt;batchCount&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="mi"&gt;100&lt;/span&gt;
 
-&lt;span class="n"&gt;redisStream&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;redis&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;Redis&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;host&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="s"&gt;&amp;#39;127.0.0.1&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
-             &lt;span class="n"&gt;port&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="s"&gt;&amp;#39;6379&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
-            &lt;span class="n"&gt;password&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="s"&gt;&amp;#39;&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;span class="n"&gt;redisStream&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;redis&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;Redis&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;host&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="s1"&gt;&amp;#39;127.0.0.1&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+             &lt;span class="n"&gt;port&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="s1"&gt;&amp;#39;6379&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+            &lt;span class="n"&gt;password&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="s1"&gt;&amp;#39;&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
 
 &lt;span class="n"&gt;streamObject&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt;
-    &lt;span class="s"&gt;&amp;quot;rows&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="p"&gt;[&lt;/span&gt;
-      &lt;span class="c"&gt;#{ &amp;quot;json&amp;quot;: {# Represents a single JSON object. } }&lt;/span&gt;
+    &lt;span class="s2"&gt;&amp;quot;rows&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="p"&gt;[&lt;/span&gt;
+      &lt;span class="c1"&gt;#{ &amp;quot;json&amp;quot;: {# Represents a single JSON object. } }&lt;/span&gt;
     &lt;span class="p"&gt;],&lt;/span&gt;
  &lt;span class="p"&gt;}&lt;/span&gt;
 
-&lt;span class="c"&gt;#[START Streaming batcher]&lt;/span&gt;
+&lt;span class="c1"&gt;#[START Streaming batcher]&lt;/span&gt;
 &lt;span class="k"&gt;def&lt;/span&gt; &lt;span class="nf"&gt;streamBuilder&lt;/span&gt;&lt;span class="p"&gt;():&lt;/span&gt;
-    &lt;span class="c"&gt;#Every API needs a refresh copy of dict&lt;/span&gt;
+    &lt;span class="c1"&gt;#Every API needs a refresh copy of dict&lt;/span&gt;
     &lt;span class="n"&gt;newStreamObject&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;copy&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;deepcopy&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;streamObject&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
 
     &lt;span class="n"&gt;currentCounter&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="mi"&gt;0&lt;/span&gt;
     &lt;span class="k"&gt;while&lt;/span&gt; &lt;span class="n"&gt;currentCounter&lt;/span&gt; &lt;span class="o"&gt;&amp;lt;&lt;/span&gt; &lt;span class="n"&gt;batchCount&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;
-        &lt;span class="n"&gt;packet&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;redisStream&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;brpop&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s"&gt;&amp;quot;redisList&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;  &lt;span class="n"&gt;timeout&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="mi"&gt;0&lt;/span&gt;&lt;span class="p"&gt;)[&lt;/span&gt;&lt;span class="mi"&gt;1&lt;/span&gt;&lt;span class="p"&gt;]&lt;/span&gt;
-        &lt;span class="n"&gt;newStreamObject&lt;/span&gt;&lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="s"&gt;&amp;quot;rows&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;]&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;append&lt;/span&gt;&lt;span class="p"&gt;({&lt;/span&gt;&lt;span class="s"&gt;&amp;quot;json&amp;quot;&lt;/span&gt; &lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="n"&gt;json&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;loads&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;packet&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt; &lt;span class="p"&gt;})&lt;/span&gt;
+        &lt;span class="n"&gt;packet&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;redisStream&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;brpop&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s2"&gt;&amp;quot;redisList&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;  &lt;span class="n"&gt;timeout&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="mi"&gt;0&lt;/span&gt;&lt;span class="p"&gt;)[&lt;/span&gt;&lt;span class="mi"&gt;1&lt;/span&gt;&lt;span class="p"&gt;]&lt;/span&gt;
+        &lt;span class="n"&gt;newStreamObject&lt;/span&gt;&lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="s2"&gt;&amp;quot;rows&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;]&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;append&lt;/span&gt;&lt;span class="p"&gt;({&lt;/span&gt;&lt;span class="s2"&gt;&amp;quot;json&amp;quot;&lt;/span&gt; &lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="n"&gt;json&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;loads&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;packet&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt; &lt;span class="p"&gt;})&lt;/span&gt;
         &lt;span class="n"&gt;currentCounter&lt;/span&gt; &lt;span class="o"&gt;+=&lt;/span&gt;  &lt;span class="mi"&gt;1&lt;/span&gt;
 
     &lt;span class="k"&gt;return&lt;/span&gt; &lt;span class="n"&gt;newStreamObject&lt;/span&gt;
-&lt;span class="c"&gt;#[END]&lt;/span&gt;
+&lt;span class="c1"&gt;#[END]&lt;/span&gt;
 
 
-&lt;span class="c"&gt;# [START Streaming Utility]&lt;/span&gt;
+&lt;span class="c1"&gt;# [START Streaming Utility]&lt;/span&gt;
 &lt;span class="k"&gt;def&lt;/span&gt; &lt;span class="nf"&gt;streamUtils&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;bigquery&lt;/span&gt;&lt;span class="p"&gt;):&lt;/span&gt;
     &lt;span class="n"&gt;tabledata&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;bigquery&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;tabledata&lt;/span&gt;&lt;span class="p"&gt;()&lt;/span&gt;
 
-    &lt;span class="c"&gt;#Run infinitely&lt;/span&gt;
+    &lt;span class="c1"&gt;#Run infinitely&lt;/span&gt;
     &lt;span class="k"&gt;while&lt;/span&gt; &lt;span class="bp"&gt;True&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;
         &lt;span class="n"&gt;streamBuildBatch&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;streamBuilder&lt;/span&gt;&lt;span class="p"&gt;()&lt;/span&gt;
 
-        &lt;span class="c"&gt;#BQ API to insert bulk data into table&lt;/span&gt;
-        &lt;span class="n"&gt;insertStatusObject&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;tabledata&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;insertAll&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;projectId&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="s"&gt;&amp;#39;mimetic-slate&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; \
-        &lt;span class="n"&gt;datasetId&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="s"&gt;&amp;#39;BQ_Dataset&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;tableId&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="s"&gt;&amp;#39;StreamTable&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; \
+        &lt;span class="c1"&gt;#BQ API to insert bulk data into table&lt;/span&gt;
+        &lt;span class="n"&gt;insertStatusObject&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;tabledata&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;insertAll&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;projectId&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="s1"&gt;&amp;#39;mimetic-slate&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; \
+        &lt;span class="n"&gt;datasetId&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="s1"&gt;&amp;#39;BQ_Dataset&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;tableId&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="s1"&gt;&amp;#39;StreamTable&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; \
         &lt;span class="n"&gt;body&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="n"&gt;streamBuildBatch&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;execute&lt;/span&gt;&lt;span class="p"&gt;()&lt;/span&gt;
 
 
-&lt;span class="c"&gt;# [ MAIN]&lt;/span&gt;
+&lt;span class="c1"&gt;# [ MAIN]&lt;/span&gt;
 &lt;span class="k"&gt;def&lt;/span&gt; &lt;span class="nf"&gt;main&lt;/span&gt;&lt;span class="p"&gt;():&lt;/span&gt;
     &lt;span class="n"&gt;credentials&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;GoogleCredentials&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;get_application_default&lt;/span&gt;&lt;span class="p"&gt;()&lt;/span&gt;
-    &lt;span class="c"&gt;# Construct the service object for interacting with the BigQuery API.&lt;/span&gt;
-    &lt;span class="n"&gt;bigquery&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;discovery&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;build&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s"&gt;&amp;#39;bigquery&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="s"&gt;&amp;#39;v2&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;credentials&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="n"&gt;credentials&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+    &lt;span class="c1"&gt;# Construct the service object for interacting with the BigQuery API.&lt;/span&gt;
+    &lt;span class="n"&gt;bigquery&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;discovery&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;build&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s1"&gt;&amp;#39;bigquery&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="s1"&gt;&amp;#39;v2&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;credentials&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="n"&gt;credentials&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
 
-    &lt;span class="c"&gt;#Stream utility&lt;/span&gt;
+    &lt;span class="c1"&gt;#Stream utility&lt;/span&gt;
     &lt;span class="n"&gt;streamUtils&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;bigquery&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
-&lt;span class="c"&gt;# [END]&lt;/span&gt;
+&lt;span class="c1"&gt;# [END]&lt;/span&gt;
 
 
-&lt;span class="k"&gt;if&lt;/span&gt; &lt;span class="n"&gt;__name__&lt;/span&gt; &lt;span class="o"&gt;==&lt;/span&gt; &lt;span class="s"&gt;&amp;#39;__main__&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;
+&lt;span class="k"&gt;if&lt;/span&gt; &lt;span class="vm"&gt;__name__&lt;/span&gt; &lt;span class="o"&gt;==&lt;/span&gt; &lt;span class="s1"&gt;&amp;#39;__main__&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;
     &lt;span class="n"&gt;main&lt;/span&gt;&lt;span class="p"&gt;()&lt;/span&gt;
 &lt;/pre&gt;&lt;/div&gt;
 &lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
@@ -570,7 +570,7 @@ We are going to use &lt;code&gt;python&lt;/code&gt; as our programming language.
 &lt;p&gt;Above program is going to read redis running on &lt;code&gt;127.0.0.1:6379&lt;/code&gt; from list name &lt;strong&gt;&lt;code&gt;redisList&lt;/code&gt;&lt;/strong&gt; and build a dict object &lt;strong&gt;&lt;code&gt;streamObject&lt;/code&gt;&lt;/strong&gt; that is accepted by bq streaming API. We are calling &lt;strong&gt;&lt;code&gt;insertAll&lt;/code&gt;&lt;/strong&gt; utility to submit our streaming request to bigquery API.&lt;/p&gt;
 &lt;p&gt;&lt;strong&gt;&lt;code&gt;insertAll&lt;/code&gt;&lt;/strong&gt; takes &lt;strong&gt;&lt;code&gt;projectId, datasetId, tableId&lt;/code&gt;&lt;/strong&gt; as an argument and &lt;strong&gt;&lt;code&gt;body&lt;/code&gt;&lt;/strong&gt; which contains your data to be streamed.&lt;/p&gt;
 &lt;p&gt;Script has been configured to &lt;a href="https://redis.io/commands/brpop"&gt;pop&lt;/a&gt; &lt;code&gt;100 entries&lt;/code&gt; from redis list and prepare it to be pushed into table. Run &lt;strong&gt;&lt;code&gt;bq-streamer.py&lt;/code&gt;&lt;/strong&gt; script to start streaming data into bigquery table.&lt;/p&gt;
-&lt;div class="highlight"&gt;&lt;pre&gt;#when bulk data is prepared, JSON payload in body argument would look like
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;#when bulk data is prepared, JSON payload in body argument would look like
 {
     &amp;quot;rows&amp;quot;: [
         {
@@ -620,7 +620,7 @@ We are going to use &lt;code&gt;python&lt;/code&gt; as our programming language.
 &lt;p&gt;&lt;br&gt;&lt;/p&gt;
 &lt;h3&gt;SQL Query in BQ Table&lt;/h3&gt;
 &lt;p&gt;We are going to run a simple query to show the output that shows your streamed data.&lt;/p&gt;
-&lt;div class="highlight"&gt;&lt;pre&gt;SELECT * FROM [mimetic-slate:BQ_Dataset.StreamTable]
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;SELECT * FROM [mimetic-slate:BQ_Dataset.StreamTable]
 &lt;/pre&gt;&lt;/div&gt;
 
 
@@ -661,12 +661,12 @@ We are going to use &lt;code&gt;python&lt;/code&gt; as our programming language.
 &lt;p&gt;&lt;img alt="MongoDB" src="/images/bq-series/part1/mongo-db-blog.jpeg"&gt;&lt;/p&gt;
 &lt;p&gt;In this example, i have a database in mongoDB server with name &lt;code&gt;restaurantdb&lt;/code&gt; with collection name &lt;code&gt;restaurantCollection&lt;/code&gt;. We are going to export using &lt;code&gt;mongoexport&lt;/code&gt; binary available with mongodb server tools.&lt;/p&gt;
 &lt;p&gt;&lt;img alt="MongoDB server" src="/images/bq-series/part1/mongoexport.png"&gt;&lt;/p&gt;
-&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="nv"&gt;$ &lt;/span&gt;mongoexport -d restaurantdb -c restaurantCollection -o restaurant.json
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;$ mongoexport -d restaurantdb -c restaurantCollection -o restaurant.json
 &lt;/pre&gt;&lt;/div&gt;
 
 
 &lt;p&gt;Once export is done, we can see content of &lt;code&gt;restaurant.json&lt;/code&gt; file&lt;/p&gt;
-&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="nv"&gt;$ &lt;/span&gt;head -n &lt;span class="m"&gt;1&lt;/span&gt; restaurant.json
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;$ head -n &lt;span class="m"&gt;1&lt;/span&gt; restaurant.json
 
 &lt;span class="o"&gt;{&lt;/span&gt; &lt;span class="s2"&gt;&amp;quot;_id&amp;quot;&lt;/span&gt; : &lt;span class="o"&gt;{&lt;/span&gt; &lt;span class="s2"&gt;&amp;quot;&lt;/span&gt;&lt;span class="nv"&gt;$oid&lt;/span&gt;&lt;span class="s2"&gt;&amp;quot;&lt;/span&gt; : &lt;span class="s2"&gt;&amp;quot;55f14312c7447c3da7051b26&amp;quot;&lt;/span&gt; &lt;span class="o"&gt;}&lt;/span&gt;, &lt;span class="se"&gt;\&lt;/span&gt;
     &lt;span class="s2"&gt;&amp;quot;URL&amp;quot;&lt;/span&gt; : &lt;span class="s2"&gt;&amp;quot;http://www.just-eat.co.uk/restaurants-cn-chinese-cardiff/menu&amp;quot;&lt;/span&gt;, &lt;span class="se"&gt;\&lt;/span&gt;
@@ -692,11 +692,11 @@ We are going to use &lt;code&gt;python&lt;/code&gt; as our programming language.
 &lt;p&gt;&lt;br&gt;&lt;/p&gt;
 &lt;h4&gt;2. Prepare schema for Table&lt;/h4&gt;
 &lt;p&gt;Now we have our data ready in json format to be imported into BQ table. We need schema to design in order to import these records. Schema is skeleton of each field with datatype and the field not described in schema will not be imported. We have given all fields as &lt;strong&gt;NULLABLE&lt;/strong&gt; ie, if field didn't came in any records BQ will define null value.&lt;/p&gt;
-&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="nv"&gt;$ &lt;/span&gt;cat restaurantSchema.json
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;$ cat restaurantSchema.json
 &lt;/pre&gt;&lt;/div&gt;
 
 
-&lt;div class="highlight"&gt;&lt;pre&gt;[
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;[
     {
         &amp;quot;name&amp;quot;: &amp;quot;name&amp;quot;,
         &amp;quot;type&amp;quot;: &amp;quot;STRING&amp;quot;,
@@ -738,9 +738,9 @@ We are going to use &lt;code&gt;python&lt;/code&gt; as our programming language.
 &lt;p&gt;We have schema, data ready to be imported in BQ, but in order to talk to APIs of GCP services, we need Cloud SDK to be installed in our system. We are going to use &lt;code&gt;gcloud&lt;/code&gt; CLI tools in order to interact with our Cloud services running in GCP.&lt;/p&gt;
 &lt;p&gt;&lt;strong&gt;Installation : &lt;/strong&gt; &lt;a href="https://cloud.google.com/sdk/"&gt;https://cloud.google.com/sdk/&lt;/a&gt;&lt;/p&gt;
 &lt;p&gt;Once installation is done, run following command to verify account setup.&lt;/p&gt;
-&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="nv"&gt;$ &lt;/span&gt;gcloud auth list
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;$ gcloud auth list
 
-&lt;span class="nv"&gt;$ &lt;/span&gt;gcloud config list
+$ gcloud config list
 &lt;/pre&gt;&lt;/div&gt;
 
 
@@ -761,10 +761,10 @@ We are going to use &lt;code&gt;python&lt;/code&gt; as our programming language.
 &lt;blockquote&gt;
 &lt;p&gt;To create dataset through &lt;code&gt;bq&lt;/code&gt; command line interface.&lt;/p&gt;
 &lt;/blockquote&gt;
-&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="nv"&gt;$ &lt;/span&gt;bq mk -d --data_location&lt;span class="o"&gt;=&lt;/span&gt;US   BQ_Dataset
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;$ bq mk -d --data_location&lt;span class="o"&gt;=&lt;/span&gt;US   BQ_Dataset
 
 // Verify your dataset creation
-&lt;span class="nv"&gt;$ &lt;/span&gt;bq ls
+$ bq ls
 
     datasetId
  ----------------
@@ -777,7 +777,7 @@ We are going to use &lt;code&gt;python&lt;/code&gt; as our programming language.
 &lt;p&gt;&lt;br&gt;&lt;/p&gt;
 &lt;h4&gt;5. Load data into BigQuery&lt;/h4&gt;
 &lt;p&gt;Now, my directory consists two files ie, data and schema.&lt;/p&gt;
-&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="nv"&gt;$ &lt;/span&gt;tree
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;$ tree
 .
 ├── restaurant.json
 └── restaurantSchema.json
@@ -787,7 +787,7 @@ We are going to use &lt;code&gt;python&lt;/code&gt; as our programming language.
 
 
 &lt;p&gt;Run command to load data into BQ.  Once you submit load job, it will take seconds to minute depends on size of data you are importing into BQ table.&lt;/p&gt;
-&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="n"&gt;Ex&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt; &lt;span class="n"&gt;bq&lt;/span&gt; &lt;span class="n"&gt;load&lt;/span&gt; &lt;span class="o"&gt;--&lt;/span&gt;&lt;span class="n"&gt;project_id&lt;/span&gt;&lt;span class="o"&gt;=&amp;lt;&lt;/span&gt;&lt;span class="n"&gt;PROJECT&lt;/span&gt;&lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="n"&gt;ID&lt;/span&gt;&lt;span class="o"&gt;&amp;gt;&lt;/span&gt; &lt;span class="o"&gt;--&lt;/span&gt;&lt;span class="n"&gt;source_format&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="n"&gt;NEWLINE_DELIMITED_JSON&lt;/span&gt; &lt;span class="o"&gt;\&lt;/span&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="n"&gt;Ex&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt; &lt;span class="n"&gt;bq&lt;/span&gt; &lt;span class="n"&gt;load&lt;/span&gt; &lt;span class="o"&gt;--&lt;/span&gt;&lt;span class="n"&gt;project_id&lt;/span&gt;&lt;span class="o"&gt;=&amp;lt;&lt;/span&gt;&lt;span class="n"&gt;PROJECT&lt;/span&gt;&lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="n"&gt;ID&lt;/span&gt;&lt;span class="o"&gt;&amp;gt;&lt;/span&gt; &lt;span class="o"&gt;--&lt;/span&gt;&lt;span class="n"&gt;source_format&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="n"&gt;NEWLINE_DELIMITED_JSON&lt;/span&gt; &lt;span class="o"&gt;\&lt;/span&gt;
     &lt;span class="n"&gt;mydataset&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="na"&gt;mytable&lt;/span&gt; &lt;span class="o"&gt;./&lt;/span&gt;&lt;span class="n"&gt;myfile&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="na"&gt;json&lt;/span&gt; &lt;span class="o"&gt;./&lt;/span&gt;&lt;span class="n"&gt;myschema&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="na"&gt;json&lt;/span&gt;
 
 &lt;span class="n"&gt;$&lt;/span&gt; &lt;span class="n"&gt;bq&lt;/span&gt; &lt;span class="n"&gt;load&lt;/span&gt; &lt;span class="o"&gt;--&lt;/span&gt;&lt;span class="n"&gt;project_id&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="n"&gt;mimetic&lt;/span&gt;&lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="n"&gt;slate&lt;/span&gt;   &lt;span class="o"&gt;\&lt;/span&gt;
@@ -804,7 +804,7 @@ We are going to use &lt;code&gt;python&lt;/code&gt; as our programming language.
 &lt;p&gt;Another methods to import the data through &lt;code&gt;Cloud Storage&lt;/code&gt;, this method is lot faster compared to above one.&lt;/p&gt;
 &lt;/blockquote&gt;
 &lt;p&gt;&lt;strong&gt;Read : &lt;/strong&gt; &lt;a href="https://cloud.google.com/storage/docs/creating-buckets"&gt;https://cloud.google.com/storage/docs/creating-buckets&lt;/a&gt;&lt;/p&gt;
-&lt;div class="highlight"&gt;&lt;pre&gt;//to create Cloud storage bucket for this example.
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;//to create Cloud storage bucket for this example.
 $ gsutil mb  gs://bq-storage
 
 //to verify bucket creation
@@ -814,13 +814,13 @@ gs://bq-storage/
 
 
 &lt;p&gt;Now , we will upload our data &lt;code&gt;restaurant.json&lt;/code&gt; to storage in bucket &lt;code&gt;gs://bq-storage/&lt;/code&gt;&lt;/p&gt;
-&lt;div class="highlight"&gt;&lt;pre&gt;//Run command to upload
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;//Run command to upload
 $ gsutil cp restaurant.json gs://bq-storage/restaurant.json
 &lt;/pre&gt;&lt;/div&gt;
 
 
 &lt;p&gt;Now, we can use storage path of object to import into BQ tables.&lt;/p&gt;
-&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="nv"&gt;$ &lt;/span&gt;bq load --project_id&lt;span class="o"&gt;=&lt;/span&gt;mimetic-slate  &lt;span class="se"&gt;\&lt;/span&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;$ bq load --project_id&lt;span class="o"&gt;=&lt;/span&gt;mimetic-slate  &lt;span class="se"&gt;\&lt;/span&gt;
     --source_format&lt;span class="o"&gt;=&lt;/span&gt;NEWLINE_DELIMITED_JSON --max_bad_records &lt;span class="m"&gt;10&lt;/span&gt;  &lt;span class="se"&gt;\&lt;/span&gt;
     BQ_Dataset.Restaurant &lt;span class="se"&gt;\&lt;/span&gt;
     gs://bq-storage/restaurant.json ./restaurantSchema.json
@@ -830,7 +830,7 @@ $ gsutil cp restaurant.json gs://bq-storage/restaurant.json
 &lt;p&gt;&lt;br&gt;
 &lt;br&gt;&lt;/p&gt;
 &lt;p&gt;After &lt;code&gt;bq load&lt;/code&gt; finished, run following command to verify the table creation.&lt;/p&gt;
-&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="nv"&gt;$ &lt;/span&gt;bq show BQ_Dataset.Restaurant
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;$ bq show BQ_Dataset.Restaurant
 &lt;/pre&gt;&lt;/div&gt;
 
 
@@ -847,7 +847,7 @@ $ gsutil cp restaurant.json gs://bq-storage/restaurant.json
 &lt;br&gt;&lt;/p&gt;
 &lt;h3&gt;SQL Query in BQ Table&lt;/h3&gt;
 &lt;p&gt;We are going to run a simple query to show the output.&lt;/p&gt;
-&lt;div class="highlight"&gt;&lt;pre&gt;SELECT
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;SELECT
   name,
   address
 FROM
@@ -898,23 +898,23 @@ and appliances&lt;/li&gt;
 &lt;h3&gt;Install a Desktop and VNC Server on Ubtunu 14.04&lt;/h3&gt;
 &lt;h4&gt;Step 1 - Install Ubuntu desktop&lt;/h4&gt;
 &lt;p&gt;Start installing below &lt;em&gt;gnome packages&lt;/em&gt; which helps VNC to load properly . These packages are required for all editions including &lt;em&gt;ubuntu desktop&lt;/em&gt; .&lt;/p&gt;
-&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="nv"&gt;$ &lt;/span&gt;sudo apt-get install --no-install-recommends ubuntu-desktop gnome-panel gnome-settings-daemon metacity nautilus gnome-terminal gnome-core
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;$ sudo apt-get install --no-install-recommends ubuntu-desktop gnome-panel gnome-settings-daemon metacity nautilus gnome-terminal gnome-core
 &lt;/pre&gt;&lt;/div&gt;
 
 
 &lt;h4&gt;Step 2 - Install vnc4server package.&lt;/h4&gt;
-&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="nv"&gt;$ &lt;/span&gt;sudo apt-get install vnc4server
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;$ sudo apt-get install vnc4server
 &lt;/pre&gt;&lt;/div&gt;
 
 
 &lt;h4&gt;Step 3 - Make configuration changes in vncserver&lt;/h4&gt;
 &lt;p&gt;Open &lt;code&gt;/usr/bin/vncserver&lt;/code&gt; file and edit as follows . Before editing, make a backup copy.&lt;/p&gt;
-&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="nv"&gt;$ &lt;/span&gt;sudo cp /usr/bin/vncserver /usr/bin/vncserver.bkp
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;$ sudo cp /usr/bin/vncserver /usr/bin/vncserver.bkp
 
-&lt;span class="nv"&gt;$ &lt;/span&gt;sudo vim /usr/bin/vncserver
+$ sudo vim /usr/bin/vncserver
 
-&lt;span class="c"&gt;#Find this line &amp;quot;# exec /etc/X11/xinit/xinitrcnn&amp;quot;.&lt;/span&gt;
-&lt;span class="c"&gt;#and add these lines like below&lt;/span&gt;
+&lt;span class="c1"&gt;#Find this line &amp;quot;# exec /etc/X11/xinit/xinitrcnn&amp;quot;.&lt;/span&gt;
+&lt;span class="c1"&gt;#and add these lines like below&lt;/span&gt;
 
     &lt;span class="s2"&gt;&amp;quot;# exec /etc/X11/xinit/xinitrcnn&amp;quot;&lt;/span&gt;.
        &lt;span class="s2"&gt;&amp;quot;gnome-panel &amp;amp;n&amp;quot;&lt;/span&gt;.
@@ -927,7 +927,7 @@ and appliances&lt;/li&gt;
 
 &lt;h4&gt;Step 4 - Start your vncserver&lt;/h4&gt;
 &lt;p&gt;Now type the command &lt;code&gt;vncserver&lt;/code&gt; to start VNC session. you will be prompted for creating new vnc password.&lt;/p&gt;
-&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="nv"&gt;$ &lt;/span&gt;vncserver
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;$ vncserver
 You will require a password to access your desktops through VNC Clients.
 Password:******
 Verify:******
@@ -941,11 +941,11 @@ Log file is /root/.vnc/ubuntu-desktop:1.log
 
 
 &lt;h4&gt;Step 5 - To check VNC server has started, follow&lt;/h4&gt;
-&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="nv"&gt;$ &lt;/span&gt;netstat -tulpn
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;$ netstat -tulpn
 
 Proto Recv-Q Send-Q Local Address           Foreign Address         State       PID/Program name
-tcp        &lt;span class="m"&gt;0&lt;/span&gt;      &lt;span class="m"&gt;0&lt;/span&gt; 0.0.0.0:6001            0.0.0.0:*               LISTEN      28372/Xvnc4
-tcp6       &lt;span class="m"&gt;0&lt;/span&gt;      &lt;span class="m"&gt;0&lt;/span&gt; :::5901                 :::*                    LISTEN      28372/Xvnc4
+tcp        &lt;span class="m"&gt;0&lt;/span&gt;      &lt;span class="m"&gt;0&lt;/span&gt; &lt;span class="m"&gt;0&lt;/span&gt;.0.0.0:6001            &lt;span class="m"&gt;0&lt;/span&gt;.0.0.0:*               LISTEN      &lt;span class="m"&gt;28372&lt;/span&gt;/Xvnc4
+tcp6       &lt;span class="m"&gt;0&lt;/span&gt;      &lt;span class="m"&gt;0&lt;/span&gt; :::5901                 :::*                    LISTEN      &lt;span class="m"&gt;28372&lt;/span&gt;/Xvnc4
 &lt;/pre&gt;&lt;/div&gt;
 
 
@@ -954,17 +954,17 @@ tcp6       &lt;span class="m"&gt;0&lt;/span&gt;      &lt;span class="m"&gt;0&lt;
 &lt;/blockquote&gt;
 &lt;h4&gt;Step 6 - Configure your Firewall&lt;/h4&gt;
 &lt;p&gt;If &lt;strong&gt;firewall&lt;/strong&gt; is active, you need to open ports for inbound communication. If no firewall is enabled, you can skip this section.&lt;/p&gt;
-&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="c"&gt;#allow SSH&lt;/span&gt;
-&lt;span class="nv"&gt;$ &lt;/span&gt;sudo ufw allow OpenSSH
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="c1"&gt;#allow SSH&lt;/span&gt;
+$ sudo ufw allow OpenSSH
 
-&lt;span class="c"&gt;#allowing single port 5901 port&lt;/span&gt;
-&lt;span class="nv"&gt;$ &lt;/span&gt;sudo ufw allow 5901/tcp
+&lt;span class="c1"&gt;#allowing single port 5901 port&lt;/span&gt;
+$ sudo ufw allow &lt;span class="m"&gt;5901&lt;/span&gt;/tcp
 
-&lt;span class="c"&gt;#To allow series of port 5901 - 5910, follow&lt;/span&gt;
-&lt;span class="nv"&gt;$ &lt;/span&gt;sudo ufw allow 5901:5910/tcp
+&lt;span class="c1"&gt;#To allow series of port 5901 - 5910, follow&lt;/span&gt;
+$ sudo ufw allow &lt;span class="m"&gt;5901&lt;/span&gt;:5910/tcp
 
-&lt;span class="c"&gt;#To check firewall rules&lt;/span&gt;
-&lt;span class="nv"&gt;$ &lt;/span&gt;sudo  ufw status verbose
+&lt;span class="c1"&gt;#To check firewall rules&lt;/span&gt;
+$ sudo  ufw status verbose
 
 Status: active
 Logging: on &lt;span class="o"&gt;(&lt;/span&gt;low&lt;span class="o"&gt;)&lt;/span&gt;
@@ -973,10 +973,10 @@ New profiles: skip
 
 To                         Action      From
 --                         ------      ----
-22/tcp &lt;span class="o"&gt;(&lt;/span&gt;OpenSSH&lt;span class="o"&gt;)&lt;/span&gt;           ALLOW IN    Anywhere
-5901:5910/tcp              ALLOW IN    Anywhere
-22/tcp &lt;span class="o"&gt;(&lt;/span&gt;OpenSSH &lt;span class="o"&gt;(&lt;/span&gt;v6&lt;span class="o"&gt;))&lt;/span&gt;      ALLOW IN    Anywhere &lt;span class="o"&gt;(&lt;/span&gt;v6&lt;span class="o"&gt;)&lt;/span&gt;
-5901:5910/tcp &lt;span class="o"&gt;(&lt;/span&gt;v6&lt;span class="o"&gt;)&lt;/span&gt;         ALLOW IN    Anywhere &lt;span class="o"&gt;(&lt;/span&gt;v6&lt;span class="o"&gt;)&lt;/span&gt;WW
+&lt;span class="m"&gt;22&lt;/span&gt;/tcp &lt;span class="o"&gt;(&lt;/span&gt;OpenSSH&lt;span class="o"&gt;)&lt;/span&gt;           ALLOW IN    Anywhere
+&lt;span class="m"&gt;5901&lt;/span&gt;:5910/tcp              ALLOW IN    Anywhere
+&lt;span class="m"&gt;22&lt;/span&gt;/tcp &lt;span class="o"&gt;(&lt;/span&gt;OpenSSH &lt;span class="o"&gt;(&lt;/span&gt;v6&lt;span class="o"&gt;))&lt;/span&gt;      ALLOW IN    Anywhere &lt;span class="o"&gt;(&lt;/span&gt;v6&lt;span class="o"&gt;)&lt;/span&gt;
+&lt;span class="m"&gt;5901&lt;/span&gt;:5910/tcp &lt;span class="o"&gt;(&lt;/span&gt;v6&lt;span class="o"&gt;)&lt;/span&gt;         ALLOW IN    Anywhere &lt;span class="o"&gt;(&lt;/span&gt;v6&lt;span class="o"&gt;)&lt;/span&gt;WW
 &lt;/pre&gt;&lt;/div&gt;
 
 
@@ -1050,7 +1050,7 @@ To                         Action      From
 &lt;p&gt;Writing optimized Dockerfile, understanding order of commands. Each command that we run in Dockerfile is executed as a layer and subsequent command will be build on top of previous layer. Each layer is managed in cache by Docker tool. Docker manages cache itself to reuse layer of previously build Docker images to save time &amp;amp; disk.&lt;/p&gt;
 &lt;/li&gt;
 &lt;/ul&gt;
-&lt;div class="highlight"&gt;&lt;pre&gt;I have three file in my directory named &amp;#39;flask&amp;#39; :
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;I have three file in my directory named &amp;#39;flask&amp;#39; :
 ➜  flask
 
 ── app.py
@@ -1059,30 +1059,30 @@ To                         Action      From
 &lt;/pre&gt;&lt;/div&gt;
 
 
-&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="c"&gt;##### cat app.py&lt;/span&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="c1"&gt;##### cat app.py&lt;/span&gt;
 
 &lt;span class="kn"&gt;from&lt;/span&gt; &lt;span class="nn"&gt;flask&lt;/span&gt; &lt;span class="kn"&gt;import&lt;/span&gt; &lt;span class="n"&gt;Flask&lt;/span&gt;
-&lt;span class="c"&gt;#from flask import render_template, request&lt;/span&gt;
+&lt;span class="c1"&gt;#from flask import render_template, request&lt;/span&gt;
 &lt;span class="kn"&gt;import&lt;/span&gt; &lt;span class="nn"&gt;json&lt;/span&gt;
 
-&lt;span class="n"&gt;app&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;Flask&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;__name__&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;span class="n"&gt;app&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;Flask&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="vm"&gt;__name__&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
 
-&lt;span class="nd"&gt;@app.route&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s"&gt;&amp;quot;/&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;span class="nd"&gt;@app.route&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s2"&gt;&amp;quot;/&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
 &lt;span class="k"&gt;def&lt;/span&gt; &lt;span class="nf"&gt;hello&lt;/span&gt;&lt;span class="p"&gt;():&lt;/span&gt;
-    &lt;span class="k"&gt;return&lt;/span&gt; &lt;span class="s"&gt;&amp;quot;Welcome to Python Flask!&lt;/span&gt;&lt;span class="se"&gt;\n&lt;/span&gt;&lt;span class="s"&gt;&amp;quot;&lt;/span&gt;
+    &lt;span class="k"&gt;return&lt;/span&gt; &lt;span class="s2"&gt;&amp;quot;Welcome to Python Flask!&lt;/span&gt;&lt;span class="se"&gt;\n&lt;/span&gt;&lt;span class="s2"&gt;&amp;quot;&lt;/span&gt;
 
-&lt;span class="k"&gt;if&lt;/span&gt; &lt;span class="n"&gt;__name__&lt;/span&gt; &lt;span class="o"&gt;==&lt;/span&gt; &lt;span class="s"&gt;&amp;quot;__main__&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;
-    &lt;span class="n"&gt;app&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;run&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;host&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="s"&gt;&amp;#39;0.0.0.0&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;port&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="s"&gt;&amp;#39;5009&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;span class="k"&gt;if&lt;/span&gt; &lt;span class="vm"&gt;__name__&lt;/span&gt; &lt;span class="o"&gt;==&lt;/span&gt; &lt;span class="s2"&gt;&amp;quot;__main__&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;
+    &lt;span class="n"&gt;app&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;run&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;host&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="s1"&gt;&amp;#39;0.0.0.0&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;port&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="s1"&gt;&amp;#39;5009&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
 &lt;/pre&gt;&lt;/div&gt;
 
 
-&lt;div class="highlight"&gt;&lt;pre&gt;###### cat requirement.txt
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;###### cat requirement.txt
 
 Flask==0.10.1
 &lt;/pre&gt;&lt;/div&gt;
 
 
-&lt;div class="highlight"&gt;&lt;pre&gt;###### cat Dockerfile
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;###### cat Dockerfile
 
 FROM frolvlad/alpine-python2
 
@@ -1099,7 +1099,7 @@ CMD [&amp;quot;python&amp;quot;, &amp;quot;/etc/flask/app.py&amp;quot;]
 &lt;blockquote&gt;
 &lt;p&gt;Lets build our docker image with name &lt;strong&gt;flask-v1&lt;/strong&gt;&lt;/p&gt;
 &lt;/blockquote&gt;
-&lt;div class="highlight"&gt;&lt;pre&gt;➜  docker build -t flask-v1 .
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;➜  docker build -t flask-v1 .
 
 Sending build context to Docker daemon 4.096 kB
 
@@ -1134,31 +1134,31 @@ Successfully built a081e6cbcf3c
 
 
 &lt;p&gt;Now, we have made some modification in &lt;strong&gt;app.py&lt;/strong&gt;&lt;/p&gt;
-&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="c"&gt;##### cat app.py&lt;/span&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="c1"&gt;##### cat app.py&lt;/span&gt;
 
 &lt;span class="kn"&gt;from&lt;/span&gt; &lt;span class="nn"&gt;flask&lt;/span&gt; &lt;span class="kn"&gt;import&lt;/span&gt; &lt;span class="n"&gt;Flask&lt;/span&gt;
-&lt;span class="c"&gt;#from flask import render_template, request&lt;/span&gt;
+&lt;span class="c1"&gt;#from flask import render_template, request&lt;/span&gt;
 &lt;span class="kn"&gt;import&lt;/span&gt; &lt;span class="nn"&gt;json&lt;/span&gt;
 
-&lt;span class="n"&gt;app&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;Flask&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;__name__&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;span class="n"&gt;app&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;Flask&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="vm"&gt;__name__&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
 
-&lt;span class="nd"&gt;@app.route&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s"&gt;&amp;quot;/&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;span class="nd"&gt;@app.route&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s2"&gt;&amp;quot;/&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
 &lt;span class="k"&gt;def&lt;/span&gt; &lt;span class="nf"&gt;hello&lt;/span&gt;&lt;span class="p"&gt;():&lt;/span&gt;
-    &lt;span class="k"&gt;return&lt;/span&gt; &lt;span class="s"&gt;&amp;quot;Welcome to Python Flask!&lt;/span&gt;&lt;span class="se"&gt;\n&lt;/span&gt;&lt;span class="s"&gt;&amp;quot;&lt;/span&gt;
+    &lt;span class="k"&gt;return&lt;/span&gt; &lt;span class="s2"&gt;&amp;quot;Welcome to Python Flask!&lt;/span&gt;&lt;span class="se"&gt;\n&lt;/span&gt;&lt;span class="s2"&gt;&amp;quot;&lt;/span&gt;
 
-&lt;span class="c"&gt;#Added utility&lt;/span&gt;
+&lt;span class="c1"&gt;#Added utility&lt;/span&gt;
 &lt;span class="k"&gt;def&lt;/span&gt; &lt;span class="nf"&gt;utility&lt;/span&gt;&lt;span class="p"&gt;():&lt;/span&gt;
-    &lt;span class="k"&gt;return&lt;/span&gt; &lt;span class="s"&gt;&amp;quot;something&amp;quot;&lt;/span&gt;
+    &lt;span class="k"&gt;return&lt;/span&gt; &lt;span class="s2"&gt;&amp;quot;something&amp;quot;&lt;/span&gt;
 
-&lt;span class="k"&gt;if&lt;/span&gt; &lt;span class="n"&gt;__name__&lt;/span&gt; &lt;span class="o"&gt;==&lt;/span&gt; &lt;span class="s"&gt;&amp;quot;__main__&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;
-    &lt;span class="n"&gt;app&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;run&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;host&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="s"&gt;&amp;#39;0.0.0.0&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;port&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="s"&gt;&amp;#39;5009&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;span class="k"&gt;if&lt;/span&gt; &lt;span class="vm"&gt;__name__&lt;/span&gt; &lt;span class="o"&gt;==&lt;/span&gt; &lt;span class="s2"&gt;&amp;quot;__main__&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;
+    &lt;span class="n"&gt;app&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;run&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;host&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="s1"&gt;&amp;#39;0.0.0.0&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;port&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="s1"&gt;&amp;#39;5009&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
 &lt;/pre&gt;&lt;/div&gt;
 
 
 &lt;blockquote&gt;
 &lt;p&gt;Lets build our docker image with name &lt;strong&gt;flask-v2&lt;/strong&gt;&lt;/p&gt;
 &lt;/blockquote&gt;
-&lt;div class="highlight"&gt;&lt;pre&gt;➜  docker build -t flask-v2 .
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;➜  docker build -t flask-v2 .
 
 Sending build context to Docker daemon 4.096 kB
 
@@ -1188,7 +1188,7 @@ Successfully built 0f4a5754f0d0
 
 &lt;p&gt;You will see only &lt;em&gt;step-2&lt;/em&gt; was taken from cache, rest of the instructions ran again because change has been detected by Docker on &lt;em&gt;step-3&lt;/em&gt; command ie, &lt;code&gt;ADD app.py&lt;/code&gt; , so all subsequent commands ran again to build layer on top of previous layer.&lt;/p&gt;
 &lt;p&gt;Now we have made changes in &lt;code&gt;Dockerfile&lt;/code&gt;, some reorder of commands.&lt;/p&gt;
-&lt;div class="highlight"&gt;&lt;pre&gt;# cat Dockerfile
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;# cat Dockerfile
 
 FROM frolvlad/alpine-python2
 
@@ -1205,7 +1205,7 @@ CMD [&amp;quot;python&amp;quot;, &amp;quot;/etc/flask/app.py&amp;quot;]
 &lt;blockquote&gt;
 &lt;p&gt;Lets build our docker image with name &lt;strong&gt;flask-v3&lt;/strong&gt; and lets see build console.&lt;/p&gt;
 &lt;/blockquote&gt;
-&lt;div class="highlight"&gt;&lt;pre&gt;➜  flask docker build -t flask-v3 .
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;➜  flask docker build -t flask-v3 .
 
 Sending build context to Docker daemon 4.096 kB
 
@@ -1279,7 +1279,7 @@ Successfully built e3fae9852d94
 &lt;/ul&gt;
 &lt;/li&gt;
 &lt;/ul&gt;
-&lt;div class="highlight"&gt;&lt;pre&gt;#### cat sample-deployment.yaml
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;#### cat sample-deployment.yaml
 
 apiVersion: apps/v1beta1
 kind: Deployment
@@ -1327,7 +1327,7 @@ spec:
 &lt;div style="text-align: right"&gt;&lt;sub&gt;Service Overview : Images by Kubernetes.io&lt;/sub&gt;&lt;/div&gt;
 
 &lt;p&gt;&lt;img alt="Service overview image" src="/images/kubes/module_04_labels.svg" title="Service Overview"&gt;&lt;/p&gt;
-&lt;div class="highlight"&gt;&lt;pre&gt;###### cat sample-services.yaml
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;###### cat sample-services.yaml
 
 kind: Service
 apiVersion: v1
@@ -1353,50 +1353,50 @@ spec:
 &lt;/ul&gt;
 &lt;/li&gt;
 &lt;/ul&gt;
-&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="x"&gt;-----General Commands&lt;/span&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;-----General Commands
 
-&lt;span class="cp"&gt;##&lt;/span&gt;&lt;span class="c"&gt; To view Nodes in a cluster&lt;/span&gt;&lt;span class="x"&gt;&lt;/span&gt;
-&lt;span class="p"&gt;$&lt;/span&gt;&lt;span class="nv"&gt;kubectl&lt;/span&gt;&lt;span class="x"&gt; get nodes&lt;/span&gt;
+## To view Nodes in a cluster
+$kubectl get nodes
 
-&lt;span class="x"&gt;NAME                                          STATUS    AGE&lt;/span&gt;
-&lt;span class="x"&gt;gke-test-cluster-default-pool-2d123aa1-012f   Ready     2d&lt;/span&gt;
-&lt;span class="x"&gt;gke-test-cluster-default-pool-2d123aa1-e23k   Ready     2d&lt;/span&gt;
-
-
-&lt;span class="cp"&gt;##&lt;/span&gt;&lt;span class="c"&gt; To view the Deployment we created run:&lt;/span&gt;&lt;span class="x"&gt;&lt;/span&gt;
-&lt;span class="p"&gt;$&lt;/span&gt;&lt;span class="x"&gt;    kubectl get deployments&lt;/span&gt;
-
-&lt;span class="x"&gt;NAME         DESIRED   CURRENT   UP-TO-DATE   AVAILABLE   AGE&lt;/span&gt;
-&lt;span class="x"&gt;hello-node   1         1         1            1           3m&lt;/span&gt;
+NAME                                          STATUS    AGE
+gke-test-cluster-default-pool-2d123aa1-012f   Ready     2d
+gke-test-cluster-default-pool-2d123aa1-e23k   Ready     2d
 
 
-&lt;span class="cp"&gt;##&lt;/span&gt;&lt;span class="c"&gt; To view the Pod created by the deployment run:&lt;/span&gt;&lt;span class="x"&gt;&lt;/span&gt;
-&lt;span class="p"&gt;$&lt;/span&gt;&lt;span class="x"&gt;    kubectl get pods&lt;/span&gt;
+## To view the Deployment we created run:
+$    kubectl get deployments
 
-&lt;span class="x"&gt;NAME                         READY     STATUS    RESTARTS   AGE&lt;/span&gt;
-&lt;span class="x"&gt;hello-node-714049816-ztzrb   1/1       Running   0          6m&lt;/span&gt;
-
-
-&lt;span class="cp"&gt;##&lt;/span&gt;&lt;span class="c"&gt; To view the Pod created by the deployment run:&lt;/span&gt;&lt;span class="x"&gt;&lt;/span&gt;
-&lt;span class="p"&gt;$&lt;/span&gt;&lt;span class="x"&gt;    kubectl get pods&lt;/span&gt;
-
-&lt;span class="x"&gt;NAME                         READY     STATUS    RESTARTS   AGE&lt;/span&gt;
-&lt;span class="x"&gt;hello-node-714049816-ztzrb   1/1       Running   0          6m&lt;/span&gt;
-
-&lt;span class="cp"&gt;##&lt;/span&gt;&lt;span class="c"&gt; To view detailed information of the Pod:&lt;/span&gt;&lt;span class="x"&gt;&lt;/span&gt;
-&lt;span class="p"&gt;$&lt;/span&gt;&lt;span class="x"&gt; kubectl get pods -o wide&lt;/span&gt;
-&lt;span class="x"&gt;or&lt;/span&gt;
-&lt;span class="p"&gt;$&lt;/span&gt;&lt;span class="x"&gt; kubectl get pods --output=wide&lt;/span&gt;
-
-&lt;span class="x"&gt;NAME             READY     STATUS    RESTARTS   AGE       IP&lt;/span&gt;
-&lt;span class="x"&gt;dd-agent-0f75g   1/1       Running   0          23d       10.204.5.16&lt;/span&gt;
+NAME         DESIRED   CURRENT   UP-TO-DATE   AVAILABLE   AGE
+hello-node   1         1         1            1           3m
 
 
-&lt;span class="cp"&gt;##&lt;/span&gt;&lt;span class="c"&gt; To view the stdout / stderr from a Pod run:&lt;/span&gt;&lt;span class="x"&gt;&lt;/span&gt;
-&lt;span class="p"&gt;$&lt;/span&gt;&lt;span class="x"&gt;    kubectl logs &amp;lt;POD-NAME&amp;gt;&lt;/span&gt;
+## To view the Pod created by the deployment run:
+$    kubectl get pods
 
-&lt;span class="cp"&gt;##&lt;/span&gt;&lt;span class="c"&gt; To view metadata about the cluster run:&lt;/span&gt;&lt;span class="x"&gt;&lt;/span&gt;
-&lt;span class="p"&gt;$&lt;/span&gt;&lt;span class="x"&gt;    kubectl cluster-info&lt;/span&gt;
+NAME                         READY     STATUS    RESTARTS   AGE
+hello-node-714049816-ztzrb   1/1       Running   0          6m
+
+
+## To view the Pod created by the deployment run:
+$    kubectl get pods
+
+NAME                         READY     STATUS    RESTARTS   AGE
+hello-node-714049816-ztzrb   1/1       Running   0          6m
+
+## To view detailed information of the Pod:
+$ kubectl get pods -o wide
+or
+$ kubectl get pods --output=wide
+
+NAME             READY     STATUS    RESTARTS   AGE       IP
+dd-agent-0f75g   1/1       Running   0          23d       10.204.5.16
+
+
+## To view the stdout / stderr from a Pod run:
+$    kubectl logs &amp;lt;POD-NAME&amp;gt;
+
+## To view metadata about the cluster run:
+$    kubectl cluster-info
 &lt;/pre&gt;&lt;/div&gt;
 
 
@@ -1416,7 +1416,7 @@ spec:
 &lt;/ul&gt;
 &lt;hr&gt;
 &lt;h4&gt;&lt;a href="https://kubernetes.io/docs/tasks/configure-pod-container/assign-cpu-ram-container/"&gt;How to decide what resources you should allocate to your pods resources&lt;/a&gt;?&lt;/h4&gt;
-&lt;div class="highlight"&gt;&lt;pre&gt;Convention
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;Convention
 # RAM : Mi = MB, ie, 1024Mi is 1024 MB or 1GB
 # CPU : m = milicpu , ie, 100m cpu is 100 milicpu, or say 0.1 CPU
 
@@ -1459,7 +1459,7 @@ spec:
 &lt;blockquote&gt;
 &lt;p&gt;So, based on your &lt;a href="https://cloud.google.com/container-engine/docs/node-pools"&gt;Node pool type&lt;/a&gt;, you can deploy your pods in different Node pools by using &lt;code&gt;nodeSelector&lt;/code&gt; in kubes.&lt;/p&gt;
 &lt;/blockquote&gt;
-&lt;div class="highlight"&gt;&lt;pre&gt;-------------- Node selector example
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;-------------- Node selector example
 
 apiVersion: v1
 kind: Pod
@@ -1485,7 +1485,7 @@ spec:
 &lt;p&gt;&lt;img alt="Grafana monitoring" src="/images/kubes/grafana.png" title="Grafana monitoring"&gt;&lt;/p&gt;
 &lt;hr&gt;
 &lt;p&gt;&lt;strong&gt;Note :&lt;/strong&gt; Some configuration in GCE should be taken care, like &lt;code&gt;autoupgrade kubernetes version&lt;/code&gt;. If you are running RabbitMQ, Redis or any other message queue as service that needs uptime, better you turn off autoupgrade because kubernetes new version release will schedule all your node for maintenance, however it rolles updates one by one but could affect your production system. Else, if you are fully stateless, you can keep default or skip this warning!&lt;/p&gt;
-&lt;div class="highlight"&gt;&lt;pre&gt;----- Autoupgrade off
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;----- Autoupgrade off
 
 # https://cloud.google.com/container-engine/docs/node-auto-upgrade
 
@@ -1535,26 +1535,26 @@ gcloud beta container node-pools update &amp;lt;NODEPOOL&amp;gt; --cluster &amp;
 &lt;h4&gt;Installation&lt;/h4&gt;
 &lt;hr&gt;
 &lt;p&gt;Open your favorite Terminal and run these commands. Install using &lt;code&gt;pip&lt;/code&gt; with:&lt;/p&gt;
-&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="nv"&gt;$ &lt;/span&gt;pip install geopy
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;$ pip install geopy
 &lt;/pre&gt;&lt;/div&gt;
 
 
 &lt;h4&gt;Geocoding&lt;/h4&gt;
 &lt;p&gt;To query a location using string using &lt;code&gt;Google MAP V3&lt;/code&gt;. To acquire key you need to register your app on google developer console.&lt;/p&gt;
-&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="kn"&gt;from&lt;/span&gt; &lt;span class="nn"&gt;geopy.geocoders&lt;/span&gt; &lt;span class="kn"&gt;import&lt;/span&gt; &lt;span class="n"&gt;GoogleV3&lt;/span&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="kn"&gt;from&lt;/span&gt; &lt;span class="nn"&gt;geopy.geocoders&lt;/span&gt; &lt;span class="kn"&gt;import&lt;/span&gt; &lt;span class="n"&gt;GoogleV3&lt;/span&gt;
 &lt;span class="kn"&gt;import&lt;/span&gt; &lt;span class="nn"&gt;json&lt;/span&gt;
-&lt;span class="n"&gt;geolocator&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;GoogleV3&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;api_key&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="s"&gt;&amp;#39;AIzaSyCxk0i1WQokYRgUxAZieq&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
-&lt;span class="n"&gt;location&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;geolocator&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;geocode&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s"&gt;&amp;quot;Washington&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;language&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="s"&gt;&amp;#39;en&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;span class="n"&gt;geolocator&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;GoogleV3&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;api_key&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="s1"&gt;&amp;#39;AIzaSyCxk0i1WQokYRgUxAZieq&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;span class="n"&gt;location&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;geolocator&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;geocode&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s2"&gt;&amp;quot;Washington&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;language&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="s1"&gt;&amp;#39;en&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
 &lt;span class="k"&gt;if&lt;/span&gt; &lt;span class="n"&gt;location&lt;/span&gt; &lt;span class="o"&gt;!=&lt;/span&gt; &lt;span class="bp"&gt;None&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;
     &lt;span class="k"&gt;print&lt;/span&gt; &lt;span class="n"&gt;json&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;dumps&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;location&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;raw&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;indent&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="mi"&gt;4&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
     &lt;span class="k"&gt;print&lt;/span&gt; &lt;span class="n"&gt;location&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;address&lt;/span&gt;
 &lt;span class="k"&gt;else&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;
-    &lt;span class="k"&gt;print&lt;/span&gt; &lt;span class="s"&gt;&amp;quot;No location!&amp;quot;&lt;/span&gt; &lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;location&lt;/span&gt;
+    &lt;span class="k"&gt;print&lt;/span&gt; &lt;span class="s2"&gt;&amp;quot;No location!&amp;quot;&lt;/span&gt; &lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;location&lt;/span&gt;
 &lt;/pre&gt;&lt;/div&gt;
 
 
 &lt;p&gt;Gocoders have different service api classes, here i have used &lt;code&gt;GoogleV3&lt;/code&gt;, then an object is created named &lt;code&gt;geolocator&lt;/code&gt; to query and saved results of my query string "Washington" in &lt;code&gt;location&lt;/code&gt;. If query string doesnt contain valid place name or city, it throws &lt;code&gt;None&lt;/code&gt;. Now lets see what we got after this script:&lt;/p&gt;
-&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="p"&gt;{&lt;/span&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="p"&gt;{&lt;/span&gt;
     &lt;span class="nt"&gt;&amp;quot;geometry&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt;
         &lt;span class="nt"&gt;&amp;quot;location_type&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="s2"&gt;&amp;quot;APPROXIMATE&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
         &lt;span class="nt"&gt;&amp;quot;bounds&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt;
@@ -1595,12 +1595,12 @@ gcloud beta container node-pools update &amp;lt;NODEPOOL&amp;gt; --cluster &amp;
 &lt;p&gt;So, you can see its a format of data returned from Google Map API, so we need to extract the information we are looking for from this resulted data. Easy huh! You can see lattitude. longitude , Country name, District name, and other place information.
 &lt;/br&gt;
 You can query a string of coordinate too, in above code replace the geolocator lines with follows and run:&lt;/p&gt;
-&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="n"&gt;location&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;geolocator&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;reverse&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s"&gt;&amp;quot;52.509669, 13.376294&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="n"&gt;location&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;geolocator&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;reverse&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s2"&gt;&amp;quot;52.509669, 13.376294&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
 &lt;/pre&gt;&lt;/div&gt;
 
 
 &lt;p&gt;You can see the raw JSON output as result. See below, if you want formatted address, use &lt;code&gt;location.address&lt;/code&gt; , &lt;code&gt;location.latitude&lt;/code&gt;, &lt;code&gt;location.longitude&lt;/code&gt; gives you coordinates of place and &lt;code&gt;location.raw&lt;/code&gt; gives you the result like we saw above in JSON format, that contains lots of other information.&lt;/p&gt;
-&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="o"&gt;&amp;gt;&amp;gt;&amp;gt;&lt;/span&gt; &lt;span class="k"&gt;print&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;location&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;address&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="o"&gt;&amp;gt;&amp;gt;&amp;gt;&lt;/span&gt; &lt;span class="k"&gt;print&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;location&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;address&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
 &lt;span class="n"&gt;Potsdamer&lt;/span&gt; &lt;span class="n"&gt;Platz&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;Mitte&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;Berlin&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="mi"&gt;10117&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;Deutschland&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;European&lt;/span&gt; &lt;span class="n"&gt;Union&lt;/span&gt;
 &lt;span class="o"&gt;&amp;gt;&amp;gt;&amp;gt;&lt;/span&gt; &lt;span class="k"&gt;print&lt;/span&gt;&lt;span class="p"&gt;((&lt;/span&gt;&lt;span class="n"&gt;location&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;latitude&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;location&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;longitude&lt;/span&gt;&lt;span class="p"&gt;))&lt;/span&gt;
 &lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="mf"&gt;52.5094982&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="mf"&gt;13.3765983&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
@@ -1609,26 +1609,26 @@ You can query a string of coordinate too, in above code replace the geolocator l
 
 &lt;p&gt;Similarly we can use other Geocoder APIs too, &lt;code&gt;Nominatim&lt;/code&gt; as openstreet map, &lt;code&gt;Yandex&lt;/code&gt; for Yandex Map, &lt;code&gt;GeoNames&lt;/code&gt; as Geonames Geocoder etc.&lt;/p&gt;
 &lt;p&gt;Geopy code for &lt;code&gt;GeoNames&lt;/code&gt; and &lt;code&gt;Yandex&lt;/code&gt; :&lt;/p&gt;
-&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="kn"&gt;from&lt;/span&gt; &lt;span class="nn"&gt;geopy.geocoders&lt;/span&gt; &lt;span class="kn"&gt;import&lt;/span&gt; &lt;span class="n"&gt;GeoNames&lt;/span&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="kn"&gt;from&lt;/span&gt; &lt;span class="nn"&gt;geopy.geocoders&lt;/span&gt; &lt;span class="kn"&gt;import&lt;/span&gt; &lt;span class="n"&gt;GeoNames&lt;/span&gt;
 &lt;span class="kn"&gt;import&lt;/span&gt; &lt;span class="nn"&gt;json&lt;/span&gt;
-&lt;span class="n"&gt;geolocator&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;GeoNames&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;username&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="s"&gt;&amp;#39;Ur_user_NAME&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;  &lt;span class="c"&gt;# Register at Geonames&lt;/span&gt;
-&lt;span class="n"&gt;location&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;geolocator&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;geocode&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s"&gt;&amp;quot;冥府&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;timeout&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="mi"&gt;10&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;span class="n"&gt;geolocator&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;GeoNames&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;username&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="s1"&gt;&amp;#39;Ur_user_NAME&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;  &lt;span class="c1"&gt;# Register at Geonames&lt;/span&gt;
+&lt;span class="n"&gt;location&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;geolocator&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;geocode&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s2"&gt;&amp;quot;冥府&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;timeout&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="mi"&gt;10&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
 &lt;span class="k"&gt;if&lt;/span&gt; &lt;span class="n"&gt;location&lt;/span&gt; &lt;span class="o"&gt;!=&lt;/span&gt; &lt;span class="bp"&gt;None&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;
         &lt;span class="n"&gt;json&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;dump&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;location&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;raw&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;f&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
     &lt;span class="k"&gt;print&lt;/span&gt; &lt;span class="n"&gt;location&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;address&lt;/span&gt;
 &lt;span class="k"&gt;else&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;
-    &lt;span class="k"&gt;print&lt;/span&gt; &lt;span class="s"&gt;&amp;quot;No location!&amp;quot;&lt;/span&gt; &lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;location&lt;/span&gt;
+    &lt;span class="k"&gt;print&lt;/span&gt; &lt;span class="s2"&gt;&amp;quot;No location!&amp;quot;&lt;/span&gt; &lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;location&lt;/span&gt;
 &lt;/pre&gt;&lt;/div&gt;
 
 
-&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="kn"&gt;from&lt;/span&gt; &lt;span class="nn"&gt;geopy.geocoders&lt;/span&gt; &lt;span class="kn"&gt;import&lt;/span&gt; &lt;span class="n"&gt;Yandex&lt;/span&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="kn"&gt;from&lt;/span&gt; &lt;span class="nn"&gt;geopy.geocoders&lt;/span&gt; &lt;span class="kn"&gt;import&lt;/span&gt; &lt;span class="n"&gt;Yandex&lt;/span&gt;
 &lt;span class="kn"&gt;import&lt;/span&gt; &lt;span class="nn"&gt;json&lt;/span&gt;
-&lt;span class="n"&gt;geolocator&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;Yandex&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;lang&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="s"&gt;&amp;#39;en_US&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
-&lt;span class="n"&gt;location&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;geolocator&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;geocode&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s"&gt;&amp;quot;بغداد، العراق&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;timeout&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="mi"&gt;10&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;span class="n"&gt;geolocator&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;Yandex&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;lang&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="s1"&gt;&amp;#39;en_US&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;span class="n"&gt;location&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;geolocator&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;geocode&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s2"&gt;&amp;quot;بغداد، العراق&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;timeout&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="mi"&gt;10&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
 &lt;span class="k"&gt;if&lt;/span&gt; &lt;span class="n"&gt;location&lt;/span&gt; &lt;span class="o"&gt;!=&lt;/span&gt; &lt;span class="bp"&gt;None&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;
     &lt;span class="k"&gt;print&lt;/span&gt; &lt;span class="n"&gt;json&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;dumps&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;location&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;raw&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;indent&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="mi"&gt;4&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
     &lt;span class="k"&gt;print&lt;/span&gt; &lt;span class="n"&gt;location&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;address&lt;/span&gt;
-    &lt;span class="k"&gt;print&lt;/span&gt; &lt;span class="n"&gt;location&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;latitude&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="s"&gt;&amp;quot; -&amp;gt; &amp;quot;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;location&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;longitude&lt;/span&gt;
+    &lt;span class="k"&gt;print&lt;/span&gt; &lt;span class="n"&gt;location&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;latitude&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="s2"&gt;&amp;quot; -&amp;gt; &amp;quot;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;location&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;longitude&lt;/span&gt;
 &lt;span class="k"&gt;else&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;
     &lt;span class="k"&gt;print&lt;/span&gt; &lt;span class="n"&gt;location&lt;/span&gt;
 &lt;/pre&gt;&lt;/div&gt;

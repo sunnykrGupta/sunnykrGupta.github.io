@@ -104,7 +104,7 @@ We are going to use <code>python</code> as our programming language.</p>
 <p>We are going to write a small python script to preapare data in <a href="https://redis.io/topics/data-types">redis List</a>.</p>
 <p><strong>Redis Installation :</strong> <a href="https://redis.io/download">https://redis.io/download</a></p>
 <p>If you have docker running, run redis inside container with simple command</p>
-<div class="highlight"><pre>docker run -d --name redis-streaming -p 6379:6379 redis
+<div class="highlight"><pre><span></span>docker run -d --name redis-streaming -p 6379:6379 redis
 </pre></div>
 
 
@@ -133,16 +133,16 @@ We are going to use <code>python</code> as our programming language.</p>
 21
 22
 23
-24</pre></div></td><td class="code"><div class="highlight"><pre><span class="c">#!/usr/bin/env python</span>
+24</pre></div></td><td class="code"><div class="highlight"><pre><span></span><span class="ch">#!/usr/bin/env python</span>
 
 <span class="kn">import</span> <span class="nn">redis</span>
 <span class="kn">import</span> <span class="nn">json</span><span class="o">,</span> <span class="nn">time</span>
-<span class="c">#Faker : https://github.com/joke2k/faker</span>
+<span class="c1">#Faker : https://github.com/joke2k/faker</span>
 <span class="kn">from</span> <span class="nn">faker</span> <span class="kn">import</span> <span class="n">Faker</span>
 
-<span class="n">streamRedis</span> <span class="o">=</span> <span class="n">redis</span><span class="o">.</span><span class="n">Redis</span><span class="p">(</span><span class="n">host</span><span class="o">=</span><span class="s">&#39;127.0.0.1&#39;</span><span class="p">,</span>
-             <span class="n">port</span><span class="o">=</span><span class="s">&#39;6379&#39;</span><span class="p">,</span>
-            <span class="n">password</span><span class="o">=</span><span class="s">&#39;&#39;</span><span class="p">)</span>
+<span class="n">streamRedis</span> <span class="o">=</span> <span class="n">redis</span><span class="o">.</span><span class="n">Redis</span><span class="p">(</span><span class="n">host</span><span class="o">=</span><span class="s1">&#39;127.0.0.1&#39;</span><span class="p">,</span>
+             <span class="n">port</span><span class="o">=</span><span class="s1">&#39;6379&#39;</span><span class="p">,</span>
+            <span class="n">password</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">)</span>
 
 <span class="n">fake</span> <span class="o">=</span> <span class="n">Faker</span><span class="p">()</span>
 
@@ -151,11 +151,11 @@ We are going to use <code>python</code> as our programming language.</p>
 
 <span class="k">def</span> <span class="nf">main</span><span class="p">():</span>
     <span class="k">while</span> <span class="bp">True</span><span class="p">:</span>
-        <span class="n">streamRedis</span><span class="o">.</span><span class="n">lpush</span><span class="p">(</span><span class="s">&quot;redisList&quot;</span><span class="p">,</span> <span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">profile_generator</span><span class="p">())</span> <span class="p">)</span>
-        <span class="c">#sleep 200ms</span>
+        <span class="n">streamRedis</span><span class="o">.</span><span class="n">lpush</span><span class="p">(</span><span class="s2">&quot;redisList&quot;</span><span class="p">,</span> <span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">profile_generator</span><span class="p">())</span> <span class="p">)</span>
+        <span class="c1">#sleep 200ms</span>
         <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mf">0.2</span><span class="p">)</span>
 
-<span class="k">if</span> <span class="n">__name__</span> <span class="o">==</span> <span class="s">&quot;__main__&quot;</span><span class="p">:</span>
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
     <span class="n">main</span><span class="p">()</span>
 </pre></div>
 </td></tr></table>
@@ -167,7 +167,7 @@ We are going to use <code>python</code> as our programming language.</p>
 <blockquote>
 <p>Our data looks like :</p>
 </blockquote>
-<div class="highlight"><pre>{
+<div class="highlight"><pre><span></span>{
     &#39;username&#39;: u&#39;tarawade&#39;,
     &#39;name&#39;: u&#39;Jennifer Lewis&#39;,
     &#39;birthdate&#39;: &#39;2005-06-14&#39;,
@@ -181,7 +181,7 @@ We are going to use <code>python</code> as our programming language.</p>
 <blockquote>
 <p>For the above formatted data, below schema is going to work :</p>
 </blockquote>
-<div class="highlight"><pre>[
+<div class="highlight"><pre><span></span>[
     {
         &quot;name&quot;: &quot;username&quot;, &quot;type&quot;: &quot;STRING&quot;, &quot;mode&quot;: &quot;NULLABLE&quot;
     },
@@ -208,7 +208,7 @@ We are going to use <code>python</code> as our programming language.</p>
 <p><br></p>
 <h4>3. Create a table in BigQuery</h4>
 <p>We are going to create two python file, ie, <strong><code>createConfig.py</code></strong> that will keep schema configuration and <strong><code>tableCreate.py</code></strong> that will execute the table creation API call to bigquery. We are going to use <strong><code>Google Application Default Credentials</code></strong> to authorize our python application to talk to bigquery APIs.</p>
-<div class="highlight"><pre><span class="nv">$ </span>cat createConfig.py
+<div class="highlight"><pre><span></span>$ cat createConfig.py
 
 <span class="nv">TableObject</span> <span class="o">=</span> <span class="o">{</span>
     <span class="s2">&quot;tableReference&quot;</span>: <span class="o">{</span>
@@ -258,7 +258,7 @@ We are going to use <code>python</code> as our programming language.</p>
 <p>We are going to use <strong> <a href="https://developers.google.com/api-client-library/python/">google-api-python-client</a></strong> library for interacting to our bigquery APIs.</p>
 <p>We are building service object by calling our API name and version supported by API. In this case we are using <strong><code>bigquery</code></strong> with version <strong><code>v2</code></strong>. This service object will be used to make tables related operation.  As of now we are going to use <strong><code>insert</code></strong> function to make table.</p>
 <p><strong><code>GoogleCredentials.get_application_default()</code></strong> will read the credentials stored in my system. Either you need to export a variable mentioned in reference with service account key or you setup an google SDK which will store default credentials inside your home directory.</p>
-<div class="highlight"><pre>ls ~/.config/gcloud/*.json
+<div class="highlight"><pre><span></span>ls ~/.config/gcloud/*.json
 ~/.config/gcloud/application_default_credentials.json
 </pre></div>
 
@@ -288,7 +288,7 @@ We are going to use <code>python</code> as our programming language.</p>
 23
 24
 25
-26</pre></div></td><td class="code"><div class="highlight"><pre><span class="c">#!/usr/bin/env python</span>
+26</pre></div></td><td class="code"><div class="highlight"><pre><span></span><span class="ch">#!/usr/bin/env python</span>
 
 <span class="kn">from</span> <span class="nn">googleapiclient</span> <span class="kn">import</span> <span class="n">discovery</span>
 <span class="kn">from</span> <span class="nn">oauth2client.client</span> <span class="kn">import</span> <span class="n">GoogleCredentials</span>
@@ -298,29 +298,29 @@ We are going to use <code>python</code> as our programming language.</p>
 <span class="k">def</span> <span class="nf">createTable</span><span class="p">(</span><span class="n">bigquery</span><span class="p">):</span>
     <span class="n">tables</span> <span class="o">=</span> <span class="n">bigquery</span><span class="o">.</span><span class="n">tables</span><span class="p">()</span>
 
-    <span class="c">#insert utility make call to BQ API with payload \</span>
-    <span class="c">#(TableObject) contains schema and table-name information</span>
-    <span class="n">tableStatusObject</span> <span class="o">=</span> <span class="n">tables</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span> <span class="n">projectId</span><span class="o">=</span><span class="s">&#39;mimetic-slate&#39;</span><span class="p">,</span> \
-     <span class="n">datasetId</span><span class="o">=</span><span class="s">&#39;BQ_Dataset&#39;</span><span class="p">,</span> <span class="n">body</span><span class="o">=</span><span class="n">TableObject</span><span class="p">)</span><span class="o">.</span><span class="n">execute</span><span class="p">()</span>
-<span class="c"># [END]</span>
+    <span class="c1">#insert utility make call to BQ API with payload \</span>
+    <span class="c1">#(TableObject) contains schema and table-name information</span>
+    <span class="n">tableStatusObject</span> <span class="o">=</span> <span class="n">tables</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span> <span class="n">projectId</span><span class="o">=</span><span class="s1">&#39;mimetic-slate&#39;</span><span class="p">,</span> \
+     <span class="n">datasetId</span><span class="o">=</span><span class="s1">&#39;BQ_Dataset&#39;</span><span class="p">,</span> <span class="n">body</span><span class="o">=</span><span class="n">TableObject</span><span class="p">)</span><span class="o">.</span><span class="n">execute</span><span class="p">()</span>
+<span class="c1"># [END]</span>
 
 <span class="k">def</span> <span class="nf">main</span><span class="p">():</span>
-    <span class="c">#to get credentials from my laptop</span>
+    <span class="c1">#to get credentials from my laptop</span>
     <span class="n">credentials</span> <span class="o">=</span> <span class="n">GoogleCredentials</span><span class="o">.</span><span class="n">get_application_default</span><span class="p">()</span>
-    <span class="c"># Construct the service object for interacting with the BigQuery API.</span>
-    <span class="n">bigquery</span> <span class="o">=</span> <span class="n">discovery</span><span class="o">.</span><span class="n">build</span><span class="p">(</span><span class="s">&#39;bigquery&#39;</span><span class="p">,</span> <span class="s">&#39;v2&#39;</span><span class="p">,</span> <span class="n">credentials</span><span class="o">=</span><span class="n">credentials</span><span class="p">)</span>
+    <span class="c1"># Construct the service object for interacting with the BigQuery API.</span>
+    <span class="n">bigquery</span> <span class="o">=</span> <span class="n">discovery</span><span class="o">.</span><span class="n">build</span><span class="p">(</span><span class="s1">&#39;bigquery&#39;</span><span class="p">,</span> <span class="s1">&#39;v2&#39;</span><span class="p">,</span> <span class="n">credentials</span><span class="o">=</span><span class="n">credentials</span><span class="p">)</span>
     <span class="n">createTable</span><span class="p">(</span><span class="n">bigquery</span><span class="p">)</span>
 
-<span class="k">if</span> <span class="n">__name__</span> <span class="o">==</span> <span class="s">&#39;__main__&#39;</span><span class="p">:</span>
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s1">&#39;__main__&#39;</span><span class="p">:</span>
     <span class="n">main</span><span class="p">()</span>
-    <span class="k">print</span> <span class="s">&quot;BQ Table Creator !!&quot;</span>
+    <span class="k">print</span> <span class="s2">&quot;BQ Table Creator !!&quot;</span>
 </pre></div>
 </td></tr></table>
 
 <p>Run above to program to create table with name <strong>StreamTable</strong> in bigquery dataset <strong><code>BQ_Dataset</code></strong>. Make sure you have created dataset already.</p>
 <p>You can verify the table created by visiting bigquery UI. Visit : <a href="https://bigquery.cloud.google.com">https://bigquery.cloud.google.com</a></p>
 <p>You can also verify table creation by running <code>bq</code> CLI commands</p>
-<div class="highlight"><pre><span class="nv">$ </span>bq ls BQ_Dataset    
+<div class="highlight"><pre><span></span>$ bq ls BQ_Dataset    
     tableId     Type    Labels   Time Partitioning  
  ------------- ------- -------- -------------------
   StreamTable   TABLE                               
@@ -407,7 +407,7 @@ We are going to use <code>python</code> as our programming language.</p>
 60
 61
 62
-63</pre></div></td><td class="code"><div class="highlight"><pre><span class="c">#!/usr/bin/env python</span>
+63</pre></div></td><td class="code"><div class="highlight"><pre><span></span><span class="ch">#!/usr/bin/env python</span>
 
 <span class="kn">from</span> <span class="nn">googleapiclient</span> <span class="kn">import</span> <span class="n">discovery</span>
 <span class="kn">from</span> <span class="nn">oauth2client.client</span> <span class="kn">import</span> <span class="n">GoogleCredentials</span>
@@ -418,57 +418,57 @@ We are going to use <code>python</code> as our programming language.</p>
 
 <span class="n">batchCount</span> <span class="o">=</span> <span class="mi">100</span>
 
-<span class="n">redisStream</span> <span class="o">=</span> <span class="n">redis</span><span class="o">.</span><span class="n">Redis</span><span class="p">(</span><span class="n">host</span><span class="o">=</span><span class="s">&#39;127.0.0.1&#39;</span><span class="p">,</span>
-             <span class="n">port</span><span class="o">=</span><span class="s">&#39;6379&#39;</span><span class="p">,</span>
-            <span class="n">password</span><span class="o">=</span><span class="s">&#39;&#39;</span><span class="p">)</span>
+<span class="n">redisStream</span> <span class="o">=</span> <span class="n">redis</span><span class="o">.</span><span class="n">Redis</span><span class="p">(</span><span class="n">host</span><span class="o">=</span><span class="s1">&#39;127.0.0.1&#39;</span><span class="p">,</span>
+             <span class="n">port</span><span class="o">=</span><span class="s1">&#39;6379&#39;</span><span class="p">,</span>
+            <span class="n">password</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">)</span>
 
 <span class="n">streamObject</span> <span class="o">=</span> <span class="p">{</span>
-    <span class="s">&quot;rows&quot;</span><span class="p">:</span> <span class="p">[</span>
-      <span class="c">#{ &quot;json&quot;: {# Represents a single JSON object. } }</span>
+    <span class="s2">&quot;rows&quot;</span><span class="p">:</span> <span class="p">[</span>
+      <span class="c1">#{ &quot;json&quot;: {# Represents a single JSON object. } }</span>
     <span class="p">],</span>
  <span class="p">}</span>
 
-<span class="c">#[START Streaming batcher]</span>
+<span class="c1">#[START Streaming batcher]</span>
 <span class="k">def</span> <span class="nf">streamBuilder</span><span class="p">():</span>
-    <span class="c">#Every API needs a refresh copy of dict</span>
+    <span class="c1">#Every API needs a refresh copy of dict</span>
     <span class="n">newStreamObject</span> <span class="o">=</span> <span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span><span class="n">streamObject</span><span class="p">)</span>
 
     <span class="n">currentCounter</span> <span class="o">=</span> <span class="mi">0</span>
     <span class="k">while</span> <span class="n">currentCounter</span> <span class="o">&lt;</span> <span class="n">batchCount</span><span class="p">:</span>
-        <span class="n">packet</span> <span class="o">=</span> <span class="n">redisStream</span><span class="o">.</span><span class="n">brpop</span><span class="p">(</span><span class="s">&quot;redisList&quot;</span><span class="p">,</span>  <span class="n">timeout</span><span class="o">=</span><span class="mi">0</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span>
-        <span class="n">newStreamObject</span><span class="p">[</span><span class="s">&quot;rows&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">({</span><span class="s">&quot;json&quot;</span> <span class="p">:</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">packet</span><span class="p">)</span> <span class="p">})</span>
+        <span class="n">packet</span> <span class="o">=</span> <span class="n">redisStream</span><span class="o">.</span><span class="n">brpop</span><span class="p">(</span><span class="s2">&quot;redisList&quot;</span><span class="p">,</span>  <span class="n">timeout</span><span class="o">=</span><span class="mi">0</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span>
+        <span class="n">newStreamObject</span><span class="p">[</span><span class="s2">&quot;rows&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">({</span><span class="s2">&quot;json&quot;</span> <span class="p">:</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">packet</span><span class="p">)</span> <span class="p">})</span>
         <span class="n">currentCounter</span> <span class="o">+=</span>  <span class="mi">1</span>
 
     <span class="k">return</span> <span class="n">newStreamObject</span>
-<span class="c">#[END]</span>
+<span class="c1">#[END]</span>
 
 
-<span class="c"># [START Streaming Utility]</span>
+<span class="c1"># [START Streaming Utility]</span>
 <span class="k">def</span> <span class="nf">streamUtils</span><span class="p">(</span><span class="n">bigquery</span><span class="p">):</span>
     <span class="n">tabledata</span> <span class="o">=</span> <span class="n">bigquery</span><span class="o">.</span><span class="n">tabledata</span><span class="p">()</span>
 
-    <span class="c">#Run infinitely</span>
+    <span class="c1">#Run infinitely</span>
     <span class="k">while</span> <span class="bp">True</span><span class="p">:</span>
         <span class="n">streamBuildBatch</span> <span class="o">=</span> <span class="n">streamBuilder</span><span class="p">()</span>
 
-        <span class="c">#BQ API to insert bulk data into table</span>
-        <span class="n">insertStatusObject</span> <span class="o">=</span> <span class="n">tabledata</span><span class="o">.</span><span class="n">insertAll</span><span class="p">(</span><span class="n">projectId</span><span class="o">=</span><span class="s">&#39;mimetic-slate&#39;</span><span class="p">,</span> \
-        <span class="n">datasetId</span><span class="o">=</span><span class="s">&#39;BQ_Dataset&#39;</span><span class="p">,</span> <span class="n">tableId</span><span class="o">=</span><span class="s">&#39;StreamTable&#39;</span><span class="p">,</span> \
+        <span class="c1">#BQ API to insert bulk data into table</span>
+        <span class="n">insertStatusObject</span> <span class="o">=</span> <span class="n">tabledata</span><span class="o">.</span><span class="n">insertAll</span><span class="p">(</span><span class="n">projectId</span><span class="o">=</span><span class="s1">&#39;mimetic-slate&#39;</span><span class="p">,</span> \
+        <span class="n">datasetId</span><span class="o">=</span><span class="s1">&#39;BQ_Dataset&#39;</span><span class="p">,</span> <span class="n">tableId</span><span class="o">=</span><span class="s1">&#39;StreamTable&#39;</span><span class="p">,</span> \
         <span class="n">body</span><span class="o">=</span><span class="n">streamBuildBatch</span><span class="p">)</span><span class="o">.</span><span class="n">execute</span><span class="p">()</span>
 
 
-<span class="c"># [ MAIN]</span>
+<span class="c1"># [ MAIN]</span>
 <span class="k">def</span> <span class="nf">main</span><span class="p">():</span>
     <span class="n">credentials</span> <span class="o">=</span> <span class="n">GoogleCredentials</span><span class="o">.</span><span class="n">get_application_default</span><span class="p">()</span>
-    <span class="c"># Construct the service object for interacting with the BigQuery API.</span>
-    <span class="n">bigquery</span> <span class="o">=</span> <span class="n">discovery</span><span class="o">.</span><span class="n">build</span><span class="p">(</span><span class="s">&#39;bigquery&#39;</span><span class="p">,</span> <span class="s">&#39;v2&#39;</span><span class="p">,</span> <span class="n">credentials</span><span class="o">=</span><span class="n">credentials</span><span class="p">)</span>
+    <span class="c1"># Construct the service object for interacting with the BigQuery API.</span>
+    <span class="n">bigquery</span> <span class="o">=</span> <span class="n">discovery</span><span class="o">.</span><span class="n">build</span><span class="p">(</span><span class="s1">&#39;bigquery&#39;</span><span class="p">,</span> <span class="s1">&#39;v2&#39;</span><span class="p">,</span> <span class="n">credentials</span><span class="o">=</span><span class="n">credentials</span><span class="p">)</span>
 
-    <span class="c">#Stream utility</span>
+    <span class="c1">#Stream utility</span>
     <span class="n">streamUtils</span><span class="p">(</span><span class="n">bigquery</span><span class="p">)</span>
-<span class="c"># [END]</span>
+<span class="c1"># [END]</span>
 
 
-<span class="k">if</span> <span class="n">__name__</span> <span class="o">==</span> <span class="s">&#39;__main__&#39;</span><span class="p">:</span>
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s1">&#39;__main__&#39;</span><span class="p">:</span>
     <span class="n">main</span><span class="p">()</span>
 </pre></div>
 </td></tr></table>
@@ -476,7 +476,7 @@ We are going to use <code>python</code> as our programming language.</p>
 <p>Above program is going to read redis running on <code>127.0.0.1:6379</code> from list name <strong><code>redisList</code></strong> and build a dict object <strong><code>streamObject</code></strong> that is accepted by bq streaming API. We are calling <strong><code>insertAll</code></strong> utility to submit our streaming request to bigquery API.</p>
 <p><strong><code>insertAll</code></strong> takes <strong><code>projectId, datasetId, tableId</code></strong> as an argument and <strong><code>body</code></strong> which contains your data to be streamed.</p>
 <p>Script has been configured to <a href="https://redis.io/commands/brpop">pop</a> <code>100 entries</code> from redis list and prepare it to be pushed into table. Run <strong><code>bq-streamer.py</code></strong> script to start streaming data into bigquery table.</p>
-<div class="highlight"><pre>#when bulk data is prepared, JSON payload in body argument would look like
+<div class="highlight"><pre><span></span>#when bulk data is prepared, JSON payload in body argument would look like
 {
     &quot;rows&quot;: [
         {
@@ -526,7 +526,7 @@ We are going to use <code>python</code> as our programming language.</p>
 <p><br></p>
 <h3>SQL Query in BQ Table</h3>
 <p>We are going to run a simple query to show the output that shows your streamed data.</p>
-<div class="highlight"><pre>SELECT * FROM [mimetic-slate:BQ_Dataset.StreamTable]
+<div class="highlight"><pre><span></span>SELECT * FROM [mimetic-slate:BQ_Dataset.StreamTable]
 </pre></div>
 
 

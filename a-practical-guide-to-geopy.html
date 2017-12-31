@@ -111,26 +111,26 @@
 <h4>Installation</h4>
 <hr>
 <p>Open your favorite Terminal and run these commands. Install using <code>pip</code> with:</p>
-<div class="highlight"><pre><span class="nv">$ </span>pip install geopy
+<div class="highlight"><pre><span></span>$ pip install geopy
 </pre></div>
 
 
 <h4>Geocoding</h4>
 <p>To query a location using string using <code>Google MAP V3</code>. To acquire key you need to register your app on google developer console.</p>
-<div class="highlight"><pre><span class="kn">from</span> <span class="nn">geopy.geocoders</span> <span class="kn">import</span> <span class="n">GoogleV3</span>
+<div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">geopy.geocoders</span> <span class="kn">import</span> <span class="n">GoogleV3</span>
 <span class="kn">import</span> <span class="nn">json</span>
-<span class="n">geolocator</span> <span class="o">=</span> <span class="n">GoogleV3</span><span class="p">(</span><span class="n">api_key</span><span class="o">=</span><span class="s">&#39;AIzaSyCxk0i1WQokYRgUxAZieq&#39;</span><span class="p">)</span>
-<span class="n">location</span> <span class="o">=</span> <span class="n">geolocator</span><span class="o">.</span><span class="n">geocode</span><span class="p">(</span><span class="s">&quot;Washington&quot;</span><span class="p">,</span> <span class="n">language</span><span class="o">=</span><span class="s">&#39;en&#39;</span><span class="p">)</span>
+<span class="n">geolocator</span> <span class="o">=</span> <span class="n">GoogleV3</span><span class="p">(</span><span class="n">api_key</span><span class="o">=</span><span class="s1">&#39;AIzaSyCxk0i1WQokYRgUxAZieq&#39;</span><span class="p">)</span>
+<span class="n">location</span> <span class="o">=</span> <span class="n">geolocator</span><span class="o">.</span><span class="n">geocode</span><span class="p">(</span><span class="s2">&quot;Washington&quot;</span><span class="p">,</span> <span class="n">language</span><span class="o">=</span><span class="s1">&#39;en&#39;</span><span class="p">)</span>
 <span class="k">if</span> <span class="n">location</span> <span class="o">!=</span> <span class="bp">None</span><span class="p">:</span>
     <span class="k">print</span> <span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">location</span><span class="o">.</span><span class="n">raw</span><span class="p">,</span> <span class="n">indent</span><span class="o">=</span><span class="mi">4</span><span class="p">)</span>
     <span class="k">print</span> <span class="n">location</span><span class="o">.</span><span class="n">address</span>
 <span class="k">else</span><span class="p">:</span>
-    <span class="k">print</span> <span class="s">&quot;No location!&quot;</span> <span class="p">,</span> <span class="n">location</span>
+    <span class="k">print</span> <span class="s2">&quot;No location!&quot;</span> <span class="p">,</span> <span class="n">location</span>
 </pre></div>
 
 
 <p>Gocoders have different service api classes, here i have used <code>GoogleV3</code>, then an object is created named <code>geolocator</code> to query and saved results of my query string "Washington" in <code>location</code>. If query string doesnt contain valid place name or city, it throws <code>None</code>. Now lets see what we got after this script:</p>
-<div class="highlight"><pre><span class="p">{</span>
+<div class="highlight"><pre><span></span><span class="p">{</span>
     <span class="nt">&quot;geometry&quot;</span><span class="p">:</span> <span class="p">{</span>
         <span class="nt">&quot;location_type&quot;</span><span class="p">:</span> <span class="s2">&quot;APPROXIMATE&quot;</span><span class="p">,</span>
         <span class="nt">&quot;bounds&quot;</span><span class="p">:</span> <span class="p">{</span>
@@ -171,12 +171,12 @@
 <p>So, you can see its a format of data returned from Google Map API, so we need to extract the information we are looking for from this resulted data. Easy huh! You can see lattitude. longitude , Country name, District name, and other place information.
 </br>
 You can query a string of coordinate too, in above code replace the geolocator lines with follows and run:</p>
-<div class="highlight"><pre><span class="n">location</span> <span class="o">=</span> <span class="n">geolocator</span><span class="o">.</span><span class="n">reverse</span><span class="p">(</span><span class="s">&quot;52.509669, 13.376294&quot;</span><span class="p">)</span>
+<div class="highlight"><pre><span></span><span class="n">location</span> <span class="o">=</span> <span class="n">geolocator</span><span class="o">.</span><span class="n">reverse</span><span class="p">(</span><span class="s2">&quot;52.509669, 13.376294&quot;</span><span class="p">)</span>
 </pre></div>
 
 
 <p>You can see the raw JSON output as result. See below, if you want formatted address, use <code>location.address</code> , <code>location.latitude</code>, <code>location.longitude</code> gives you coordinates of place and <code>location.raw</code> gives you the result like we saw above in JSON format, that contains lots of other information.</p>
-<div class="highlight"><pre><span class="o">&gt;&gt;&gt;</span> <span class="k">print</span><span class="p">(</span><span class="n">location</span><span class="o">.</span><span class="n">address</span><span class="p">)</span>
+<div class="highlight"><pre><span></span><span class="o">&gt;&gt;&gt;</span> <span class="k">print</span><span class="p">(</span><span class="n">location</span><span class="o">.</span><span class="n">address</span><span class="p">)</span>
 <span class="n">Potsdamer</span> <span class="n">Platz</span><span class="p">,</span> <span class="n">Mitte</span><span class="p">,</span> <span class="n">Berlin</span><span class="p">,</span> <span class="mi">10117</span><span class="p">,</span> <span class="n">Deutschland</span><span class="p">,</span> <span class="n">European</span> <span class="n">Union</span>
 <span class="o">&gt;&gt;&gt;</span> <span class="k">print</span><span class="p">((</span><span class="n">location</span><span class="o">.</span><span class="n">latitude</span><span class="p">,</span> <span class="n">location</span><span class="o">.</span><span class="n">longitude</span><span class="p">))</span>
 <span class="p">(</span><span class="mf">52.5094982</span><span class="p">,</span> <span class="mf">13.3765983</span><span class="p">)</span>
@@ -185,26 +185,26 @@ You can query a string of coordinate too, in above code replace the geolocator l
 
 <p>Similarly we can use other Geocoder APIs too, <code>Nominatim</code> as openstreet map, <code>Yandex</code> for Yandex Map, <code>GeoNames</code> as Geonames Geocoder etc.</p>
 <p>Geopy code for <code>GeoNames</code> and <code>Yandex</code> :</p>
-<div class="highlight"><pre><span class="kn">from</span> <span class="nn">geopy.geocoders</span> <span class="kn">import</span> <span class="n">GeoNames</span>
+<div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">geopy.geocoders</span> <span class="kn">import</span> <span class="n">GeoNames</span>
 <span class="kn">import</span> <span class="nn">json</span>
-<span class="n">geolocator</span> <span class="o">=</span> <span class="n">GeoNames</span><span class="p">(</span><span class="n">username</span><span class="o">=</span><span class="s">&#39;Ur_user_NAME&#39;</span><span class="p">)</span>  <span class="c"># Register at Geonames</span>
-<span class="n">location</span> <span class="o">=</span> <span class="n">geolocator</span><span class="o">.</span><span class="n">geocode</span><span class="p">(</span><span class="s">&quot;冥府&quot;</span><span class="p">,</span> <span class="n">timeout</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>
+<span class="n">geolocator</span> <span class="o">=</span> <span class="n">GeoNames</span><span class="p">(</span><span class="n">username</span><span class="o">=</span><span class="s1">&#39;Ur_user_NAME&#39;</span><span class="p">)</span>  <span class="c1"># Register at Geonames</span>
+<span class="n">location</span> <span class="o">=</span> <span class="n">geolocator</span><span class="o">.</span><span class="n">geocode</span><span class="p">(</span><span class="s2">&quot;冥府&quot;</span><span class="p">,</span> <span class="n">timeout</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>
 <span class="k">if</span> <span class="n">location</span> <span class="o">!=</span> <span class="bp">None</span><span class="p">:</span>
         <span class="n">json</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="n">location</span><span class="o">.</span><span class="n">raw</span><span class="p">,</span> <span class="n">f</span><span class="p">)</span>
     <span class="k">print</span> <span class="n">location</span><span class="o">.</span><span class="n">address</span>
 <span class="k">else</span><span class="p">:</span>
-    <span class="k">print</span> <span class="s">&quot;No location!&quot;</span> <span class="p">,</span> <span class="n">location</span>
+    <span class="k">print</span> <span class="s2">&quot;No location!&quot;</span> <span class="p">,</span> <span class="n">location</span>
 </pre></div>
 
 
-<div class="highlight"><pre><span class="kn">from</span> <span class="nn">geopy.geocoders</span> <span class="kn">import</span> <span class="n">Yandex</span>
+<div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">geopy.geocoders</span> <span class="kn">import</span> <span class="n">Yandex</span>
 <span class="kn">import</span> <span class="nn">json</span>
-<span class="n">geolocator</span> <span class="o">=</span> <span class="n">Yandex</span><span class="p">(</span><span class="n">lang</span><span class="o">=</span><span class="s">&#39;en_US&#39;</span><span class="p">)</span>
-<span class="n">location</span> <span class="o">=</span> <span class="n">geolocator</span><span class="o">.</span><span class="n">geocode</span><span class="p">(</span><span class="s">&quot;بغداد، العراق&quot;</span><span class="p">,</span> <span class="n">timeout</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>
+<span class="n">geolocator</span> <span class="o">=</span> <span class="n">Yandex</span><span class="p">(</span><span class="n">lang</span><span class="o">=</span><span class="s1">&#39;en_US&#39;</span><span class="p">)</span>
+<span class="n">location</span> <span class="o">=</span> <span class="n">geolocator</span><span class="o">.</span><span class="n">geocode</span><span class="p">(</span><span class="s2">&quot;بغداد، العراق&quot;</span><span class="p">,</span> <span class="n">timeout</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>
 <span class="k">if</span> <span class="n">location</span> <span class="o">!=</span> <span class="bp">None</span><span class="p">:</span>
     <span class="k">print</span> <span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">location</span><span class="o">.</span><span class="n">raw</span><span class="p">,</span> <span class="n">indent</span><span class="o">=</span><span class="mi">4</span><span class="p">)</span>
     <span class="k">print</span> <span class="n">location</span><span class="o">.</span><span class="n">address</span>
-    <span class="k">print</span> <span class="n">location</span><span class="o">.</span><span class="n">latitude</span><span class="p">,</span> <span class="s">&quot; -&gt; &quot;</span><span class="p">,</span> <span class="n">location</span><span class="o">.</span><span class="n">longitude</span>
+    <span class="k">print</span> <span class="n">location</span><span class="o">.</span><span class="n">latitude</span><span class="p">,</span> <span class="s2">&quot; -&gt; &quot;</span><span class="p">,</span> <span class="n">location</span><span class="o">.</span><span class="n">longitude</span>
 <span class="k">else</span><span class="p">:</span>
     <span class="k">print</span> <span class="n">location</span>
 </pre></div>

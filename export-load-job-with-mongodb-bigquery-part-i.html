@@ -100,12 +100,12 @@
 <p><img alt="MongoDB" src="/images/bq-series/part1/mongo-db-blog.jpeg"></p>
 <p>In this example, i have a database in mongoDB server with name <code>restaurantdb</code> with collection name <code>restaurantCollection</code>. We are going to export using <code>mongoexport</code> binary available with mongodb server tools.</p>
 <p><img alt="MongoDB server" src="/images/bq-series/part1/mongoexport.png"></p>
-<div class="highlight"><pre><span class="nv">$ </span>mongoexport -d restaurantdb -c restaurantCollection -o restaurant.json
+<div class="highlight"><pre><span></span>$ mongoexport -d restaurantdb -c restaurantCollection -o restaurant.json
 </pre></div>
 
 
 <p>Once export is done, we can see content of <code>restaurant.json</code> file</p>
-<div class="highlight"><pre><span class="nv">$ </span>head -n <span class="m">1</span> restaurant.json
+<div class="highlight"><pre><span></span>$ head -n <span class="m">1</span> restaurant.json
 
 <span class="o">{</span> <span class="s2">&quot;_id&quot;</span> : <span class="o">{</span> <span class="s2">&quot;</span><span class="nv">$oid</span><span class="s2">&quot;</span> : <span class="s2">&quot;55f14312c7447c3da7051b26&quot;</span> <span class="o">}</span>, <span class="se">\</span>
     <span class="s2">&quot;URL&quot;</span> : <span class="s2">&quot;http://www.just-eat.co.uk/restaurants-cn-chinese-cardiff/menu&quot;</span>, <span class="se">\</span>
@@ -131,11 +131,11 @@
 <p><br></p>
 <h4>2. Prepare schema for Table</h4>
 <p>Now we have our data ready in json format to be imported into BQ table. We need schema to design in order to import these records. Schema is skeleton of each field with datatype and the field not described in schema will not be imported. We have given all fields as <strong>NULLABLE</strong> ie, if field didn't came in any records BQ will define null value.</p>
-<div class="highlight"><pre><span class="nv">$ </span>cat restaurantSchema.json
+<div class="highlight"><pre><span></span>$ cat restaurantSchema.json
 </pre></div>
 
 
-<div class="highlight"><pre>[
+<div class="highlight"><pre><span></span>[
     {
         &quot;name&quot;: &quot;name&quot;,
         &quot;type&quot;: &quot;STRING&quot;,
@@ -177,9 +177,9 @@
 <p>We have schema, data ready to be imported in BQ, but in order to talk to APIs of GCP services, we need Cloud SDK to be installed in our system. We are going to use <code>gcloud</code> CLI tools in order to interact with our Cloud services running in GCP.</p>
 <p><strong>Installation : </strong> <a href="https://cloud.google.com/sdk/">https://cloud.google.com/sdk/</a></p>
 <p>Once installation is done, run following command to verify account setup.</p>
-<div class="highlight"><pre><span class="nv">$ </span>gcloud auth list
+<div class="highlight"><pre><span></span>$ gcloud auth list
 
-<span class="nv">$ </span>gcloud config list
+$ gcloud config list
 </pre></div>
 
 
@@ -200,10 +200,10 @@
 <blockquote>
 <p>To create dataset through <code>bq</code> command line interface.</p>
 </blockquote>
-<div class="highlight"><pre><span class="nv">$ </span>bq mk -d --data_location<span class="o">=</span>US   BQ_Dataset
+<div class="highlight"><pre><span></span>$ bq mk -d --data_location<span class="o">=</span>US   BQ_Dataset
 
 // Verify your dataset creation
-<span class="nv">$ </span>bq ls
+$ bq ls
 
     datasetId
  ----------------
@@ -216,7 +216,7 @@
 <p><br></p>
 <h4>5. Load data into BigQuery</h4>
 <p>Now, my directory consists two files ie, data and schema.</p>
-<div class="highlight"><pre><span class="nv">$ </span>tree
+<div class="highlight"><pre><span></span>$ tree
 .
 ├── restaurant.json
 └── restaurantSchema.json
@@ -226,7 +226,7 @@
 
 
 <p>Run command to load data into BQ.  Once you submit load job, it will take seconds to minute depends on size of data you are importing into BQ table.</p>
-<div class="highlight"><pre><span class="n">Ex</span><span class="o">:</span> <span class="n">bq</span> <span class="n">load</span> <span class="o">--</span><span class="n">project_id</span><span class="o">=&lt;</span><span class="n">PROJECT</span><span class="o">-</span><span class="n">ID</span><span class="o">&gt;</span> <span class="o">--</span><span class="n">source_format</span><span class="o">=</span><span class="n">NEWLINE_DELIMITED_JSON</span> <span class="o">\</span>
+<div class="highlight"><pre><span></span><span class="n">Ex</span><span class="o">:</span> <span class="n">bq</span> <span class="n">load</span> <span class="o">--</span><span class="n">project_id</span><span class="o">=&lt;</span><span class="n">PROJECT</span><span class="o">-</span><span class="n">ID</span><span class="o">&gt;</span> <span class="o">--</span><span class="n">source_format</span><span class="o">=</span><span class="n">NEWLINE_DELIMITED_JSON</span> <span class="o">\</span>
     <span class="n">mydataset</span><span class="o">.</span><span class="na">mytable</span> <span class="o">./</span><span class="n">myfile</span><span class="o">.</span><span class="na">json</span> <span class="o">./</span><span class="n">myschema</span><span class="o">.</span><span class="na">json</span>
 
 <span class="n">$</span> <span class="n">bq</span> <span class="n">load</span> <span class="o">--</span><span class="n">project_id</span><span class="o">=</span><span class="n">mimetic</span><span class="o">-</span><span class="n">slate</span>   <span class="o">\</span>
@@ -243,7 +243,7 @@
 <p>Another methods to import the data through <code>Cloud Storage</code>, this method is lot faster compared to above one.</p>
 </blockquote>
 <p><strong>Read : </strong> <a href="https://cloud.google.com/storage/docs/creating-buckets">https://cloud.google.com/storage/docs/creating-buckets</a></p>
-<div class="highlight"><pre>//to create Cloud storage bucket for this example.
+<div class="highlight"><pre><span></span>//to create Cloud storage bucket for this example.
 $ gsutil mb  gs://bq-storage
 
 //to verify bucket creation
@@ -253,13 +253,13 @@ gs://bq-storage/
 
 
 <p>Now , we will upload our data <code>restaurant.json</code> to storage in bucket <code>gs://bq-storage/</code></p>
-<div class="highlight"><pre>//Run command to upload
+<div class="highlight"><pre><span></span>//Run command to upload
 $ gsutil cp restaurant.json gs://bq-storage/restaurant.json
 </pre></div>
 
 
 <p>Now, we can use storage path of object to import into BQ tables.</p>
-<div class="highlight"><pre><span class="nv">$ </span>bq load --project_id<span class="o">=</span>mimetic-slate  <span class="se">\</span>
+<div class="highlight"><pre><span></span>$ bq load --project_id<span class="o">=</span>mimetic-slate  <span class="se">\</span>
     --source_format<span class="o">=</span>NEWLINE_DELIMITED_JSON --max_bad_records <span class="m">10</span>  <span class="se">\</span>
     BQ_Dataset.Restaurant <span class="se">\</span>
     gs://bq-storage/restaurant.json ./restaurantSchema.json
@@ -269,7 +269,7 @@ $ gsutil cp restaurant.json gs://bq-storage/restaurant.json
 <p><br>
 <br></p>
 <p>After <code>bq load</code> finished, run following command to verify the table creation.</p>
-<div class="highlight"><pre><span class="nv">$ </span>bq show BQ_Dataset.Restaurant
+<div class="highlight"><pre><span></span>$ bq show BQ_Dataset.Restaurant
 </pre></div>
 
 
@@ -286,7 +286,7 @@ $ gsutil cp restaurant.json gs://bq-storage/restaurant.json
 <br></p>
 <h3>SQL Query in BQ Table</h3>
 <p>We are going to run a simple query to show the output.</p>
-<div class="highlight"><pre>SELECT
+<div class="highlight"><pre><span></span>SELECT
   name,
   address
 FROM

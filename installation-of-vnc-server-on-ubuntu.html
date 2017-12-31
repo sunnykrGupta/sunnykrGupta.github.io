@@ -87,23 +87,23 @@
 <h3>Install a Desktop and VNC Server on Ubtunu 14.04</h3>
 <h4>Step 1 - Install Ubuntu desktop</h4>
 <p>Start installing below <em>gnome packages</em> which helps VNC to load properly . These packages are required for all editions including <em>ubuntu desktop</em> .</p>
-<div class="highlight"><pre><span class="nv">$ </span>sudo apt-get install --no-install-recommends ubuntu-desktop gnome-panel gnome-settings-daemon metacity nautilus gnome-terminal gnome-core
+<div class="highlight"><pre><span></span>$ sudo apt-get install --no-install-recommends ubuntu-desktop gnome-panel gnome-settings-daemon metacity nautilus gnome-terminal gnome-core
 </pre></div>
 
 
 <h4>Step 2 - Install vnc4server package.</h4>
-<div class="highlight"><pre><span class="nv">$ </span>sudo apt-get install vnc4server
+<div class="highlight"><pre><span></span>$ sudo apt-get install vnc4server
 </pre></div>
 
 
 <h4>Step 3 - Make configuration changes in vncserver</h4>
 <p>Open <code>/usr/bin/vncserver</code> file and edit as follows . Before editing, make a backup copy.</p>
-<div class="highlight"><pre><span class="nv">$ </span>sudo cp /usr/bin/vncserver /usr/bin/vncserver.bkp
+<div class="highlight"><pre><span></span>$ sudo cp /usr/bin/vncserver /usr/bin/vncserver.bkp
 
-<span class="nv">$ </span>sudo vim /usr/bin/vncserver
+$ sudo vim /usr/bin/vncserver
 
-<span class="c">#Find this line &quot;# exec /etc/X11/xinit/xinitrcnn&quot;.</span>
-<span class="c">#and add these lines like below</span>
+<span class="c1">#Find this line &quot;# exec /etc/X11/xinit/xinitrcnn&quot;.</span>
+<span class="c1">#and add these lines like below</span>
 
     <span class="s2">&quot;# exec /etc/X11/xinit/xinitrcnn&quot;</span>.
        <span class="s2">&quot;gnome-panel &amp;n&quot;</span>.
@@ -116,7 +116,7 @@
 
 <h4>Step 4 - Start your vncserver</h4>
 <p>Now type the command <code>vncserver</code> to start VNC session. you will be prompted for creating new vnc password.</p>
-<div class="highlight"><pre><span class="nv">$ </span>vncserver
+<div class="highlight"><pre><span></span>$ vncserver
 You will require a password to access your desktops through VNC Clients.
 Password:******
 Verify:******
@@ -130,11 +130,11 @@ Log file is /root/.vnc/ubuntu-desktop:1.log
 
 
 <h4>Step 5 - To check VNC server has started, follow</h4>
-<div class="highlight"><pre><span class="nv">$ </span>netstat -tulpn
+<div class="highlight"><pre><span></span>$ netstat -tulpn
 
 Proto Recv-Q Send-Q Local Address           Foreign Address         State       PID/Program name
-tcp        <span class="m">0</span>      <span class="m">0</span> 0.0.0.0:6001            0.0.0.0:*               LISTEN      28372/Xvnc4
-tcp6       <span class="m">0</span>      <span class="m">0</span> :::5901                 :::*                    LISTEN      28372/Xvnc4
+tcp        <span class="m">0</span>      <span class="m">0</span> <span class="m">0</span>.0.0.0:6001            <span class="m">0</span>.0.0.0:*               LISTEN      <span class="m">28372</span>/Xvnc4
+tcp6       <span class="m">0</span>      <span class="m">0</span> :::5901                 :::*                    LISTEN      <span class="m">28372</span>/Xvnc4
 </pre></div>
 
 
@@ -143,17 +143,17 @@ tcp6       <span class="m">0</span>      <span class="m">0</span> :::5901       
 </blockquote>
 <h4>Step 6 - Configure your Firewall</h4>
 <p>If <strong>firewall</strong> is active, you need to open ports for inbound communication. If no firewall is enabled, you can skip this section.</p>
-<div class="highlight"><pre><span class="c">#allow SSH</span>
-<span class="nv">$ </span>sudo ufw allow OpenSSH
+<div class="highlight"><pre><span></span><span class="c1">#allow SSH</span>
+$ sudo ufw allow OpenSSH
 
-<span class="c">#allowing single port 5901 port</span>
-<span class="nv">$ </span>sudo ufw allow 5901/tcp
+<span class="c1">#allowing single port 5901 port</span>
+$ sudo ufw allow <span class="m">5901</span>/tcp
 
-<span class="c">#To allow series of port 5901 - 5910, follow</span>
-<span class="nv">$ </span>sudo ufw allow 5901:5910/tcp
+<span class="c1">#To allow series of port 5901 - 5910, follow</span>
+$ sudo ufw allow <span class="m">5901</span>:5910/tcp
 
-<span class="c">#To check firewall rules</span>
-<span class="nv">$ </span>sudo  ufw status verbose
+<span class="c1">#To check firewall rules</span>
+$ sudo  ufw status verbose
 
 Status: active
 Logging: on <span class="o">(</span>low<span class="o">)</span>
@@ -162,10 +162,10 @@ New profiles: skip
 
 To                         Action      From
 --                         ------      ----
-22/tcp <span class="o">(</span>OpenSSH<span class="o">)</span>           ALLOW IN    Anywhere
-5901:5910/tcp              ALLOW IN    Anywhere
-22/tcp <span class="o">(</span>OpenSSH <span class="o">(</span>v6<span class="o">))</span>      ALLOW IN    Anywhere <span class="o">(</span>v6<span class="o">)</span>
-5901:5910/tcp <span class="o">(</span>v6<span class="o">)</span>         ALLOW IN    Anywhere <span class="o">(</span>v6<span class="o">)</span>WW
+<span class="m">22</span>/tcp <span class="o">(</span>OpenSSH<span class="o">)</span>           ALLOW IN    Anywhere
+<span class="m">5901</span>:5910/tcp              ALLOW IN    Anywhere
+<span class="m">22</span>/tcp <span class="o">(</span>OpenSSH <span class="o">(</span>v6<span class="o">))</span>      ALLOW IN    Anywhere <span class="o">(</span>v6<span class="o">)</span>
+<span class="m">5901</span>:5910/tcp <span class="o">(</span>v6<span class="o">)</span>         ALLOW IN    Anywhere <span class="o">(</span>v6<span class="o">)</span>WW
 </pre></div>
 
 

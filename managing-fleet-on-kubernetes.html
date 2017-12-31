@@ -118,7 +118,7 @@
 <p>Writing optimized Dockerfile, understanding order of commands. Each command that we run in Dockerfile is executed as a layer and subsequent command will be build on top of previous layer. Each layer is managed in cache by Docker tool. Docker manages cache itself to reuse layer of previously build Docker images to save time &amp; disk.</p>
 </li>
 </ul>
-<div class="highlight"><pre>I have three file in my directory named &#39;flask&#39; :
+<div class="highlight"><pre><span></span>I have three file in my directory named &#39;flask&#39; :
 ➜  flask
 
 ── app.py
@@ -127,30 +127,30 @@
 </pre></div>
 
 
-<div class="highlight"><pre><span class="c">##### cat app.py</span>
+<div class="highlight"><pre><span></span><span class="c1">##### cat app.py</span>
 
 <span class="kn">from</span> <span class="nn">flask</span> <span class="kn">import</span> <span class="n">Flask</span>
-<span class="c">#from flask import render_template, request</span>
+<span class="c1">#from flask import render_template, request</span>
 <span class="kn">import</span> <span class="nn">json</span>
 
-<span class="n">app</span> <span class="o">=</span> <span class="n">Flask</span><span class="p">(</span><span class="n">__name__</span><span class="p">)</span>
+<span class="n">app</span> <span class="o">=</span> <span class="n">Flask</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
 
-<span class="nd">@app.route</span><span class="p">(</span><span class="s">&quot;/&quot;</span><span class="p">)</span>
+<span class="nd">@app.route</span><span class="p">(</span><span class="s2">&quot;/&quot;</span><span class="p">)</span>
 <span class="k">def</span> <span class="nf">hello</span><span class="p">():</span>
-    <span class="k">return</span> <span class="s">&quot;Welcome to Python Flask!</span><span class="se">\n</span><span class="s">&quot;</span>
+    <span class="k">return</span> <span class="s2">&quot;Welcome to Python Flask!</span><span class="se">\n</span><span class="s2">&quot;</span>
 
-<span class="k">if</span> <span class="n">__name__</span> <span class="o">==</span> <span class="s">&quot;__main__&quot;</span><span class="p">:</span>
-    <span class="n">app</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">host</span><span class="o">=</span><span class="s">&#39;0.0.0.0&#39;</span><span class="p">,</span> <span class="n">port</span><span class="o">=</span><span class="s">&#39;5009&#39;</span><span class="p">)</span>
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+    <span class="n">app</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">host</span><span class="o">=</span><span class="s1">&#39;0.0.0.0&#39;</span><span class="p">,</span> <span class="n">port</span><span class="o">=</span><span class="s1">&#39;5009&#39;</span><span class="p">)</span>
 </pre></div>
 
 
-<div class="highlight"><pre>###### cat requirement.txt
+<div class="highlight"><pre><span></span>###### cat requirement.txt
 
 Flask==0.10.1
 </pre></div>
 
 
-<div class="highlight"><pre>###### cat Dockerfile
+<div class="highlight"><pre><span></span>###### cat Dockerfile
 
 FROM frolvlad/alpine-python2
 
@@ -167,7 +167,7 @@ CMD [&quot;python&quot;, &quot;/etc/flask/app.py&quot;]
 <blockquote>
 <p>Lets build our docker image with name <strong>flask-v1</strong></p>
 </blockquote>
-<div class="highlight"><pre>➜  docker build -t flask-v1 .
+<div class="highlight"><pre><span></span>➜  docker build -t flask-v1 .
 
 Sending build context to Docker daemon 4.096 kB
 
@@ -202,31 +202,31 @@ Successfully built a081e6cbcf3c
 
 
 <p>Now, we have made some modification in <strong>app.py</strong></p>
-<div class="highlight"><pre><span class="c">##### cat app.py</span>
+<div class="highlight"><pre><span></span><span class="c1">##### cat app.py</span>
 
 <span class="kn">from</span> <span class="nn">flask</span> <span class="kn">import</span> <span class="n">Flask</span>
-<span class="c">#from flask import render_template, request</span>
+<span class="c1">#from flask import render_template, request</span>
 <span class="kn">import</span> <span class="nn">json</span>
 
-<span class="n">app</span> <span class="o">=</span> <span class="n">Flask</span><span class="p">(</span><span class="n">__name__</span><span class="p">)</span>
+<span class="n">app</span> <span class="o">=</span> <span class="n">Flask</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
 
-<span class="nd">@app.route</span><span class="p">(</span><span class="s">&quot;/&quot;</span><span class="p">)</span>
+<span class="nd">@app.route</span><span class="p">(</span><span class="s2">&quot;/&quot;</span><span class="p">)</span>
 <span class="k">def</span> <span class="nf">hello</span><span class="p">():</span>
-    <span class="k">return</span> <span class="s">&quot;Welcome to Python Flask!</span><span class="se">\n</span><span class="s">&quot;</span>
+    <span class="k">return</span> <span class="s2">&quot;Welcome to Python Flask!</span><span class="se">\n</span><span class="s2">&quot;</span>
 
-<span class="c">#Added utility</span>
+<span class="c1">#Added utility</span>
 <span class="k">def</span> <span class="nf">utility</span><span class="p">():</span>
-    <span class="k">return</span> <span class="s">&quot;something&quot;</span>
+    <span class="k">return</span> <span class="s2">&quot;something&quot;</span>
 
-<span class="k">if</span> <span class="n">__name__</span> <span class="o">==</span> <span class="s">&quot;__main__&quot;</span><span class="p">:</span>
-    <span class="n">app</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">host</span><span class="o">=</span><span class="s">&#39;0.0.0.0&#39;</span><span class="p">,</span> <span class="n">port</span><span class="o">=</span><span class="s">&#39;5009&#39;</span><span class="p">)</span>
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+    <span class="n">app</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">host</span><span class="o">=</span><span class="s1">&#39;0.0.0.0&#39;</span><span class="p">,</span> <span class="n">port</span><span class="o">=</span><span class="s1">&#39;5009&#39;</span><span class="p">)</span>
 </pre></div>
 
 
 <blockquote>
 <p>Lets build our docker image with name <strong>flask-v2</strong></p>
 </blockquote>
-<div class="highlight"><pre>➜  docker build -t flask-v2 .
+<div class="highlight"><pre><span></span>➜  docker build -t flask-v2 .
 
 Sending build context to Docker daemon 4.096 kB
 
@@ -256,7 +256,7 @@ Successfully built 0f4a5754f0d0
 
 <p>You will see only <em>step-2</em> was taken from cache, rest of the instructions ran again because change has been detected by Docker on <em>step-3</em> command ie, <code>ADD app.py</code> , so all subsequent commands ran again to build layer on top of previous layer.</p>
 <p>Now we have made changes in <code>Dockerfile</code>, some reorder of commands.</p>
-<div class="highlight"><pre># cat Dockerfile
+<div class="highlight"><pre><span></span># cat Dockerfile
 
 FROM frolvlad/alpine-python2
 
@@ -273,7 +273,7 @@ CMD [&quot;python&quot;, &quot;/etc/flask/app.py&quot;]
 <blockquote>
 <p>Lets build our docker image with name <strong>flask-v3</strong> and lets see build console.</p>
 </blockquote>
-<div class="highlight"><pre>➜  flask docker build -t flask-v3 .
+<div class="highlight"><pre><span></span>➜  flask docker build -t flask-v3 .
 
 Sending build context to Docker daemon 4.096 kB
 
@@ -347,7 +347,7 @@ Successfully built e3fae9852d94
 </ul>
 </li>
 </ul>
-<div class="highlight"><pre>#### cat sample-deployment.yaml
+<div class="highlight"><pre><span></span>#### cat sample-deployment.yaml
 
 apiVersion: apps/v1beta1
 kind: Deployment
@@ -395,7 +395,7 @@ spec:
 <div style="text-align: right"><sub>Service Overview : Images by Kubernetes.io</sub></div>
 
 <p><img alt="Service overview image" src="/images/kubes/module_04_labels.svg" title="Service Overview"></p>
-<div class="highlight"><pre>###### cat sample-services.yaml
+<div class="highlight"><pre><span></span>###### cat sample-services.yaml
 
 kind: Service
 apiVersion: v1
@@ -421,50 +421,50 @@ spec:
 </ul>
 </li>
 </ul>
-<div class="highlight"><pre><span class="x">-----General Commands</span>
+<div class="highlight"><pre><span></span>-----General Commands
 
-<span class="cp">##</span><span class="c"> To view Nodes in a cluster</span><span class="x"></span>
-<span class="p">$</span><span class="nv">kubectl</span><span class="x"> get nodes</span>
+## To view Nodes in a cluster
+$kubectl get nodes
 
-<span class="x">NAME                                          STATUS    AGE</span>
-<span class="x">gke-test-cluster-default-pool-2d123aa1-012f   Ready     2d</span>
-<span class="x">gke-test-cluster-default-pool-2d123aa1-e23k   Ready     2d</span>
-
-
-<span class="cp">##</span><span class="c"> To view the Deployment we created run:</span><span class="x"></span>
-<span class="p">$</span><span class="x">    kubectl get deployments</span>
-
-<span class="x">NAME         DESIRED   CURRENT   UP-TO-DATE   AVAILABLE   AGE</span>
-<span class="x">hello-node   1         1         1            1           3m</span>
+NAME                                          STATUS    AGE
+gke-test-cluster-default-pool-2d123aa1-012f   Ready     2d
+gke-test-cluster-default-pool-2d123aa1-e23k   Ready     2d
 
 
-<span class="cp">##</span><span class="c"> To view the Pod created by the deployment run:</span><span class="x"></span>
-<span class="p">$</span><span class="x">    kubectl get pods</span>
+## To view the Deployment we created run:
+$    kubectl get deployments
 
-<span class="x">NAME                         READY     STATUS    RESTARTS   AGE</span>
-<span class="x">hello-node-714049816-ztzrb   1/1       Running   0          6m</span>
-
-
-<span class="cp">##</span><span class="c"> To view the Pod created by the deployment run:</span><span class="x"></span>
-<span class="p">$</span><span class="x">    kubectl get pods</span>
-
-<span class="x">NAME                         READY     STATUS    RESTARTS   AGE</span>
-<span class="x">hello-node-714049816-ztzrb   1/1       Running   0          6m</span>
-
-<span class="cp">##</span><span class="c"> To view detailed information of the Pod:</span><span class="x"></span>
-<span class="p">$</span><span class="x"> kubectl get pods -o wide</span>
-<span class="x">or</span>
-<span class="p">$</span><span class="x"> kubectl get pods --output=wide</span>
-
-<span class="x">NAME             READY     STATUS    RESTARTS   AGE       IP</span>
-<span class="x">dd-agent-0f75g   1/1       Running   0          23d       10.204.5.16</span>
+NAME         DESIRED   CURRENT   UP-TO-DATE   AVAILABLE   AGE
+hello-node   1         1         1            1           3m
 
 
-<span class="cp">##</span><span class="c"> To view the stdout / stderr from a Pod run:</span><span class="x"></span>
-<span class="p">$</span><span class="x">    kubectl logs &lt;POD-NAME&gt;</span>
+## To view the Pod created by the deployment run:
+$    kubectl get pods
 
-<span class="cp">##</span><span class="c"> To view metadata about the cluster run:</span><span class="x"></span>
-<span class="p">$</span><span class="x">    kubectl cluster-info</span>
+NAME                         READY     STATUS    RESTARTS   AGE
+hello-node-714049816-ztzrb   1/1       Running   0          6m
+
+
+## To view the Pod created by the deployment run:
+$    kubectl get pods
+
+NAME                         READY     STATUS    RESTARTS   AGE
+hello-node-714049816-ztzrb   1/1       Running   0          6m
+
+## To view detailed information of the Pod:
+$ kubectl get pods -o wide
+or
+$ kubectl get pods --output=wide
+
+NAME             READY     STATUS    RESTARTS   AGE       IP
+dd-agent-0f75g   1/1       Running   0          23d       10.204.5.16
+
+
+## To view the stdout / stderr from a Pod run:
+$    kubectl logs &lt;POD-NAME&gt;
+
+## To view metadata about the cluster run:
+$    kubectl cluster-info
 </pre></div>
 
 
@@ -484,7 +484,7 @@ spec:
 </ul>
 <hr>
 <h4><a href="https://kubernetes.io/docs/tasks/configure-pod-container/assign-cpu-ram-container/">How to decide what resources you should allocate to your pods resources</a>?</h4>
-<div class="highlight"><pre>Convention
+<div class="highlight"><pre><span></span>Convention
 # RAM : Mi = MB, ie, 1024Mi is 1024 MB or 1GB
 # CPU : m = milicpu , ie, 100m cpu is 100 milicpu, or say 0.1 CPU
 
@@ -527,7 +527,7 @@ spec:
 <blockquote>
 <p>So, based on your <a href="https://cloud.google.com/container-engine/docs/node-pools">Node pool type</a>, you can deploy your pods in different Node pools by using <code>nodeSelector</code> in kubes.</p>
 </blockquote>
-<div class="highlight"><pre>-------------- Node selector example
+<div class="highlight"><pre><span></span>-------------- Node selector example
 
 apiVersion: v1
 kind: Pod
@@ -553,7 +553,7 @@ spec:
 <p><img alt="Grafana monitoring" src="/images/kubes/grafana.png" title="Grafana monitoring"></p>
 <hr>
 <p><strong>Note :</strong> Some configuration in GCE should be taken care, like <code>autoupgrade kubernetes version</code>. If you are running RabbitMQ, Redis or any other message queue as service that needs uptime, better you turn off autoupgrade because kubernetes new version release will schedule all your node for maintenance, however it rolles updates one by one but could affect your production system. Else, if you are fully stateless, you can keep default or skip this warning!</p>
-<div class="highlight"><pre>----- Autoupgrade off
+<div class="highlight"><pre><span></span>----- Autoupgrade off
 
 # https://cloud.google.com/container-engine/docs/node-auto-upgrade
 

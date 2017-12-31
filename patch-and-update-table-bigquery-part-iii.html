@@ -87,9 +87,9 @@
 <p><br></p>
 <h4>1. Add field into schema</h4>
 <p>We are going to use same table <strong><code>StreamTable</code></strong> which we used earlier for streaming and introducing one more field as <strong><code>UniqueSocialNumber</code></strong> with datatype <strong><code>INTEGER</code></strong>. Lets add these changes to <strong><code>schema.py</code></strong> which will be used by our main program written in later steps.</p>
-<div class="highlight"><pre><span class="nv">$ </span>cat schema.py
+<div class="highlight"><pre><span></span>$ cat schema.py
 
-<span class="c">#Add field schema</span>
+<span class="c1">#Add field schema</span>
 <span class="nv">TableObject</span> <span class="o">=</span> <span class="o">{</span>
     <span class="s2">&quot;tableReference&quot;</span>: <span class="o">{</span>
       <span class="s2">&quot;projectId&quot;</span>: <span class="s2">&quot;mimetic-slate&quot;</span>,
@@ -130,7 +130,7 @@
               <span class="s2">&quot;mode&quot;</span>: <span class="s2">&quot;NULLABLE&quot;</span>
           <span class="o">}</span>,
           <span class="o">{</span>
-              <span class="s2">&quot;name&quot;</span>: <span class="s2">&quot;UniqueSocialNumber&quot;</span>,   <span class="c">#New Field</span>
+              <span class="s2">&quot;name&quot;</span>: <span class="s2">&quot;UniqueSocialNumber&quot;</span>,   <span class="c1">#New Field</span>
               <span class="s2">&quot;type&quot;</span>: <span class="s2">&quot;INTEGER&quot;</span>,
               <span class="s2">&quot;mode&quot;</span>: <span class="s2">&quot;NULLABLE&quot;</span>
           <span class="o">}</span>
@@ -154,41 +154,41 @@
 <blockquote>
 <p><strong>Patch Example :</strong></p>
 </blockquote>
-<div class="highlight"><pre><span class="err">$</span> <span class="n">cat</span> <span class="n">tablePatch</span><span class="o">.</span><span class="n">py</span>
+<div class="highlight"><pre><span></span><span class="err">$</span> <span class="n">cat</span> <span class="n">tablePatch</span><span class="o">.</span><span class="n">py</span>
 
-<span class="c">#!/usr/bin/env python</span>
+<span class="c1">#!/usr/bin/env python</span>
 
-<span class="c">#https://developers.google.com/api-client-library/python/</span>
+<span class="c1">#https://developers.google.com/api-client-library/python/</span>
 <span class="kn">from</span> <span class="nn">googleapiclient</span> <span class="kn">import</span> <span class="n">discovery</span>
 <span class="kn">from</span> <span class="nn">oauth2client.client</span> <span class="kn">import</span> <span class="n">GoogleCredentials</span>
 <span class="kn">from</span> <span class="nn">schema</span> <span class="kn">import</span> <span class="n">TableObject</span>
 
 
-<span class="c"># [START Table Creater ]</span>
+<span class="c1"># [START Table Creater ]</span>
 <span class="k">def</span> <span class="nf">PatchTable</span><span class="p">(</span><span class="n">bigquery</span><span class="p">):</span>
     <span class="n">tables</span> <span class="o">=</span> <span class="n">bigquery</span><span class="o">.</span><span class="n">tables</span><span class="p">()</span>
 
-    <span class="n">tableStatusObject</span> <span class="o">=</span> <span class="n">tables</span><span class="o">.</span><span class="n">patch</span><span class="p">(</span><span class="n">projectId</span><span class="o">=</span><span class="n">TableObject</span><span class="p">[</span><span class="s">&#39;tableReference&#39;</span><span class="p">][</span><span class="s">&#39;projectId&#39;</span><span class="p">],</span> \
-                <span class="n">datasetId</span><span class="o">=</span><span class="n">TableObject</span><span class="p">[</span><span class="s">&#39;tableReference&#39;</span><span class="p">][</span><span class="s">&#39;datasetId&#39;</span><span class="p">],</span> \
-                <span class="n">tableId</span><span class="o">=</span><span class="n">TableObject</span><span class="p">[</span><span class="s">&#39;tableReference&#39;</span><span class="p">][</span><span class="s">&#39;tableId&#39;</span><span class="p">],</span> \
+    <span class="n">tableStatusObject</span> <span class="o">=</span> <span class="n">tables</span><span class="o">.</span><span class="n">patch</span><span class="p">(</span><span class="n">projectId</span><span class="o">=</span><span class="n">TableObject</span><span class="p">[</span><span class="s1">&#39;tableReference&#39;</span><span class="p">][</span><span class="s1">&#39;projectId&#39;</span><span class="p">],</span> \
+                <span class="n">datasetId</span><span class="o">=</span><span class="n">TableObject</span><span class="p">[</span><span class="s1">&#39;tableReference&#39;</span><span class="p">][</span><span class="s1">&#39;datasetId&#39;</span><span class="p">],</span> \
+                <span class="n">tableId</span><span class="o">=</span><span class="n">TableObject</span><span class="p">[</span><span class="s1">&#39;tableReference&#39;</span><span class="p">][</span><span class="s1">&#39;tableId&#39;</span><span class="p">],</span> \
                 <span class="n">body</span><span class="o">=</span><span class="n">TableObject</span><span class="p">)</span><span class="o">.</span><span class="n">execute</span><span class="p">()</span>
-    <span class="k">print</span> <span class="s">&quot;</span><span class="se">\n\n</span><span class="s">Table Patched&quot;</span>
-<span class="c"># [END]</span>
+    <span class="k">print</span> <span class="s2">&quot;</span><span class="se">\n\n</span><span class="s2">Table Patched&quot;</span>
+<span class="c1"># [END]</span>
 
 <span class="k">def</span> <span class="nf">main</span><span class="p">():</span>
-    <span class="c">#to get credentials from my laptop</span>
+    <span class="c1">#to get credentials from my laptop</span>
     <span class="n">credentials</span> <span class="o">=</span> <span class="n">GoogleCredentials</span><span class="o">.</span><span class="n">get_application_default</span><span class="p">()</span>
-    <span class="c"># Construct the service object for interacting with the BigQuery API.</span>
-    <span class="n">bigquery</span> <span class="o">=</span> <span class="n">discovery</span><span class="o">.</span><span class="n">build</span><span class="p">(</span><span class="s">&#39;bigquery&#39;</span><span class="p">,</span> <span class="s">&#39;v2&#39;</span><span class="p">,</span> <span class="n">credentials</span><span class="o">=</span><span class="n">credentials</span><span class="p">)</span>
+    <span class="c1"># Construct the service object for interacting with the BigQuery API.</span>
+    <span class="n">bigquery</span> <span class="o">=</span> <span class="n">discovery</span><span class="o">.</span><span class="n">build</span><span class="p">(</span><span class="s1">&#39;bigquery&#39;</span><span class="p">,</span> <span class="s1">&#39;v2&#39;</span><span class="p">,</span> <span class="n">credentials</span><span class="o">=</span><span class="n">credentials</span><span class="p">)</span>
     <span class="n">PatchTable</span><span class="p">(</span><span class="n">bigquery</span><span class="p">)</span>
 
 <span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">https://cloud.google.com/bigquery/docs/tables#update-schema</span>
 <span class="sd">&#39;&#39;&#39;</span>
 
-<span class="k">if</span> <span class="n">__name__</span> <span class="o">==</span> <span class="s">&#39;__main__&#39;</span><span class="p">:</span>
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s1">&#39;__main__&#39;</span><span class="p">:</span>
     <span class="n">main</span><span class="p">()</span>
-    <span class="k">print</span> <span class="s">&quot;BQ Table Patch !!&quot;</span>
+    <span class="k">print</span> <span class="s2">&quot;BQ Table Patch !!&quot;</span>
 </pre></div>
 
 
@@ -196,7 +196,7 @@
 <blockquote>
 <p>Update Example :</p>
 </blockquote>
-<div class="highlight"><pre>#instead of calling patch(), we call update() to apply updates
+<div class="highlight"><pre><span></span>#instead of calling patch(), we call update() to apply updates
 tables.update(projectId=TableObject[&#39;tableReference&#39;][&#39;projectId&#39;],\
                 datasetId=TableObject[&#39;tableReference&#39;][&#39;datasetId&#39;],\
                 tableId=TableObject[&#39;tableReference&#39;][&#39;tableId&#39;], \
@@ -208,12 +208,12 @@ tables.update(projectId=TableObject[&#39;tableReference&#39;][&#39;projectId&#39
 <p>After applying changes we can verify changes in schema of bigquery table.</p>
 <p>Visit UI :<a href="https://bigquery.cloud.google.com">https://bigquery.cloud.google.com</a></p>
 <p>You can also verify table schema by running <strong><code>bq</code></strong> CLI commands</p>
-<div class="highlight"><pre><span class="nv">$ </span>bq show BQ_Dataset.StreamTable
+<div class="highlight"><pre><span></span>$ bq show BQ_Dataset.StreamTable
 Table mimetic-slate:BQ_Dataset.StreamTable
 
    Last modified                Schema               Total Rows   Total Bytes   Expiration   Time Partitioning   Labels  
  ----------------- -------------------------------- ------------ ------------- ------------ ------------------- --------
-  <span class="m">04</span> Nov 15:48:43   <span class="p">|</span>-username: string              <span class="m">451</span>          <span class="m">50837</span>                                                  
+  <span class="m">04</span> Nov <span class="m">15</span>:48:43   <span class="p">|</span>-username: string              <span class="m">451</span>          <span class="m">50837</span>                                                  
                     <span class="p">|</span>-name:string                                                                                      
                     <span class="p">|</span>-birthdate:string                                                                                 
                     <span class="p">|</span>-sex:string                                                                                       
