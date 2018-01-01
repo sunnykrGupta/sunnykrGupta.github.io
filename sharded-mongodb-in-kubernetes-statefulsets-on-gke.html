@@ -73,21 +73,21 @@
 
 <article>
   <div class="article_title">
-    <h3><a href="https://sunnykrGupta.github.io/drafts/sharded-mongodb-in-kubernetes-statefulsets-on-gke.html">Sharded Mongodb in Kubernetes StatefulSets on GKE</a></h3>
+    <h3><a href="https://sunnykrGupta.github.io/sharded-mongodb-in-kubernetes-statefulsets-on-gke.html">Sharded Mongodb in Kubernetes StatefulSets on GKE</a></h3>
   </div>
   <div class="article_text">
-    <p>This blog is going to demonstrate the setup of Sharded MongoDB Cluster on Google Kubernetes Engine. We will use kubernetes StatefulSets feature to deploy mongodb containers.</p>
-<p><img alt="MongoDB in K8s" src="/images/kubes/k8s-mongodb.png"></p>
+    <p><img alt="MongoDB in K8s" src="/images/kubes/k8s-mongodb.png"></p>
+<p>This blog is going to demonstrate the setup of Sharded MongoDB Cluster on Google Kubernetes Engine. We will use kubernetes StatefulSets feature to deploy mongodb containers.</p>
 <p>We need to cover some concepts before we move on to demonstration.</p>
 <h3><a href="https://kubernetes.io/docs/concepts/workloads/controllers/statefulset">StatefulSets</a></h3>
-<p>A StatefulSets is like a Deployment which manages Pods and provides guarantees about the ordering and uniqueness of these Pods.
-It maintains a sticky identity for each of their Pods. It helps in deployment of application that needs persistency, unique network identifiers (DNS, Hostnames etc) and are meants for stateful applications. If a pod get terminated or deleted, a volume data will remain intact if managed by persistentvolumes.  </p>
+<p>A StatefulSets is like a Deployment which manages Pods and guarantees about the ordering and uniqueness of these Pods.
+It maintains a sticky identity for each of their Pods. It helps in deployment of application that needs persistency, unique network identifiers (DNS, Hostnames etc) and are meants for stateful application. If a pod gets terminated or deleted, a volume data will still remain intact if managed by persistentvolumes.  </p>
 <h3><a href="https://kubernetes.io/docs/concepts/storage/storage-classes/#gce">StorageClass</a></h3>
-<p>StorageClass helps in administration of different storage facilitated by Kubernetes. Each StorageClass has different provisioner (GCEPersistentDisk, AWSElasticBlockStore, AzureDisk etc) that determines what volume plugin is used for provisioning storage.</p>
+<p>StorageClass helps in administration to describe the “classes” of storage offered by Kubernetes. Each StorageClass has different provisioner (GCEPersistentDisk, AWSElasticBlockStore, AzureDisk etc) that determines what volume plugin is used for provisioning storage.</p>
 <h3><a href="https://kubernetes.io/docs/concepts/storage/persistent-volumes/">PersistentVolume</a></h3>
-<p>A PersistentVolume (PV) is a piece of storage in the cluster that has been provisioned by an administrator. PVs are resources available to be used by any Pods. Any Pods can come claim these volumes by mean of PersistentVolumeClaims (PVC) and released eventually when claim is deleted.</p>
+<p>A PersistentVolume (PV) is a piece of storage in the cluster that has been provisioned by an administrator. PVs are resources available to be used by any Pod. Any Pod can claim these volumes by mean of PersistentVolumeClaims (PVC) and released eventually when claim is deleted.</p>
 <h3><a href="https://kubernetes.io/docs/concepts/services-networking/service/#headless-services">Headless Services</a></h3>
-<p>Headless Services are used to configure DNS of pods having same selectors defined by services. It is not being used for load-balancing. Each headless services configured with label selectors helps in defining unique network identifiers for pods running in statefulset.</p>
+<p>Headless Services are used to configure DNS of pods having same selectors defined by services. It is not generally used for load-balancing purpose. Each headless services configured with label selectors helps in defining unique network identifiers for pods running in statefulset.</p>
 <p><br></p>
 <hr>
 <p><br></p>
@@ -123,7 +123,8 @@ metadata:
 
 
 <div class="highlight"><pre><span></span>#To apply resources to kubernetes, run
-kubectl apply -f namespace.yaml
+sed -e &quot;s/NAMESPACE_ID/daemonsl/g&quot; namespace.yaml &gt; tmp-namespace.yaml
+kubectl apply -f tmp-namespace.yaml
 
 #To verify namespaces
 kubectl get ns
@@ -188,13 +189,16 @@ spec:
 <p>Use above template, modify and apply in following order :</p>
 <div class="highlight"><pre><span></span>#Replace &#39;SIZE&#39; with 10 and &#39;INSTANCE&#39; with 1,
 # Ex: data-volume-k8s-mongodb-daemonsl-10g-1, storage: 10Gi,
-kubectl apply -f ext4-gce-ssd-persistentvolume.yaml
+sed -e &quot;s/INSTANCE/1/g; s/SIZE/10/g&quot; ext4-gce-ssd-persistentvolume.yaml &gt; tmp-ext4-gce-ssd-persistentvolume.yaml
+kubectl apply -f tmp-ext4-gce-ssd-persistentvolume.yaml
 
 #Replace &#39;SIZE&#39; with 10 and &#39;INSTANCE&#39; with 2
-kubectl apply -f ext4-gce-ssd-persistentvolume.yaml
+sed -e &quot;s/INSTANCE/2/g; s/SIZE/10/g&quot; ext4-gce-ssd-persistentvolume.yaml &gt; tmp-ext4-gce-ssd-persistentvolume.yaml
+kubectl apply -f tmp-ext4-gce-ssd-persistentvolume.yaml
 
 #Replace &#39;SIZE&#39; with 5 and &#39;INSTANCE&#39; with 1
-kubectl apply -f ext4-gce-ssd-persistentvolume.yaml
+sed -e &quot;s/INSTANCE/1/g; s/SIZE/5/g&quot; ext4-gce-ssd-persistentvolume.yaml &gt; tmp-ext4-gce-ssd-persistentvolume.yaml
+kubectl apply -f tmp-ext4-gce-ssd-persistentvolume.yaml
 
 
 #To verify PersistentVolume creation,
@@ -290,14 +294,15 @@ spec:
 </pre></div>
 
 
-<div class="highlight"><pre><span></span>kubectl apply -f mongodb-configdb-service-stateful.yaml
+<div class="highlight"><pre><span></span>sed -e &quot;s/NAMESPACE_ID/daemonsl/g; s/DB_DISK/5Gi/g&quot;  mongodb-configdb-service-stateful.yaml &gt; tmp-mongodb-configdb-service-stateful.yaml
+kubectl apply -f tmp-mongodb-configdb-service-stateful.yaml
 </pre></div>
 
 
 <hr>
 <h4>3.2 Statefulset mainDB</h4>
 <p>Create a file as <code>mongodb-maindb-service-stateful.yaml</code> and copy the following template. Replace <code>NAMESPACE_ID</code> with <code>daemonsl</code>, or whatever name you have defined, <code>DB_DISK</code> with <code>10Gi</code> and <code>shardX</code> &amp; <code>ShardX</code> to <code>1</code> and then <code>2</code> and apply template two times to create two different statefulsets configuration. After deploying in kubernetes, we will have two statefulsets running with name as <code>mongodb-shard1</code> and <code>mongodb-shard2</code></p>
-<p>Here again, We have created headless service and <code>VolumeClaimTemplates</code> which is requesting storageclass <code>fast</code> with storage capacity 10GB.</p>
+<p>Here again, We have created headless service and <code>VolumeClaimTemplates</code> which is requesting storageclass <code>fast</code> with storage capacity 10GB.kubectl apply -f tmp-ext4-gce-ssd-persistentvolume.yaml</p>
 <div class="highlight"><pre><span></span>#mongodb-maindb-service-stateful.yaml
 apiVersion: v1
 kind: Service
@@ -381,10 +386,12 @@ spec:
 
 
 <div class="highlight"><pre><span></span>#replace &#39;shardX&#39; &amp; &#39;ShardX&#39; with shard1 &amp; Shard1. Mind case sensitivity.
-kubectl apply -f mongodb-maindb-service-stateful.yaml
+sed -e &quot;s/shardX/shard1/g; s/ShardX/Shard1/g; s/NAMESPACE_ID/daemonsl/g; s/DB_DISK/10Gi/g&quot; mongodb-maindb-service-stateful.yaml &gt; tmp-mongodb-maindb-service-stateful.yaml
+kubectl apply -f tmp-mongodb-maindb-service-stateful.yaml
 
 #replace &#39;shardX&#39; &amp; &#39;ShardX&#39; with shard2 &amp; Shard2. Mind case sensitivity.
-kubectl apply -f mongodb-maindb-service-stateful.yaml
+sed -e &quot;s/shardX/shard2/g; s/ShardX/Shard2/g; s/NAMESPACE_ID/daemonsl/g; s/DB_DISK/10Gi/g&quot; mongodb-maindb-service-stateful.yaml &gt; tmp-mongodb-maindb-service-stateful.yaml
+kubectl apply -f tmp-mongodb-maindb-service-stateful.yaml
 
 #run command to see Pods &amp; Services spinning up
 kubectl get svc,po --namespace=daemonsl
@@ -450,7 +457,8 @@ kubectl get persistentvolumeclaims --namespace=daemonsl
 </pre></div>
 
 
-<div class="highlight"><pre><span></span>kubectl apply -f mongodb-mongos-deployment-service.yaml
+<div class="highlight"><pre><span></span>sed -e &quot;s/NAMESPACE_ID/daemonsl/g&quot; mongodb-mongos-deployment-service.yaml &gt; tmp-mongodb-mongos-deployment-service.yaml
+kubectl apply -f tmp-mongodb-mongos-deployment-service.yaml
 </pre></div>
 
 
@@ -529,11 +537,20 @@ $ mongo
  &ndash; Tags:
       <a href="https://sunnykrGupta.github.io/tag/kubernetes.html">Kubernetes</a>,      <a href="https://sunnykrGupta.github.io/tag/mongodb.html">Mongodb</a>,      <a href="https://sunnykrGupta.github.io/tag/statefulsets.html">StatefulSets</a>    </p>
   </div>
+  <section>
+      <p id="post-share-links">
+          Share on:
+          <a href="https://twitter.com/home?status=Sharded%20Mongodb%20in%20Kubernetes%20StatefulSets%20on%20GKE%20https%3A//sunnykrGupta.github.io/sharded-mongodb-in-kubernetes-statefulsets-on-gke.html" target="_blank" title="Share on Twitter"><img src="https://sunnykrGupta.github.io/theme/images/Share/twitter.svg" alt="twitter"></a>
+          <a href="https://www.facebook.com/sharer/sharer.php?u=https%3A//sunnykrGupta.github.io/sharded-mongodb-in-kubernetes-statefulsets-on-gke.html" target="_blank" title="Share on Facebook"><img src="https://sunnykrGupta.github.io/theme/images/Share/facebook.svg" alt="facebook"></a>
+          <a href="https://plus.google.com/share?url=https%3A//sunnykrGupta.github.io/sharded-mongodb-in-kubernetes-statefulsets-on-gke.html" target="_blank" title="Share on Google Plus"><img src="https://sunnykrGupta.github.io/theme/images/Share/googleplus.svg" alt="google+"></a>
+          <a href="mailto:?subject=Sharded%20Mongodb%20in%20Kubernetes%20StatefulSets%20on%20GKE&amp;body=https%3A//sunnykrGupta.github.io/sharded-mongodb-in-kubernetes-statefulsets-on-gke.html" target="_blank" title="Share via Email"><img src="https://sunnykrGupta.github.io/theme/images/Share/mail.svg" alt="email"></a>
+      </p>
+  </section>
 
   <div id="article_comments">
     <div id="disqus_thread"></div>
     <script type="text/javascript">
-        var disqus_identifier = "drafts/sharded-mongodb-in-kubernetes-statefulsets-on-gke.html";
+        var disqus_identifier = "sharded-mongodb-in-kubernetes-statefulsets-on-gke.html";
         (function() {
              var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
              dsq.src = 'https://sunnydaemon.disqus.com/embed.js';

@@ -1,5 +1,462 @@
 <?xml version="1.0" encoding="utf-8"?>
-<feed xmlns="http://www.w3.org/2005/Atom"><title>Daemon Blog - Sunny Kr Gupta</title><link href="https://sunnykrGupta.github.io/" rel="alternate"></link><link href="https://sunnykrGupta.github.io/feeds/sunny-kr-gupta.atom.xml" rel="self"></link><id>https://sunnykrGupta.github.io/</id><updated>2017-11-05T11:12:31+05:30</updated><entry><title>Patch and Update Table - BigQuery Part-III</title><link href="https://sunnykrGupta.github.io/patch-and-update-table-bigquery-part-iii.html" rel="alternate"></link><published>2017-11-05T11:12:31+05:30</published><updated>2017-11-05T11:12:31+05:30</updated><author><name>Sunny Kr Gupta</name></author><id>tag:sunnykrgupta.github.io,2017-11-05:/patch-and-update-table-bigquery-part-iii.html</id><summary type="html">&lt;p&gt;Table updation is important when you have data ready inside the table and suddenly you have a requirement of adding more fields in the table to do analysis. In this post, we are going to dive into Streaming feature of BigQuery.&lt;/p&gt;</summary><content type="html">&lt;p&gt;&lt;img alt="Google BigQuery" src="/images/bq-series/part3/bigquery.png"&gt;&lt;/p&gt;
+<feed xmlns="http://www.w3.org/2005/Atom"><title>Daemon Blog - Sunny Kr Gupta</title><link href="https://sunnykrGupta.github.io/" rel="alternate"></link><link href="https://sunnykrGupta.github.io/feeds/sunny-kr-gupta.atom.xml" rel="self"></link><id>https://sunnykrGupta.github.io/</id><updated>2017-12-31T20:23:31+05:30</updated><entry><title>Sharded Mongodb in Kubernetes StatefulSets on GKE</title><link href="https://sunnykrGupta.github.io/sharded-mongodb-in-kubernetes-statefulsets-on-gke.html" rel="alternate"></link><published>2017-12-31T20:23:31+05:30</published><updated>2017-12-31T20:23:31+05:30</updated><author><name>Sunny Kr Gupta</name></author><id>tag:sunnykrgupta.github.io,2017-12-31:/sharded-mongodb-in-kubernetes-statefulsets-on-gke.html</id><summary type="html">&lt;p&gt;&lt;img alt="MongoDB in K8s" src="/images/kubes/k8s-mongodb.png"&gt;&lt;/p&gt;
+&lt;p&gt;This blog is going to demonstrate the setup of Sharded MongoDB Cluster on Google Kubernetes Engine. We will use kubernetes StatefulSets feature to deploy mongodb containers.&lt;/p&gt;
+&lt;p&gt;We need to cover some concepts before we move on to demonstration.&lt;/p&gt;
+&lt;h3&gt;&lt;a href="https://kubernetes.io/docs/concepts/workloads/controllers/statefulset"&gt;StatefulSets&lt;/a&gt;&lt;/h3&gt;
+&lt;p&gt;A StatefulSets is like a Deployment which manages Pods and guarantees …&lt;/p&gt;</summary><content type="html">&lt;p&gt;&lt;img alt="MongoDB in K8s" src="/images/kubes/k8s-mongodb.png"&gt;&lt;/p&gt;
+&lt;p&gt;This blog is going to demonstrate the setup of Sharded MongoDB Cluster on Google Kubernetes Engine. We will use kubernetes StatefulSets feature to deploy mongodb containers.&lt;/p&gt;
+&lt;p&gt;We need to cover some concepts before we move on to demonstration.&lt;/p&gt;
+&lt;h3&gt;&lt;a href="https://kubernetes.io/docs/concepts/workloads/controllers/statefulset"&gt;StatefulSets&lt;/a&gt;&lt;/h3&gt;
+&lt;p&gt;A StatefulSets is like a Deployment which manages Pods and guarantees about the ordering and uniqueness of these Pods.
+It maintains a sticky identity for each of their Pods. It helps in deployment of application that needs persistency, unique network identifiers (DNS, Hostnames etc) and are meants for stateful application. If a pod gets terminated or deleted, a volume data will still remain intact if managed by persistentvolumes.  &lt;/p&gt;
+&lt;h3&gt;&lt;a href="https://kubernetes.io/docs/concepts/storage/storage-classes/#gce"&gt;StorageClass&lt;/a&gt;&lt;/h3&gt;
+&lt;p&gt;StorageClass helps in administration to describe the “classes” of storage offered by Kubernetes. Each StorageClass has different provisioner (GCEPersistentDisk, AWSElasticBlockStore, AzureDisk etc) that determines what volume plugin is used for provisioning storage.&lt;/p&gt;
+&lt;h3&gt;&lt;a href="https://kubernetes.io/docs/concepts/storage/persistent-volumes/"&gt;PersistentVolume&lt;/a&gt;&lt;/h3&gt;
+&lt;p&gt;A PersistentVolume (PV) is a piece of storage in the cluster that has been provisioned by an administrator. PVs are resources available to be used by any Pod. Any Pod can claim these volumes by mean of PersistentVolumeClaims (PVC) and released eventually when claim is deleted.&lt;/p&gt;
+&lt;h3&gt;&lt;a href="https://kubernetes.io/docs/concepts/services-networking/service/#headless-services"&gt;Headless Services&lt;/a&gt;&lt;/h3&gt;
+&lt;p&gt;Headless Services are used to configure DNS of pods having same selectors defined by services. It is not generally used for load-balancing purpose. Each headless services configured with label selectors helps in defining unique network identifiers for pods running in statefulset.&lt;/p&gt;
+&lt;p&gt;&lt;br&gt;&lt;/p&gt;
+&lt;hr&gt;
+&lt;p&gt;&lt;br&gt;&lt;/p&gt;
+&lt;p&gt;Lets begins the demonstration. Please switch to your terminal and follow the instructions.  &lt;/p&gt;
+&lt;h3&gt;1. Prerequisites&lt;/h3&gt;
+&lt;p&gt;Ensure the following dependencies are already fulfilled on your host Linux system:&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;GCP’s cloud client command line tool &lt;a href="https://cloud.google.com/sdk/docs/quickstarts"&gt;gcloud&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;gcloud authentication to a project to manage container engine.&lt;/li&gt;
+&lt;li&gt;Install the Kubernetes command tool (“kubectl”),&lt;/li&gt;
+&lt;li&gt;Configure kubernetes authentication credentials.&lt;/li&gt;
+&lt;/ol&gt;
+&lt;p&gt;&lt;br&gt;&lt;/p&gt;
+&lt;hr&gt;
+&lt;p&gt;&lt;br&gt;&lt;/p&gt;
+&lt;h3&gt;2. Create namespace, storageclass, Google compute Disk and persistentvolumes.&lt;/h3&gt;
+&lt;p&gt;Our Mongodb Setup will be as follows :&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;1x Config Server  (k8s deployment type: "StatefulSet")&lt;/li&gt;
+&lt;li&gt;2x Shards with each Shard being a Replica Set containing 1x replicas (k8s deployment type: "StatefulSet")&lt;/li&gt;
+&lt;li&gt;2x Mongos Routers (k8s deployment type: "Deployment")&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;We will create a kubernetes namespace and will deploy all our above resources in our defined namespaces. We will define disk that will be used by our statefulset containers. Disk will be mounted on pods running our mongodb server by means of APIs defined in StorageClass and PersistentVolume.&lt;/p&gt;
+&lt;hr&gt;
+&lt;h4&gt;2.1 Create Namespace&lt;/h4&gt;
+&lt;p&gt;Create a file as &lt;code&gt;namespace.yaml&lt;/code&gt; and replace &lt;code&gt;NAMESPACE_ID&lt;/code&gt; with your handle name or any other name. I will create a namespace with &lt;code&gt;daemonsl&lt;/code&gt;.&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;#namespace.yaml
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: NAMESPACE_ID
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;#To apply resources to kubernetes, run
+sed -e &amp;quot;s/NAMESPACE_ID/daemonsl/g&amp;quot; namespace.yaml &amp;gt; tmp-namespace.yaml
+kubectl apply -f tmp-namespace.yaml
+
+#To verify namespaces
+kubectl get ns
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;hr&gt;
+&lt;h4&gt;2.2 Create StorageClass&lt;/h4&gt;
+&lt;p&gt;Create a file as &lt;code&gt;gce-ssd-storageclass.yaml&lt;/code&gt;. We are defining our storageclass name as &lt;strong&gt;&lt;code&gt;fast&lt;/code&gt;&lt;/strong&gt; and using GCE persistent disk as our provisioner with &lt;code&gt;type: pd-ssd&lt;/code&gt; to allow SSD disk type allocation to requester (ie, statefulset container here).&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;#gce-ssd-storageclass.yaml
+kind: StorageClass
+apiVersion: storage.k8s.io/v1
+metadata:
+  name: fast
+provisioner: kubernetes.io/gce-pd
+parameters:
+  type: pd-ssd
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;#To apply resources to kubernetes, run
+kubectl apply -f gce-ssd-storageclass.yaml
+
+#To verify storageclass
+kubectl get sc
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;hr&gt;
+&lt;h4&gt;2.3 Create GCE SSD Disks&lt;/h4&gt;
+&lt;p&gt;We will create some disk to be used by mongodb statefulset container. We are ordering two &lt;code&gt;10GB&lt;/code&gt; disk and one &lt;code&gt;5GB&lt;/code&gt; disk of type &lt;code&gt;SSD&lt;/code&gt;.&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;#For MainDB servers
+gcloud compute disks create --size 10GB --type pd-ssd pd-ssd-disk-k8s-mongodb-daemonsl-10g-1
+gcloud compute disks create --size 10GB --type pd-ssd pd-ssd-disk-k8s-mongodb-daemonsl-10g-2
+
+#For Config servers
+gcloud compute disks create --size 5GB --type pd-ssd pd-ssd-disk-k8s-mongodb-daemonsl-5g-1
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;hr&gt;
+&lt;h4&gt;2.4 Create PersistentVolume&lt;/h4&gt;
+&lt;p&gt;Create a file as &lt;code&gt;ext4-gce-ssd-persistentvolume.yaml&lt;/code&gt;. We are defining our PersistentVolume storage capacity &lt;code&gt;10GB&lt;/code&gt; to be bounded by &lt;code&gt;maindb&lt;/code&gt; pod and &lt;code&gt;5GB&lt;/code&gt; to be bounded by &lt;code&gt;configdb&lt;/code&gt; pod.&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;#ext4-gce-ssd-persistentvolume.yaml
+apiVersion: &amp;quot;v1&amp;quot;
+kind: &amp;quot;PersistentVolume&amp;quot;
+metadata:
+  name: data-volume-k8s-mongodb-daemonsl-SIZEg-INSTANCE
+spec:
+  capacity:
+      storage: SIZEGi
+  accessModes:
+    - ReadWriteOnce
+  persistentVolumeReclaimPolicy: Retain
+  storageClassName: fast
+  gcePersistentDisk:
+    fsType: ext4
+    pdName: pd-ssd-disk-k8s-mongodb-daemonsl-SIZEg-INSTANCE
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;Use above template, modify and apply in following order :&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;#Replace &amp;#39;SIZE&amp;#39; with 10 and &amp;#39;INSTANCE&amp;#39; with 1,
+# Ex: data-volume-k8s-mongodb-daemonsl-10g-1, storage: 10Gi,
+sed -e &amp;quot;s/INSTANCE/1/g; s/SIZE/10/g&amp;quot; ext4-gce-ssd-persistentvolume.yaml &amp;gt; tmp-ext4-gce-ssd-persistentvolume.yaml
+kubectl apply -f tmp-ext4-gce-ssd-persistentvolume.yaml
+
+#Replace &amp;#39;SIZE&amp;#39; with 10 and &amp;#39;INSTANCE&amp;#39; with 2
+sed -e &amp;quot;s/INSTANCE/2/g; s/SIZE/10/g&amp;quot; ext4-gce-ssd-persistentvolume.yaml &amp;gt; tmp-ext4-gce-ssd-persistentvolume.yaml
+kubectl apply -f tmp-ext4-gce-ssd-persistentvolume.yaml
+
+#Replace &amp;#39;SIZE&amp;#39; with 5 and &amp;#39;INSTANCE&amp;#39; with 1
+sed -e &amp;quot;s/INSTANCE/1/g; s/SIZE/5/g&amp;quot; ext4-gce-ssd-persistentvolume.yaml &amp;gt; tmp-ext4-gce-ssd-persistentvolume.yaml
+kubectl apply -f tmp-ext4-gce-ssd-persistentvolume.yaml
+
+
+#To verify PersistentVolume creation,
+kubectl get pv
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;Now we have &lt;strong&gt;storageclass, namespace, disks&lt;/strong&gt; and &lt;strong&gt;persistentvolume&lt;/strong&gt; ready as resources for statefulset container.&lt;/p&gt;
+&lt;p&gt;&lt;br&gt;&lt;/p&gt;
+&lt;hr&gt;
+&lt;p&gt;&lt;br&gt;&lt;/p&gt;
+&lt;h3&gt;3. StatefulSet containers and Mongos Deployment.&lt;/h3&gt;
+&lt;h4&gt;3.1 Statefulset ConfigDB&lt;/h4&gt;
+&lt;p&gt;Create a file as &lt;code&gt;mongodb-configdb-service-stateful.yaml&lt;/code&gt; and copy the following template. Replace &lt;code&gt;NAMESPACE_ID&lt;/code&gt; with &lt;code&gt;daemonsl&lt;/code&gt;, or whatever name you have defined and &lt;code&gt;DB_DISK&lt;/code&gt; with &lt;code&gt;5Gi&lt;/code&gt;.&lt;/p&gt;
+&lt;p&gt;We have created a headless service with clusterIP &lt;code&gt;None&lt;/code&gt; with selector as &lt;code&gt;role: mongodb-configdb&lt;/code&gt; listening to port &lt;code&gt;27019&lt;/code&gt;. We have defined our statefulset definition with mongodb arguments and volumeClaimTemplates. Here, &lt;code&gt;VolumeClaimTemplates&lt;/code&gt; is requesting storageclass &lt;code&gt;fast&lt;/code&gt; with &lt;code&gt;storage capacity 5GB&lt;/code&gt;. This volumeClaimTemplates register this requests to storageclass and storageclass fulfill this requests by  &lt;code&gt;PersistentVolume (PV)&lt;/code&gt; and register claim in &lt;code&gt;PersistentVolumeClaims (PVC)&lt;/code&gt;.&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;#mongodb-configdb-service-stateful.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: mongodb-configdb-headless-service
+  namespace: NAMESPACE_ID
+  labels:
+    name: mongodb-configdb
+spec:
+  ports:
+  - port: 27019
+    targetPort: 27019
+  clusterIP: None
+  selector:
+    role: mongodb-configdb
+---
+apiVersion: apps/v1beta2  #change this version based on master version
+kind: StatefulSet
+metadata:
+  name: mongodb-configdb
+  namespace: NAMESPACE_ID
+spec:
+  selector:
+    matchLabels:
+      role: mongodb-configdb # has to match .spec.template.metadata.labels
+  serviceName: mongodb-configdb-headless-service
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        role: mongodb-configdb
+        tier: configdb
+    spec:
+      affinity:
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+          - weight: 100
+            podAffinityTerm:
+              labelSelector:
+                matchExpressions:
+                - key: tier
+                  operator: In
+                  values:
+                  - configdb
+              topologyKey: kubernetes.io/hostname
+      terminationGracePeriodSeconds: 10
+      containers:
+        - name: mongodb-configdb-container
+          image: mongo
+          command:
+            - &amp;quot;mongod&amp;quot;
+            - &amp;quot;--port&amp;quot;
+            - &amp;quot;27019&amp;quot;
+            - &amp;quot;--dbpath&amp;quot;
+            - &amp;quot;/mongo-disk&amp;quot;
+            - &amp;quot;--bind_ip&amp;quot;
+            - &amp;quot;0.0.0.0&amp;quot;
+            - &amp;quot;--configsvr&amp;quot;
+          resources:
+            requests:
+              cpu: 50m
+              memory: 100Mi
+          ports:
+            - containerPort: 27019
+          volumeMounts:
+            - name: mongodb-configdb-persistent-storage-claim
+              mountPath: /mongo-disk
+  volumeClaimTemplates:
+  - metadata:
+      name: mongodb-configdb-persistent-storage-claim
+      annotations:
+        volume.beta.kubernetes.io/storage-class: &amp;quot;fast&amp;quot;
+    spec:
+      accessModes: [ &amp;quot;ReadWriteOnce&amp;quot; ]
+      resources:
+        requests:
+          storage: DB_DISK
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;sed -e &amp;quot;s/NAMESPACE_ID/daemonsl/g; s/DB_DISK/5Gi/g&amp;quot;  mongodb-configdb-service-stateful.yaml &amp;gt; tmp-mongodb-configdb-service-stateful.yaml
+kubectl apply -f tmp-mongodb-configdb-service-stateful.yaml
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;hr&gt;
+&lt;h4&gt;3.2 Statefulset mainDB&lt;/h4&gt;
+&lt;p&gt;Create a file as &lt;code&gt;mongodb-maindb-service-stateful.yaml&lt;/code&gt; and copy the following template. Replace &lt;code&gt;NAMESPACE_ID&lt;/code&gt; with &lt;code&gt;daemonsl&lt;/code&gt;, or whatever name you have defined, &lt;code&gt;DB_DISK&lt;/code&gt; with &lt;code&gt;10Gi&lt;/code&gt; and &lt;code&gt;shardX&lt;/code&gt; &amp;amp; &lt;code&gt;ShardX&lt;/code&gt; to &lt;code&gt;1&lt;/code&gt; and then &lt;code&gt;2&lt;/code&gt; and apply template two times to create two different statefulsets configuration. After deploying in kubernetes, we will have two statefulsets running with name as &lt;code&gt;mongodb-shard1&lt;/code&gt; and &lt;code&gt;mongodb-shard2&lt;/code&gt;&lt;/p&gt;
+&lt;p&gt;Here again, We have created headless service and &lt;code&gt;VolumeClaimTemplates&lt;/code&gt; which is requesting storageclass &lt;code&gt;fast&lt;/code&gt; with storage capacity 10GB.kubectl apply -f tmp-ext4-gce-ssd-persistentvolume.yaml&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;#mongodb-maindb-service-stateful.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: mongodb-shardX-headless-service
+  namespace: NAMESPACE_ID
+  labels:
+    name: mongodb-shardX
+spec:
+  ports:
+  - port: 27017
+    targetPort: 27017
+  clusterIP: None
+  selector:
+    role: mongodb-shardX
+---
+apiVersion: apps/v1beta2
+kind: StatefulSet
+metadata:
+  name: mongodb-shardX
+  namespace: NAMESPACE_ID
+spec:
+  selector:
+    matchLabels:
+      role: mongodb-shardX # has to match .spec.template.metadata.labels
+  serviceName: mongodb-shardX-headless-service
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        role: mongodb-shardX
+        tier: maindb
+        replicaset: ShardX
+    spec:
+      affinity:
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+          - weight: 100
+            podAffinityTerm:
+              labelSelector:
+                matchExpressions:
+                - key: replicaset
+                  operator: In
+                  values:
+                  - ShardX
+              topologyKey: kubernetes.io/hostname
+      terminationGracePeriodSeconds: 10
+      containers:
+        - name: mongodb-shardX-container
+          image: mongo
+          command:
+            - &amp;quot;mongod&amp;quot;
+            - &amp;quot;--port&amp;quot;
+            - &amp;quot;27017&amp;quot;
+            - &amp;quot;--bind_ip&amp;quot;
+            - &amp;quot;0.0.0.0&amp;quot;
+            - &amp;quot;--replSet&amp;quot;
+            - &amp;quot;ShardX&amp;quot;
+            - &amp;quot;--dbpath&amp;quot;
+            - &amp;quot;/mongo-disk&amp;quot;
+          resources:
+            requests:
+              cpu: 50m
+              memory: 100Mi
+          ports:
+            - containerPort: 27017
+          volumeMounts:
+            - name: mongo-shardX-persistent-storage-claim
+              mountPath: /mongo-disk
+  volumeClaimTemplates:
+  - metadata:
+      name: mongo-shardX-persistent-storage-claim
+      annotations:
+        volume.beta.kubernetes.io/storage-class: &amp;quot;fast&amp;quot;
+    spec:
+      accessModes: [ &amp;quot;ReadWriteOnce&amp;quot; ]
+      resources:
+        requests:
+          storage: DB_DISK
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;#replace &amp;#39;shardX&amp;#39; &amp;amp; &amp;#39;ShardX&amp;#39; with shard1 &amp;amp; Shard1. Mind case sensitivity.
+sed -e &amp;quot;s/shardX/shard1/g; s/ShardX/Shard1/g; s/NAMESPACE_ID/daemonsl/g; s/DB_DISK/10Gi/g&amp;quot; mongodb-maindb-service-stateful.yaml &amp;gt; tmp-mongodb-maindb-service-stateful.yaml
+kubectl apply -f tmp-mongodb-maindb-service-stateful.yaml
+
+#replace &amp;#39;shardX&amp;#39; &amp;amp; &amp;#39;ShardX&amp;#39; with shard2 &amp;amp; Shard2. Mind case sensitivity.
+sed -e &amp;quot;s/shardX/shard2/g; s/ShardX/Shard2/g; s/NAMESPACE_ID/daemonsl/g; s/DB_DISK/10Gi/g&amp;quot; mongodb-maindb-service-stateful.yaml &amp;gt; tmp-mongodb-maindb-service-stateful.yaml
+kubectl apply -f tmp-mongodb-maindb-service-stateful.yaml
+
+#run command to see Pods &amp;amp; Services spinning up
+kubectl get svc,po --namespace=daemonsl
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;Till here, we have accomplished statefulsets container running along with headless services and mounted a SSD volume that fulfills Pods requirement.&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;kubectl get persistentvolumes
+
+# Get persistent volume claims
+kubectl get persistentvolumeclaims --namespace=daemonsl
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;hr&gt;
+&lt;h4&gt;3.3 Mongos Deployment&lt;/h4&gt;
+&lt;p&gt;We have configdb and maindb pods up and running. We will spin up mongos server to establish a sharding cluster. Replace &lt;code&gt;NAMESPACE_ID&lt;/code&gt; with &lt;code&gt;daemonsl&lt;/code&gt;, or whatever name you have defined.&lt;/p&gt;
+&lt;p&gt;We have configured config server information in mongos using &lt;code&gt;--configdb&lt;/code&gt; flag with unique network identifiers of configdb pod. DNS of statefulset pods goes by convention &lt;code&gt;&amp;lt;POD_NAME&amp;gt;.&amp;lt;SERVICE_NAME&amp;gt;.&amp;lt;NAMESPACE&amp;gt;.svc.&amp;lt;CLUSTER_DOMAIN&amp;gt;&lt;/code&gt;.&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;Reference : &lt;/strong&gt; &lt;a href="https://kubernetes.io/docs/concepts/workloads/controllers/statefulset/#stable-network-id"&gt;https://kubernetes.io/docs/concepts/workloads/controllers/statefulset/#stable-network-id&lt;/a&gt;&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="n"&gt;apiVersion&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt; &lt;span class="n"&gt;apps&lt;/span&gt;&lt;span class="o"&gt;/&lt;/span&gt;&lt;span class="n"&gt;v1beta1&lt;/span&gt;
+&lt;span class="n"&gt;kind&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt; &lt;span class="n"&gt;Deployment&lt;/span&gt;
+&lt;span class="n"&gt;metadata&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt;
+  &lt;span class="n"&gt;name&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt; &lt;span class="n"&gt;mongos&lt;/span&gt;
+  &lt;span class="kd"&gt;namespace&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt; &lt;span class="n"&gt;NAMESPACE_ID&lt;/span&gt;
+&lt;span class="n"&gt;spec&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt;
+  &lt;span class="n"&gt;replicas&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt; &lt;span class="mi"&gt;2&lt;/span&gt;
+  &lt;span class="n"&gt;template&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt;
+    &lt;span class="n"&gt;metadata&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt;
+      &lt;span class="n"&gt;labels&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt;
+        &lt;span class="n"&gt;role&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt; &lt;span class="n"&gt;mongos&lt;/span&gt;
+        &lt;span class="n"&gt;tier&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt; &lt;span class="n"&gt;routers&lt;/span&gt;
+    &lt;span class="n"&gt;spec&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt;
+      &lt;span class="n"&gt;affinity&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt;
+        &lt;span class="n"&gt;podAntiAffinity&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt;
+          &lt;span class="n"&gt;preferredDuringSchedulingIgnoredDuringExecution&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt;
+          &lt;span class="o"&gt;-&lt;/span&gt; &lt;span class="n"&gt;weight&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt; &lt;span class="mi"&gt;100&lt;/span&gt;
+            &lt;span class="n"&gt;podAffinityTerm&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt;
+              &lt;span class="n"&gt;labelSelector&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt;
+                &lt;span class="n"&gt;matchExpressions&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt;
+                &lt;span class="o"&gt;-&lt;/span&gt; &lt;span class="n"&gt;key&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt; &lt;span class="n"&gt;tier&lt;/span&gt;
+                  &lt;span class="n"&gt;operator&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt; &lt;span class="n"&gt;In&lt;/span&gt;
+                  &lt;span class="n"&gt;values&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt;
+                  &lt;span class="o"&gt;-&lt;/span&gt; &lt;span class="n"&gt;routers&lt;/span&gt;
+              &lt;span class="n"&gt;topologyKey&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt; &lt;span class="n"&gt;kubernetes&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="na"&gt;io&lt;/span&gt;&lt;span class="o"&gt;/&lt;/span&gt;&lt;span class="n"&gt;hostname&lt;/span&gt;
+      &lt;span class="n"&gt;terminationGracePeriodSeconds&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt; &lt;span class="mi"&gt;10&lt;/span&gt;
+      &lt;span class="n"&gt;containers&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt;
+        &lt;span class="o"&gt;-&lt;/span&gt; &lt;span class="n"&gt;name&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt; &lt;span class="n"&gt;mongos&lt;/span&gt;&lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="n"&gt;container&lt;/span&gt;
+          &lt;span class="n"&gt;image&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt; &lt;span class="n"&gt;mongo&lt;/span&gt;
+          &lt;span class="n"&gt;command&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt;
+            &lt;span class="o"&gt;-&lt;/span&gt; &lt;span class="s2"&gt;&amp;quot;mongos&amp;quot;&lt;/span&gt;
+            &lt;span class="o"&gt;-&lt;/span&gt; &lt;span class="s2"&gt;&amp;quot;--port&amp;quot;&lt;/span&gt;
+            &lt;span class="o"&gt;-&lt;/span&gt; &lt;span class="s2"&gt;&amp;quot;27017&amp;quot;&lt;/span&gt;
+            &lt;span class="o"&gt;-&lt;/span&gt; &lt;span class="s2"&gt;&amp;quot;--bind_ip&amp;quot;&lt;/span&gt;
+            &lt;span class="o"&gt;-&lt;/span&gt; &lt;span class="s2"&gt;&amp;quot;0.0.0.0&amp;quot;&lt;/span&gt;
+            &lt;span class="o"&gt;-&lt;/span&gt; &lt;span class="s2"&gt;&amp;quot;--configdb&amp;quot;&lt;/span&gt;
+            &lt;span class="o"&gt;-&lt;/span&gt; &lt;span class="s2"&gt;&amp;quot;mongodb-configdb-0.mongodb-configdb-headless-service.daemonsl.svc.cluster.local:27019&amp;quot;&lt;/span&gt;
+          &lt;span class="n"&gt;resources&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt;
+            &lt;span class="n"&gt;requests&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt;
+              &lt;span class="n"&gt;cpu&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt; &lt;span class="mi"&gt;50&lt;/span&gt;&lt;span class="n"&gt;m&lt;/span&gt;
+              &lt;span class="n"&gt;memory&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt; &lt;span class="mi"&gt;100&lt;/span&gt;&lt;span class="n"&gt;Mi&lt;/span&gt;
+          &lt;span class="n"&gt;ports&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt;
+            &lt;span class="o"&gt;-&lt;/span&gt; &lt;span class="n"&gt;containerPort&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt; &lt;span class="mi"&gt;27017&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;sed -e &amp;quot;s/NAMESPACE_ID/daemonsl/g&amp;quot; mongodb-mongos-deployment-service.yaml &amp;gt; tmp-mongodb-mongos-deployment-service.yaml
+kubectl apply -f tmp-mongodb-mongos-deployment-service.yaml
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;&lt;br&gt;&lt;/p&gt;
+&lt;hr&gt;
+&lt;p&gt;&lt;br&gt;&lt;/p&gt;
+&lt;h3&gt;4. Configure Sharding&lt;/h3&gt;
+&lt;p&gt;Now, we have &lt;code&gt;mongos, configdb&lt;/code&gt; and &lt;code&gt;maindb&lt;/code&gt; up and running. We need to create Replicaset in MainDB servers that we are intending to make shard. We will run &lt;code&gt;rs.initiate()&lt;/code&gt; command to make &lt;code&gt;PRIMARY&lt;/code&gt; replica. Since we are going with one replica member in each shard. We will run initiate command in each of the &lt;code&gt;maindb&lt;/code&gt; pod.&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="nt"&gt;echo&lt;/span&gt; &lt;span class="s2"&gt;&amp;quot;Replicaset Init mongodb-shard1-0 &amp;quot;&lt;/span&gt;
+&lt;span class="nt"&gt;kubectl&lt;/span&gt; &lt;span class="nt"&gt;exec&lt;/span&gt; &lt;span class="nt"&gt;--namespace&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="nt"&gt;daemonsl&lt;/span&gt; &lt;span class="nt"&gt;mongodb-shard1-0&lt;/span&gt; &lt;span class="nt"&gt;-c&lt;/span&gt; &lt;span class="nt"&gt;mongodb-shard1-container&lt;/span&gt; &lt;span class="nt"&gt;--&lt;/span&gt; &lt;span class="nt"&gt;mongo&lt;/span&gt; &lt;span class="nt"&gt;--port&lt;/span&gt; &lt;span class="nt"&gt;27017&lt;/span&gt; &lt;span class="nt"&gt;--eval&lt;/span&gt; &lt;span class="s2"&gt;&amp;quot;rs.initiate({_id: \&amp;quot;Shard1\&amp;quot;&lt;/span&gt;&lt;span class="o"&gt;,&lt;/span&gt; &lt;span class="nt"&gt;version&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt; &lt;span class="nt"&gt;1&lt;/span&gt;&lt;span class="o"&gt;,&lt;/span&gt; &lt;span class="nt"&gt;members&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt; &lt;span class="cp"&gt;[&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt;&lt;span class="nx"&gt;_id&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="mi"&gt;0&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="nx"&gt;host&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="o"&gt;\&lt;/span&gt;&lt;span class="s2"&gt;&amp;quot;mongodb-shard1-0.mongodb-shard1-headless-service.daemonsl.svc.cluster.local:27017&lt;/span&gt;&lt;span class="se"&gt;\&amp;quot;&lt;/span&gt;&lt;span class="s2"&gt;} ] });&amp;quot;&lt;/span&gt;
+
+
+&lt;span class="nx"&gt;echo&lt;/span&gt; &lt;span class="s2"&gt;&amp;quot;Replicaset Init mongodb-shard2-0 &amp;quot;&lt;/span&gt;  
+&lt;span class="nx"&gt;kubectl&lt;/span&gt; &lt;span class="nx"&gt;exec&lt;/span&gt; &lt;span class="o"&gt;--&lt;/span&gt;&lt;span class="n"&gt;namespace&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="nx"&gt;daemonsl&lt;/span&gt; &lt;span class="nx"&gt;mongodb&lt;/span&gt;&lt;span class="na"&gt;-shard2&lt;/span&gt;&lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="mi"&gt;0&lt;/span&gt; &lt;span class="na"&gt;-c&lt;/span&gt; &lt;span class="nx"&gt;mongodb&lt;/span&gt;&lt;span class="na"&gt;-shard2-container&lt;/span&gt; &lt;span class="o"&gt;--&lt;/span&gt; &lt;span class="nx"&gt;mongo&lt;/span&gt; &lt;span class="o"&gt;--&lt;/span&gt;&lt;span class="nx"&gt;port&lt;/span&gt; &lt;span class="mi"&gt;27017&lt;/span&gt; &lt;span class="o"&gt;--&lt;/span&gt;&lt;span class="nx"&gt;eval&lt;/span&gt; &lt;span class="s2"&gt;&amp;quot;rs.initiate({_id: &lt;/span&gt;&lt;span class="se"&gt;\&amp;quot;&lt;/span&gt;&lt;span class="s2"&gt;Shard2&lt;/span&gt;&lt;span class="se"&gt;\&amp;quot;&lt;/span&gt;&lt;span class="s2"&gt;, version: 1, members: [ {_id: 0, host: &lt;/span&gt;&lt;span class="se"&gt;\&amp;quot;&lt;/span&gt;&lt;span class="s2"&gt;mongodb-shard2-0.mongodb-shard2-headless-service.daemonsl.svc.cluster.local:27017&lt;/span&gt;&lt;span class="se"&gt;\&amp;quot;&lt;/span&gt;&lt;span class="s2"&gt;} ] });&amp;quot;&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;Above lines, will make both pods PRIMARY of their respective replicaset. You can even go into container to verify replicaset status by running &lt;code&gt;rs.status()&lt;/code&gt; command.&lt;/p&gt;
+&lt;p&gt;We are proceeding now to add shards to mongos server. We will run below command in any of the mongos pod. Mongos server are stateless application, they save the configuration in configdb server which we have made stateful application by declaring them under statefulset container.&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="nt"&gt;echo&lt;/span&gt; &lt;span class="s2"&gt;&amp;quot;Adding Shard 1 : Shard1 &amp;quot;&lt;/span&gt;
+&lt;span class="nt"&gt;kubectl&lt;/span&gt; &lt;span class="nt"&gt;exec&lt;/span&gt; &lt;span class="nt"&gt;--namespace&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="nt"&gt;daemonsl&lt;/span&gt; &lt;span class="o"&gt;$(&lt;/span&gt;&lt;span class="nt"&gt;kubectl&lt;/span&gt; &lt;span class="nt"&gt;get&lt;/span&gt; &lt;span class="nt"&gt;pod&lt;/span&gt; &lt;span class="nt"&gt;-l&lt;/span&gt; &lt;span class="s2"&gt;&amp;quot;tier=routers&amp;quot;&lt;/span&gt; &lt;span class="nt"&gt;-o&lt;/span&gt; &lt;span class="nt"&gt;jsonpath&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="s1"&gt;&amp;#39;{.items&lt;/span&gt;&lt;span class="cp"&gt;[&lt;/span&gt;&lt;span class="mi"&gt;0&lt;/span&gt;&lt;span class="cp"&gt;]&lt;/span&gt;&lt;span class="s1"&gt;.metadata.name}&amp;#39;&lt;/span&gt; &lt;span class="nt"&gt;--namespace&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="nt"&gt;daemonsl&lt;/span&gt; &lt;span class="o"&gt;)&lt;/span&gt; &lt;span class="nt"&gt;-c&lt;/span&gt; &lt;span class="nt"&gt;mongos-container&lt;/span&gt; &lt;span class="nt"&gt;--&lt;/span&gt; &lt;span class="nt"&gt;mongo&lt;/span&gt; &lt;span class="nt"&gt;--port&lt;/span&gt; &lt;span class="nt"&gt;27017&lt;/span&gt; &lt;span class="nt"&gt;--eval&lt;/span&gt; &lt;span class="s2"&gt;&amp;quot;sh.addShard(\&amp;quot;Shard1/mongodb-shard1-0.mongodb-shard1-headless-service.daemonsl.svc.cluster.local:27017\&amp;quot;);&amp;quot;&lt;/span&gt;
+
+&lt;span class="nt"&gt;echo&lt;/span&gt; &lt;span class="s2"&gt;&amp;quot;Adding Shard 2 : Shard2 &amp;quot;&lt;/span&gt;
+&lt;span class="nt"&gt;kubectl&lt;/span&gt; &lt;span class="nt"&gt;exec&lt;/span&gt; &lt;span class="nt"&gt;--namespace&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="nt"&gt;daemonsl&lt;/span&gt; &lt;span class="o"&gt;$(&lt;/span&gt;&lt;span class="nt"&gt;kubectl&lt;/span&gt; &lt;span class="nt"&gt;get&lt;/span&gt; &lt;span class="nt"&gt;pod&lt;/span&gt; &lt;span class="nt"&gt;-l&lt;/span&gt; &lt;span class="s2"&gt;&amp;quot;tier=routers&amp;quot;&lt;/span&gt; &lt;span class="nt"&gt;-o&lt;/span&gt; &lt;span class="nt"&gt;jsonpath&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="s1"&gt;&amp;#39;{.items&lt;/span&gt;&lt;span class="cp"&gt;[&lt;/span&gt;&lt;span class="mi"&gt;0&lt;/span&gt;&lt;span class="cp"&gt;]&lt;/span&gt;&lt;span class="s1"&gt;.metadata.name}&amp;#39;&lt;/span&gt; &lt;span class="nt"&gt;--namespace&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="nt"&gt;daemonsl&lt;/span&gt; &lt;span class="o"&gt;)&lt;/span&gt; &lt;span class="nt"&gt;-c&lt;/span&gt; &lt;span class="nt"&gt;mongos-container&lt;/span&gt; &lt;span class="nt"&gt;--&lt;/span&gt; &lt;span class="nt"&gt;mongo&lt;/span&gt; &lt;span class="nt"&gt;--port&lt;/span&gt; &lt;span class="nt"&gt;27017&lt;/span&gt; &lt;span class="nt"&gt;--eval&lt;/span&gt; &lt;span class="s2"&gt;&amp;quot;sh.addShard(\&amp;quot;Shard2/mongodb-shard2-0.mongodb-shard2-headless-service.daemonsl.svc.cluster.local:27017\&amp;quot;);&amp;quot;&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;Now, we can get into one of the mongos container to verify the sharding status of cluster. All the above steps can be automated to make any number of shards within your cluster and thus concepts are very trivial to support stateful application powered by GKE.&lt;/p&gt;
+&lt;hr&gt;
+&lt;h4&gt;Test Sharding&lt;/h4&gt;
+&lt;p&gt;To test that the sharded cluster is working properly, connect to the container running the first "mongos" router, then use the Mongo Shell to authenticate, enable sharding on a specific database &amp;amp; collection, add some test data to this collection and then view the status of the Sharded cluster and collection:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;$ kubectl &lt;span class="nb"&gt;exec&lt;/span&gt; -it &lt;span class="k"&gt;$(&lt;/span&gt;kubectl get pod -l &lt;span class="s2"&gt;&amp;quot;tier=routers&amp;quot;&lt;/span&gt; -o &lt;span class="nv"&gt;jsonpath&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="s1"&gt;&amp;#39;{.items[0].metadata.name}&amp;#39;&lt;/span&gt;&lt;span class="k"&gt;)&lt;/span&gt; -c mongos-container bash
+$ mongo
+&amp;gt; sh.enableSharding&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="s2"&gt;&amp;quot;&amp;lt;Database_name&amp;gt;&amp;quot;&lt;/span&gt;&lt;span class="o"&gt;)&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
+&amp;gt; sh.status&lt;span class="o"&gt;()&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
+&amp;gt; use admin
+&amp;gt; db.admin.runCommand&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="s2"&gt;&amp;quot;getShardMap&amp;quot;&lt;/span&gt;&lt;span class="o"&gt;)&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;hr&gt;
+&lt;h4&gt;Tearing &amp;amp; Cleaning Down the Kubernetes Environment&lt;/h4&gt;
+&lt;p&gt;&lt;strong&gt;Important:&lt;/strong&gt; This step is required to ensure you aren't continuously charged by Google Cloud for an environment you no longer need.&lt;/p&gt;
+&lt;p&gt;Run the following script to undeploy the MongoDB Services &amp;amp; StatefulSets/Deployments plus related Kubernetes resources, followed by the removal of the GCE disks. This script is available in repository.&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;$ sh teardown.sh   &lt;span class="c1"&gt;#To delete all resources provisioned above&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;hr&gt;
+&lt;h3&gt;Factors Addressed in this Demonstration&lt;/h3&gt;
+&lt;ul&gt;
+&lt;li&gt;Deployment of a MongoDB on the Google Kubernetes Engine&lt;/li&gt;
+&lt;li&gt;Use of Kubernetes StatefulSets and PersistentVolumeClaims to ensure data is not lost when containers are recycled&lt;/li&gt;
+&lt;li&gt;Proper configuration of a MongoDB Sharded Cluster for Scalability with each Shard being a Replica Set for full resiliency&lt;/li&gt;
+&lt;li&gt;Controlling Anti-Affinity for Mongod Replicas to avoid a Single Point of Failure&lt;/li&gt;
+&lt;/ul&gt;
+&lt;hr&gt;
+&lt;p&gt;&lt;strong&gt;Github reference : &lt;a href="https://github.com/sunnykrGupta/gke-mongodb-shards"&gt;https://github.com/sunnykrGupta/gke-mongodb-shards&lt;/a&gt;&lt;/strong&gt;&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;Credit :&lt;/strong&gt; This blog is based on workdone by &lt;a href="https://twitter.com/TheDonester"&gt;Paul Done&lt;/a&gt;&lt;/p&gt;
+&lt;hr&gt;
+&lt;h4&gt;Must read below resources in order to get detailed understanding :&lt;/h4&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;a href="https://kubernetes.io/docs/concepts/workloads/controllers/statefulset"&gt;https://kubernetes.io/docs/concepts/workloads/controllers/statefulset&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="https://kubernetes.io/docs/concepts/services-networking/service/#headless-services"&gt;https://kubernetes.io/docs/concepts/services-networking/service/#headless-services&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="https://kubernetes.io/docs/concepts/workloads/controllers/statefulset/#stable-network-id"&gt;https://kubernetes.io/docs/concepts/workloads/controllers/statefulset/#stable-network-id&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="https://kubernetes.io/docs/concepts/storage/storage-classes/#gce"&gt;https://kubernetes.io/docs/concepts/storage/storage-classes/#gce&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="https://kubernetes.io/docs/concepts/storage/persistent-volumes/"&gt;https://kubernetes.io/docs/concepts/storage/persistent-volumes/&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="http://blog.kubernetes.io/2017/03/dynamic-provisioning-and-storage-classes-kubernetes.html"&gt;http://blog.kubernetes.io/2017/03/dynamic-provisioning-and-storage-classes-kubernetes.html&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="http://blog.kubernetes.io/2017/03/advanced-scheduling-in-kubernetes.html"&gt;http://blog.kubernetes.io/2017/03/advanced-scheduling-in-kubernetes.html&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;hr&gt;</content><category term="Kubernetes"></category><category term="Mongodb"></category><category term="StatefulSets"></category></entry><entry><title>Patch and Update Table - BigQuery Part-III</title><link href="https://sunnykrGupta.github.io/patch-and-update-table-bigquery-part-iii.html" rel="alternate"></link><published>2017-11-05T11:12:31+05:30</published><updated>2017-11-05T11:12:31+05:30</updated><author><name>Sunny Kr Gupta</name></author><id>tag:sunnykrgupta.github.io,2017-11-05:/patch-and-update-table-bigquery-part-iii.html</id><summary type="html">&lt;p&gt;Table updation is important when you have data ready inside the table and suddenly you have a requirement of adding more fields in the table to do analysis. In this post, we are going to dive into Streaming feature of BigQuery.&lt;/p&gt;</summary><content type="html">&lt;p&gt;&lt;img alt="Google BigQuery" src="/images/bq-series/part3/bigquery.png"&gt;&lt;/p&gt;
 &lt;p&gt;This post is 3rd part of 3-post series. In the earlier post, we understood the streaming in BigQuery &lt;strong&gt;&lt;a href="https://sunnykrgupta.github.io/streaming-with-redis-bigquery-part-ii.html"&gt;Streaming with Redis - BigQuery Part-II&lt;/a&gt;&lt;/strong&gt;. In this post, we are going to learn patching and updating table schemas.&lt;/p&gt;
 &lt;p&gt;&lt;br&gt;&lt;/p&gt;
 &lt;h3&gt;Update/Patch Table in BigQuery&lt;/h3&gt;
