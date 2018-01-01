@@ -3,32 +3,34 @@ Date: 2017-12-31 20:23:31
 Category: Blog
 Tags: Kubernetes,Mongodb,StatefulSets
 Author: Sunny Kr Gupta
-Status: draft
+Status: published
+
+
+![MongoDB in K8s](/images/kubes/k8s-mongodb.png)
 
 
 This blog is going to demonstrate the setup of Sharded MongoDB Cluster on Google Kubernetes Engine. We will use kubernetes StatefulSets feature to deploy mongodb containers.
 
-![MongoDB in K8s](/images/kubes/k8s-mongodb.png)
 
 We need to cover some concepts before we move on to demonstration.
 
 
 ### [StatefulSets](https://kubernetes.io/docs/concepts/workloads/controllers/statefulset)
 
-A StatefulSets is like a Deployment which manages Pods and provides guarantees about the ordering and uniqueness of these Pods.
-It maintains a sticky identity for each of their Pods. It helps in deployment of application that needs persistency, unique network identifiers (DNS, Hostnames etc) and are meants for stateful applications. If a pod get terminated or deleted, a volume data will remain intact if managed by persistentvolumes.  
+A StatefulSets is like a Deployment which manages Pods and guarantees about the ordering and uniqueness of these Pods.
+It maintains a sticky identity for each of their Pods. It helps in deployment of application that needs persistency, unique network identifiers (DNS, Hostnames etc) and are meants for stateful application. If a pod gets terminated or deleted, a volume data will still remain intact if managed by persistentvolumes.  
 
 ### [StorageClass](https://kubernetes.io/docs/concepts/storage/storage-classes/#gce)
 
-StorageClass helps in administration of different storage facilitated by Kubernetes. Each StorageClass has different provisioner (GCEPersistentDisk, AWSElasticBlockStore, AzureDisk etc) that determines what volume plugin is used for provisioning storage.
+StorageClass helps in administration to describe the “classes” of storage offered by Kubernetes. Each StorageClass has different provisioner (GCEPersistentDisk, AWSElasticBlockStore, AzureDisk etc) that determines what volume plugin is used for provisioning storage.
 
 ### [PersistentVolume](https://kubernetes.io/docs/concepts/storage/persistent-volumes/)
 
-A PersistentVolume (PV) is a piece of storage in the cluster that has been provisioned by an administrator. PVs are resources available to be used by any Pods. Any Pods can come claim these volumes by mean of PersistentVolumeClaims (PVC) and released eventually when claim is deleted.
+A PersistentVolume (PV) is a piece of storage in the cluster that has been provisioned by an administrator. PVs are resources available to be used by any Pod. Any Pod can claim these volumes by mean of PersistentVolumeClaims (PVC) and released eventually when claim is deleted.
 
 ### [Headless Services](https://kubernetes.io/docs/concepts/services-networking/service/#headless-services)
 
-Headless Services are used to configure DNS of pods having same selectors defined by services. It is not being used for load-balancing. Each headless services configured with label selectors helps in defining unique network identifiers for pods running in statefulset.
+Headless Services are used to configure DNS of pods having same selectors defined by services. It is not generally used for load-balancing purpose. Each headless services configured with label selectors helps in defining unique network identifiers for pods running in statefulset.
 
 <br>
 
@@ -79,7 +81,8 @@ metadata:
 
 ```
 #To apply resources to kubernetes, run
-kubectl apply -f namespace.yaml
+sed -e "s/NAMESPACE_ID/daemonsl/g" namespace.yaml > tmp-namespace.yaml
+kubectl apply -f tmp-namespace.yaml
 
 #To verify namespaces
 kubectl get ns
@@ -154,13 +157,16 @@ Use above template, modify and apply in following order :
 ```
 #Replace 'SIZE' with 10 and 'INSTANCE' with 1,
 # Ex: data-volume-k8s-mongodb-daemonsl-10g-1, storage: 10Gi,
-kubectl apply -f ext4-gce-ssd-persistentvolume.yaml
+sed -e "s/INSTANCE/1/g; s/SIZE/10/g" ext4-gce-ssd-persistentvolume.yaml > tmp-ext4-gce-ssd-persistentvolume.yaml
+kubectl apply -f tmp-ext4-gce-ssd-persistentvolume.yaml
 
 #Replace 'SIZE' with 10 and 'INSTANCE' with 2
-kubectl apply -f ext4-gce-ssd-persistentvolume.yaml
+sed -e "s/INSTANCE/2/g; s/SIZE/10/g" ext4-gce-ssd-persistentvolume.yaml > tmp-ext4-gce-ssd-persistentvolume.yaml
+kubectl apply -f tmp-ext4-gce-ssd-persistentvolume.yaml
 
 #Replace 'SIZE' with 5 and 'INSTANCE' with 1
-kubectl apply -f ext4-gce-ssd-persistentvolume.yaml
+sed -e "s/INSTANCE/1/g; s/SIZE/5/g" ext4-gce-ssd-persistentvolume.yaml > tmp-ext4-gce-ssd-persistentvolume.yaml
+kubectl apply -f tmp-ext4-gce-ssd-persistentvolume.yaml
 
 
 #To verify PersistentVolume creation,
@@ -266,7 +272,8 @@ spec:
 ```
 
 ```
-kubectl apply -f mongodb-configdb-service-stateful.yaml
+sed -e "s/NAMESPACE_ID/daemonsl/g; s/DB_DISK/5Gi/g"  mongodb-configdb-service-stateful.yaml > tmp-mongodb-configdb-service-stateful.yaml
+kubectl apply -f tmp-mongodb-configdb-service-stateful.yaml
 ```
 
 -------------
@@ -275,7 +282,8 @@ kubectl apply -f mongodb-configdb-service-stateful.yaml
 
 Create a file as `mongodb-maindb-service-stateful.yaml` and copy the following template. Replace `NAMESPACE_ID` with `daemonsl`, or whatever name you have defined, `DB_DISK` with `10Gi` and `shardX` & `ShardX` to `1` and then `2` and apply template two times to create two different statefulsets configuration. After deploying in kubernetes, we will have two statefulsets running with name as `mongodb-shard1` and `mongodb-shard2`
 
-Here again, We have created headless service and `VolumeClaimTemplates` which is requesting storageclass `fast` with storage capacity 10GB.
+Here again, We have created headless service and `VolumeClaimTemplates` which is requesting storageclass `fast` with storage capacity 10GB.kubectl apply -f tmp-ext4-gce-ssd-persistentvolume.yaml
+
 
 ```
 #mongodb-maindb-service-stateful.yaml
@@ -361,10 +369,12 @@ spec:
 
 ```
 #replace 'shardX' & 'ShardX' with shard1 & Shard1. Mind case sensitivity.
-kubectl apply -f mongodb-maindb-service-stateful.yaml
+sed -e "s/shardX/shard1/g; s/ShardX/Shard1/g; s/NAMESPACE_ID/daemonsl/g; s/DB_DISK/10Gi/g" mongodb-maindb-service-stateful.yaml > tmp-mongodb-maindb-service-stateful.yaml
+kubectl apply -f tmp-mongodb-maindb-service-stateful.yaml
 
 #replace 'shardX' & 'ShardX' with shard2 & Shard2. Mind case sensitivity.
-kubectl apply -f mongodb-maindb-service-stateful.yaml
+sed -e "s/shardX/shard2/g; s/ShardX/Shard2/g; s/NAMESPACE_ID/daemonsl/g; s/DB_DISK/10Gi/g" mongodb-maindb-service-stateful.yaml > tmp-mongodb-maindb-service-stateful.yaml
+kubectl apply -f tmp-mongodb-maindb-service-stateful.yaml
 
 #run command to see Pods & Services spinning up
 kubectl get svc,po --namespace=daemonsl
@@ -437,7 +447,8 @@ spec:
 ```
 
 ```
-kubectl apply -f mongodb-mongos-deployment-service.yaml
+sed -e "s/NAMESPACE_ID/daemonsl/g" mongodb-mongos-deployment-service.yaml > tmp-mongodb-mongos-deployment-service.yaml
+kubectl apply -f tmp-mongodb-mongos-deployment-service.yaml
 ```
 
 <br>
@@ -446,7 +457,7 @@ kubectl apply -f mongodb-mongos-deployment-service.yaml
 
 <br>
 
-### 4 Configure Sharding
+### 4. Configure Sharding
 
 Now, we have `mongos, configdb` and `maindb` up and running. We need to create Replicaset in MainDB servers that we are intending to make shard. We will run `rs.initiate()` command to make `PRIMARY` replica. Since we are going with one replica member in each shard. We will run initiate command in each of the `maindb` pod.
 
@@ -507,7 +518,13 @@ Run the following script to undeploy the MongoDB Services & StatefulSets/Deploym
 
 -----------
 
-#### Must read below resources in order :
+**Github reference : [https://github.com/sunnykrGupta/gke-mongodb-shards](https://github.com/sunnykrGupta/gke-mongodb-shards)**
+
+**Credit :** This blog is based on workdone by [Paul Done](https://twitter.com/TheDonester)
+
+------------
+
+#### Must read below resources in order to get detailed understanding :
 
 - [https://kubernetes.io/docs/concepts/workloads/controllers/statefulset](https://kubernetes.io/docs/concepts/workloads/controllers/statefulset)
 - [https://kubernetes.io/docs/concepts/services-networking/service/#headless-services](https://kubernetes.io/docs/concepts/services-networking/service/#headless-services)
@@ -517,8 +534,5 @@ Run the following script to undeploy the MongoDB Services & StatefulSets/Deploym
 - [http://blog.kubernetes.io/2017/03/dynamic-provisioning-and-storage-classes-kubernetes.html](http://blog.kubernetes.io/2017/03/dynamic-provisioning-and-storage-classes-kubernetes.html)
 - [http://blog.kubernetes.io/2017/03/advanced-scheduling-in-kubernetes.html](http://blog.kubernetes.io/2017/03/advanced-scheduling-in-kubernetes.html)
 
-<br>
-
-**Credit :** This blog is based on workdone by [Paul Done](https://twitter.com/TheDonester)
 
 -------------
