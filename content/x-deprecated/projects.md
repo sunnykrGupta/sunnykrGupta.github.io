@@ -1,6 +1,6 @@
 Title: Projects
 Date: 2015-06-02 16:46
-Status: published
+Status: draft
 
 
 These are some projects that i have worked on in the past.
@@ -47,8 +47,3 @@ These are some projects that i have worked on in the past.
 **Job Portal ** : This project is basically related to Online Job finding. A person will be notified about the jobs available according to his skills mentioned.
 
 - [JobPortal Code Repository](https://github.com/sunnykrGupta/JobPortal)
-
-
-
-
-
