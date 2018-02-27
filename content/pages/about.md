@@ -1,14 +1,11 @@
 Title: About Me
-Date: 2018-02-25 16:11
+Date: 2018-02-27 22:40
 Status: published
 
+Former ```DevOps``` and ```Cloud``` infrastructure Lead in Bangalore based Startup, [Shieldsquare](https://www.shieldsquare.com/) where my work includes managing cloud infra., driving a cloud-based decision, maintaining data pipeline and building data warehouses.
 
-A Computer Science Undergraduate, whose main interest is computer science application particularly in Data Engineering and Cloud Infrastructure Development.
+Since 2016, I was leading a small team of cloud developers. As a developer, I prefer writing compute instructions in ```python``` and as an operation person, I prefer packaging apps in ```Docker``` and have extensive experience of running production on ```Kubernetes``` system that is designed for deploying, scaling & managing containerized applications. I have experience of managing & using different cloud services across ```Google Cloud Platform``` <sup>(majorly)</sup>, IBM Softlayer, AWS, Azure, DO, Rackspace & Netmagic.
 
-Former DevOps and Cloud infrastructure Lead in Bangalore based Startup, [Shieldsquare](https://www.shieldsquare.com/) where my work includes managing cloud infrastructure, driving cloud based decision, maintaining data pipeline and building data warehouses.
-
-Since August 2015, i have been working around different cloud technologies and managing them. As a developer, I prefer writing compute instructions in ```python``` and as an operation person, i prefer packaging apps in ```Docker``` and believe me when it comes to scaling things, ```Kubernetes``` is my *watcher on the wall* . I have experience of managing & using cloud services across Google Cloud Platform <sup>(majorly)</sup>, IBM Softlayer, AWS, Azure, DO, Rackspace & Netmagic.
-
-I would like to talk about projects, you might be working on, in the field of data engineering & cloud computing. We can get in touch via email.
+Currently, I am on a break, but I am open to contract-based projects, in the field of data engineering & cloud infra. development, in coming weeks. We can get in touch via email.
 
 -------------
