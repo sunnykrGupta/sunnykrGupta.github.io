@@ -19,6 +19,9 @@ It maintains a sticky identity for each of their Pods. It helps in deployment of
 &lt;hr&gt;
 &lt;p&gt;&lt;br&gt;&lt;/p&gt;
 &lt;p&gt;Lets begins the demonstration. Please switch to your terminal and follow the instructions.  &lt;/p&gt;
+&lt;blockquote&gt;
+&lt;p&gt;Note : This setup is compatible with &amp;lt;= mongo 3.2.&lt;/p&gt;
+&lt;/blockquote&gt;
 &lt;h3&gt;1. Prerequisites&lt;/h3&gt;
 &lt;p&gt;Ensure the following dependencies are already fulfilled on your host Linux system:&lt;/p&gt;
 &lt;ol&gt;
