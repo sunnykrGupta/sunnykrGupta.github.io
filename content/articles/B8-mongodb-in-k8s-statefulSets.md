@@ -40,6 +40,10 @@ Headless Services are used to configure DNS of pods having same selectors define
 
 Lets begins the demonstration. Please switch to your terminal and follow the instructions.  
 
+
+> Note : This setup is compatible with <= mongo 3.2.
+
+
 ### 1. Prerequisites
 
 Ensure the following dependencies are already fulfilled on your host Linux system:
