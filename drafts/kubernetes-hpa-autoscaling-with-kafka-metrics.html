@@ -228,7 +228,7 @@ $ kubectl get --raw <span class="s2">&quot;/apis/custom.metrics.k8s.io/v1beta1&q
 <p><br></p>
 <hr>
 <p><br></p>
-<h3>3: Deploy metrics exporter and write to stackdriver.</h3>
+<h3>3. Deploy metrics exporter and write to stackdriver.</h3>
 <p>We are using <a href="https://github.com/danielqsj/kafka_exporter">kafka exporter</a> which will read my kafka cluster and expose metrics in <a href="https://prometheus.io/docs/instrumenting/exposition_formats/">prometheus format</a> and we combine our deployment with this <a href="https://github.com/GoogleCloudPlatform/k8s-stackdriver/tree/master/prometheus-to-sd">k8s-stackdriver/prometheus-to-sd</a> sidecar container. Kafka-exporter will read the kafka cluster and expose the metrics on particular web-url and our sidecar container will read those and write to stackdriver. Easy enough, let's do it.</p>
 <div class="highlight"><pre><span></span><span class="c"># prometheus-to-sd-custom-metrics-kafka-exporter.yaml</span>
 <span class="nf">apiVersion</span><span class="o">:</span> <span class="n">extensions</span>/<span class="n">v</span>1<span class="n">beta</span>1
@@ -294,7 +294,8 @@ $ kubectl get --raw <span class="s2">&quot;/apis/custom.metrics.k8s.io/v1beta1&q
 <blockquote>
 <p>For example search : kafka_brokers</p>
 </blockquote>
-<p><img alt="metrics-explorer" src="/images/k8s-hpa-kafka/metrics-explorer.png"></p>
+<p><img alt="metrics-explorer" src="/images/k8s-hpa-kafka/metrics-explorer.png">
+<div style="text-align: right"><sub>Stackdriver metrics explorer</sub></div></p>
 <p><br></p>
 <p>You can also query registered APIs to read these external values.</p>
 <div class="highlight"><pre><span></span>$ kubectl get --raw <span class="s2">&quot;/apis/external.metrics.k8s.io/v1beta1/namespaces/default/custom.googleapis.com|kafka-exporter|kafka_brokers&quot;</span> <span class="p">|</span> jq
@@ -425,7 +426,8 @@ consumer-kafka-go-client   Deployment/consumer-kafka-go-client   <span class="m"
 </pre></div>
 
 
-<p><img alt="consumer-lag-graph" src="/images/k8s-hpa-kafka/consumer-lag.png"></p>
+<p><img alt="consumer-lag-graph" src="/images/k8s-hpa-kafka/consumer-lag.png">
+<div style="text-align: right"><sub>Kafka consumer lags metrics</sub></div></p>
 <hr>
 <p>Custom autoscaling is very useful feature, when you wanted to scale your workloads based on complexicity of your works deployed in your production. It could be disk size, networking, Loadbalancers connections etc.</p>
 <p>Hope you enjoyed this guide. Give thumps up and ask question in comments.</p>
