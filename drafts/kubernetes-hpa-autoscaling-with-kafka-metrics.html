@@ -1,0 +1,487 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <!-- ## for client-side less
+  <link rel="stylesheet/less" type="text/css" href="https://sunnykrGupta.github.io/theme/css/style.less">
+  <script src="http://cdnjs.cloudflare.com/ajax/libs/less.js/1.7.3/less.min.js" type="text/javascript"></script>
+  -->
+  <link rel="stylesheet" type="text/css" href="https://sunnykrGupta.github.io/theme/css/style.css">
+  <link rel="stylesheet" type="text/css" href="https://sunnykrGupta.github.io/theme/css/pygments.css">
+  <link rel="stylesheet" type="text/css" href="//fonts.googleapis.com/css?family=PT+Sans|PT+Serif|PT+Mono">
+
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="author" content="Sunny Kumar">
+  <meta name="description" content="Posts and writings by Sunny Kumar">
+
+
+<meta name="keywords" content="Kubernetes, Kafka, Autoscaling, Stackdriver">
+
+  <title>
+    Daemon Blog
+&ndash; Kubernetes HPA Autoscaling with Kafka metrics  </title>
+
+<script type="text/javascript">
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-63834161-1', 'auto');
+  ga('send', 'pageview');
+
+</script>
+</head>
+
+<body>
+  <aside>
+    <div id="user_meta">
+      <a id="user_meta_logo" href="https://sunnykrGupta.github.io">
+        <img src="https://sunnykrGupta.github.io/images/logo.jpg" alt="logo">
+      </a>
+      <h3><a href="https://sunnykrGupta.github.io">Sunny Kumar</a></h3>
+      <p>Data Engineer, Programmer, DevOps on Kubernetes, Football Lover :D</p>
+
+      <hr>
+
+      <nav>
+          <!--
+          <h4><a href="https://sunnykrGupta.github.io/pages/projects.html">Projects</a></h4>
+          -->
+          <h4><a href="https://sunnykrGupta.github.io/pages/about-me.html">About</a></h4>
+         <!--
+          <h4><a href="https://sunnykrGupta.github.io/pages/contact-me.html">Contact</a></h4>
+        -->
+      </nav>
+    </div>
+  </aside>
+
+  <main>
+    <header>
+      <nav>
+          <a id="github" href="https://github.com/sunnykrGupta" target="_blank"><img src="https://sunnykrGupta.github.io/theme/images/Mono/webicon-github.png" alt="github"></a>
+          <a id="twitter" href="https://twitter.com/Sunny_KrGupta" target="_blank"><img src="https://sunnykrGupta.github.io/theme/images/Mono/webicon-twitter.png" alt="twitter"></a>
+          <a id="linkedin" href="https://www.linkedin.com/in/sunnykrgupta/" target="_blank"><img src="https://sunnykrGupta.github.io/theme/images/Mono/webicon-linkedin.png" alt="linkedin"></a>
+          <a id="medium" href="https://medium.com/@sunnykrgupta/" target="_blank"><img src="https://sunnykrGupta.github.io/theme/images/Mono/webicon-medium.png" alt="medium"></a>
+          <a id="mail" href="mailto:sunnygupta.kr@gmail.com" target="_blank"><img src="https://sunnykrGupta.github.io/theme/images/Mono/webicon-mail.png" alt="mail"></a>
+      </nav>
+      <br />
+      <p>
+        <a href="https://sunnykrGupta.github.io/index.html">Index</a> &nbsp;&nbsp; &brvbar; <a href="https://sunnykrGupta.github.io/archives.html">&nbsp;&nbsp;Archives</a>
+      </p>
+
+    </header>
+
+<article>
+  <div class="article_title">
+    <h3><a href="https://sunnykrGupta.github.io/drafts/kubernetes-hpa-autoscaling-with-kafka-metrics.html">Kubernetes HPA Autoscaling with Kafka metrics</a></h3>
+  </div>
+  <div class="article_text">
+    <p><img alt="K8s Autoscaling with Stackdriver and Kafka" src="/images/k8s-hpa-kafka/k8s-sd-kf.svg" height="400px"></p>
+<p>Autoscaling is natively supported on kubernetes. Since, 1.7 kubernetes added a feature to scale your workload based on custom metrics. Prior release only supported scaling your apps based on CPU and memory.</p>
+<p>Kubernetes 1.7 introduced "Aggregator Layer" which allows Kubernetes to be extended with additional APIs, beyond what is offered by the core Kubernetes APIs. This gives you the power to enable your own custom APIs.</p>
+<p>In this guide, we are going to understand the basics of HPAs, custom-metrics, external-metrics APIs working and scaling workloads based on external metrics scraped from Kafka Cluster.</p>
+<p>The following are the steps you will complete in this guide:</p>
+<ul>
+<li>Step 1: Enable cluster monitoring for Stackdriver.</li>
+<li>Step 2: Deploy a custom API server and register it to the aggregator layer.</li>
+<li>Step 3: Deploy metrics exporter and write to Stackdriver.</li>
+<li>Step 4: Deploy a sample application written in golang to test the autoscaling.</li>
+<li>Step 5 : Write a custom metrics based HPA to scale application.</li>
+</ul>
+<p>We need to cover some concepts which is good to know before we move on to demonstration.</p>
+<p><br></p>
+<hr>
+<p><br></p>
+<h3>How Kubernetes HPA works?</h3>
+<p>The Horizontal Pod Autoscaler is implemented as a Kubernetes API resource and a controller. The resource determines the behavior of the controller. The controller periodically adjusts the number of replicas in a replication controller or deployment.</p>
+<p>The HorizontalPodAutoscaler normally fetches metrics from a series of aggregated APIs (<code>metrics.k8s.io</code>, <code>custom.metrics.k8s.io</code>, and <code>external.metrics.k8s.io</code>). The <code>metrics.k8s.io</code> API is usually provided by <strong>metrics-server</strong>, which needs to be launched separately. The HorizontalPodAutoscaler can also fetch metrics directly from Heapster.</p>
+<p>Here, in this guide, we will deploy our HPA reading from <code>external.metrics.k8s.io</code> as our kafka metrics will be exposed to that API.</p>
+<p><br></p>
+<hr>
+<p><br></p>
+<h3>What is custom metrics?</h3>
+<p>Kubernetes allows us to deploy your own metrics solutions. By default, <strong>metric-server</strong> and <strong>heapster</strong> act as core metrics backend.</p>
+<p>Kubernetes has extended the support to allow custom APIs to expose other metrics provider. Few adapters are written by third party to implement custom APIs which can be used to expose these metrics to kubernetes resources such like HPA.</p>
+<p><br></p>
+<p>Current Implementations : <a href="https://github.com/kubernetes/metrics/blob/master/IMPLEMENTATIONS.md">github.com/kubernetes/IMPLEMENTATIONS.md</a></p>
+<hr>
+<p><br></p>
+<h3>How custom API server and HPA ties together ?</h3>
+<p>The custom API server that we deploy registers an API to kubernetes and allows the HPA controller query custom metrics from that. API server that we are going to deploy here is Stackdriver adapter which can collect metrics from Stackdriver and send them to the HPA controller via REST queries.</p>
+<p>Our custom API server will register two APIs to kubernetes : <code>custom.metrics.k8s.io</code> and <code>external.metrics.k8s.io</code>.</p>
+<p>We will be also deploy an application to write metrics (in this case kafka metrics) to google stackdriver. The kind of metrics which we are going to write to Stackdriver will be exposed under <code>external.metrics.k8s.io</code> instead of custom.metrics.k8s.io.</p>
+<h3>Prerequisites</h3>
+<p>Ensure the following dependencies are already fulfilled:</p>
+<ol>
+<li>You have a Docker running. You know the rules of this game. ;)</li>
+<li>You have a Kubernetes cluster (GKE) running on GCP.</li>
+<li>You have kubectl CLI installed and configured to your GKE cluster.</li>
+</ol>
+<p><br></p>
+<hr>
+<p><br></p>
+<p>Lets begins the demonstration.</p>
+<p><br></p>
+<h3>1. Enable cluster monitoring for Stackdriver</h3>
+<p>GCP helper docs : <a href="https://cloud.google.com/kubernetes-engine/docs/how-to/monitoring?hl=en_US&amp;_ga=2.29581119.1015060579.1544466619-656343144.1541144893#enabling_monitoring_for_an_existing_cluster">https://cloud.google.com/kubernetes-engine/docs/how-to/monitoring</a></p>
+<p>Monitoring scope <code>monitoring</code> should be enabled cluster nodes. It is enabled by default, so you should not have to do anything. If you have older version, upgrade it to latest version and then update your node version as well. This will enable write permission to stackdriver.</p>
+<div class="highlight"><pre><span></span>$ gcloud container clusters list
+NAME                 LOCATION       MASTER_VERSION  MASTER_IP       MACHINE_TYPE   NODE_VERSION   NUM_NODES  STATUS
+my-kube-cluster  us-central1-b  <span class="m">1</span>.10.7-gke.11   xxx.xxx.xxx.xxx  n1-standard-1    <span class="m">1</span>.10.7-gke.11    <span class="m">2</span>          RUNNING
+
+
+$ gcloud container clusters describe my-kube-cluster
+............
+..&lt;output&gt;..
+............
+oauthScopes:
+    - https://www.googleapis.com/auth/compute
+    - https://www.googleapis.com/auth/devstorage.read_only
+    - https://www.googleapis.com/auth/service.management
+    - https://www.googleapis.com/auth/servicecontrol
+    - https://www.googleapis.com/auth/logging.write
+    - https://www.googleapis.com/auth/monitoring   <span class="c1"># enabled</span>
+............
+..&lt;output&gt;..
+............
+</pre></div>
+
+
+<p><br></p>
+<hr>
+<p><br></p>
+<h3>2. Deploy a custom API server and register it to the aggregator layer.</h3>
+<p>Before we deploy our custom server, lets see what are availables APIs in our k8s.</p>
+<div class="highlight"><pre><span></span>## Type commands to see existing available APIs
+$ kubectl api-versions
+
+admissionregistration.k8s.io/v1beta1
+apiextensions.k8s.io/v1beta1
+apiregistration.k8s.io/v1
+apiregistration.k8s.io/v1beta1
+............
+..&lt;other-APIs&gt;..
+............
+metrics.k8s.io/v1beta1    # this is our core metrics APIs
+............
+..&lt;other-APIs&gt;..
+............
+</pre></div>
+
+
+<p>Here, you can see we have <code>metrics.k8s.io</code> but we need <code>external.metrics.k8s.io</code> to expose our stackdriver metrics and allow HPA to read it through.</p>
+<p>We are going to use custom metrics stackdriver adapter to register our APIs.</p>
+<div class="highlight"><pre><span></span># Use one of google user account to create a cluster role
+$ kubectl create clusterrolebinding cluster-admin-binding \
+    --clusterrole cluster-admin --user &quot;$(gcloud config get-value account)&quot;
+
+# We will deploy new resource model based APIs
+
+$ kubectl apply -f https://raw.githubusercontent.com/GoogleCloudPlatform/k8s-stackdriver/master/custom-metrics-stackdriver-adapter/deploy/production/adapter_new_resource_model.yaml
+
+namespace &quot;custom-metrics&quot; created
+serviceaccount &quot;custom-metrics-stackdriver-adapter&quot; created
+clusterrolebinding.rbac.authorization.k8s.io &quot;custom-metrics:system:auth-delegator&quot; created
+rolebinding.rbac.authorization.k8s.io &quot;custom-metrics-auth-reader&quot; created
+clusterrolebinding.rbac.authorization.k8s.io &quot;custom-metrics-resource-reader&quot; created
+deployment.extensions &quot;custom-metrics-stackdriver-adapter&quot; created
+service &quot;custom-metrics-stackdriver-adapter&quot; created
+apiservice.apiregistration.k8s.io &quot;v1beta1.custom.metrics.k8s.io&quot; created
+apiservice.apiregistration.k8s.io &quot;v1beta1.external.metrics.k8s.io&quot; created
+clusterrole.rbac.authorization.k8s.io &quot;external-metrics-reader&quot; created
+clusterrolebinding.rbac.authorization.k8s.io &quot;external-metrics-reader&quot; created
+</pre></div>
+
+
+<p>Now, we have deployed our custom server and registered APIs to Aggregator Layer.</p>
+<div class="highlight"><pre><span></span># Custom Metrics APIs verification
+
+$  kubectl get all -n custom-metrics
+NAME                                                 READY     STATUS    RESTARTS   AGE
+custom-metrics-stackdriver-adapter-6c9bd9679-m2cnh   1/1       Running   0          2m
+
+# Type again to get available APIs
+$ kubectl api-versions
+............
+..&lt;other-APIs&gt;..
+............
+metrics.k8s.io/v1beta1
+.....
+custom.metrics.k8s.io/v1beta1   # for custom kubernetes metrics
+external.metrics.k8s.io/v1beta1 # for external metrics
+............
+..&lt;other-APIs&gt;..
+............
+</pre></div>
+
+
+<p>Lets query our new APIs which just came online.</p>
+<div class="highlight"><pre><span></span>$ kubectl get --raw <span class="s2">&quot;/apis/external.metrics.k8s.io/v1beta1&quot;</span> <span class="p">|</span> jq
+$ kubectl get --raw <span class="s2">&quot;/apis/custom.metrics.k8s.io/v1beta1&quot;</span> <span class="p">|</span> jq
+</pre></div>
+
+
+<p>Now you can see, both APIs are available are online with lot of custom metrics are available for query. Next, we will be writing kafka metrics to stackdriver and these APIs will help us read from it.</p>
+<p>Resource in details : <a href="https://github.com/GoogleCloudPlatform/k8s-stackdriver/tree/master/custom-metrics-stackdriver-adapter">k8s-stackdriver/custom-metrics-stackdriver-adapter</a></p>
+<p><br></p>
+<hr>
+<p><br></p>
+<h3>3: Deploy metrics exporter and write to stackdriver.</h3>
+<p>We are using <a href="https://github.com/danielqsj/kafka_exporter">kafka exporter</a> which will read my kafka cluster and expose metrics in <a href="https://prometheus.io/docs/instrumenting/exposition_formats/">prometheus format</a> and we combine our deployment with this <a href="https://github.com/GoogleCloudPlatform/k8s-stackdriver/tree/master/prometheus-to-sd">k8s-stackdriver/prometheus-to-sd</a> sidecar container. Kafka-exporter will read the kafka cluster and expose the metrics on particular web-url and our sidecar container will read those and write to stackdriver. Easy enough, let's do it.</p>
+<div class="highlight"><pre><span></span><span class="c"># prometheus-to-sd-custom-metrics-kafka-exporter.yaml</span>
+<span class="nf">apiVersion</span><span class="o">:</span> <span class="n">extensions</span>/<span class="n">v</span>1<span class="n">beta</span>1
+<span class="nf">kind</span><span class="o">:</span> <span class="n">Deployment</span>
+<span class="nf">metadata</span><span class="o">:</span>
+  name: custom-metrics-kafka-exporter
+<span class="nf">spec</span><span class="o">:</span>
+  replicas: <span class="m">1</span>
+  selector:
+    matchLabels:
+      custom: metrics
+  template:
+    metadata:
+      labels:
+        custom: metrics
+    spec:
+      hostNetwork: <span class="nb">true</span>
+      containers:
+      - name: kafka-exporter
+        image: danielqsj/kafka-exporter
+        command:
+        - kafka_exporter
+        - <span class="s2">&quot;--kafka.server=my-kafka-broker-1:9092&quot;</span>
+        - <span class="s2">&quot;--kafka.server=my-kafka-broker-2:9092&quot;</span>
+        ports:
+          - name: http-metrics
+            containerPort: <span class="m">9308</span>
+        readinessProbe:
+          httpGet:
+            path: /
+            port: <span class="m">9308</span>
+          initialDelaySeconds: <span class="m">5</span>
+          timeoutSeconds: <span class="m">5</span>
+      - name: prometheus-to-sd
+        image: gcr.io/google-containers/prometheus-to-sd:v0.3.2
+        ports:
+          - name: profiler
+            containerPort: <span class="m">6060</span>
+        command:
+          - /monitor
+          - --stackdriver-prefix<span class="o">=</span>custom.googleapis.com
+          - --source<span class="o">=</span>kafka-exporter:http://localhost:9308?whitelisted<span class="o">=</span>kafka_brokers,kafka_topic_partitions,kafka_consumergroup_current_offset_sum,kafka_consumergroup_lag_sum
+          - --pod-id<span class="o">=</span><span class="k">$(</span>POD_NAME<span class="k">)</span>
+          - --namespace-id<span class="o">=</span><span class="k">$(</span>POD_NAMESPACE<span class="k">)</span>
+        env:
+          - name: POD_NAME
+            valueFrom:
+              fieldRef:
+                fieldPath: metadata.name
+          - name: POD_NAMESPACE
+            valueFrom:
+              fieldRef:
+                fieldPath: metadata.namespace
+</pre></div>
+
+
+<p>Deploy this to ship your metrics to stackdriver.</p>
+<div class="highlight"><pre><span></span>kubectl apply -f prometheus-to-sd-custom-metrics-kafka-exporter.yaml
+</pre></div>
+
+
+<p>Next step is exploring stackdriver and filter your external metrics. Available metrics : <a href="https://github.com/danielqsj/kafka_exporter#metrics">https://github.com/danielqsj/kafka_exporter#metrics</a></p>
+<blockquote>
+<p>For example search : kafka_brokers</p>
+</blockquote>
+<p><img alt="metrics-explorer" src="/images/k8s-hpa-kafka/metrics-explorer.png"></p>
+<p><br></p>
+<p>You can also query registered APIs to read these external values.</p>
+<div class="highlight"><pre><span></span>$ kubectl get --raw <span class="s2">&quot;/apis/external.metrics.k8s.io/v1beta1/namespaces/default/custom.googleapis.com|kafka-exporter|kafka_brokers&quot;</span> <span class="p">|</span> jq
+
+<span class="o">{</span>
+  <span class="s2">&quot;kind&quot;</span>: <span class="s2">&quot;ExternalMetricValueList&quot;</span>,
+  <span class="s2">&quot;apiVersion&quot;</span>: <span class="s2">&quot;external.metrics.k8s.io/v1beta1&quot;</span>,
+  <span class="s2">&quot;metadata&quot;</span>: <span class="o">{</span>
+    <span class="s2">&quot;selfLink&quot;</span>: <span class="s2">&quot;/apis/external.metrics.k8s.io/v1beta1/namespaces/default/custom.googleapis.com%7Ckafka-exporter%7Ckafka_brokers&quot;</span>
+  <span class="o">}</span>,
+  <span class="s2">&quot;items&quot;</span>: <span class="o">[</span>
+    <span class="o">{</span>
+      <span class="s2">&quot;metricName&quot;</span>: <span class="s2">&quot;custom.googleapis.com|kafka-exporter|kafka_brokers&quot;</span>,
+      <span class="s2">&quot;metricLabels&quot;</span>: <span class="o">{</span>
+        <span class="s2">&quot;resource.labels.cluster_name&quot;</span>: <span class="s2">&quot;my-kube-cluster&quot;</span>,
+        <span class="s2">&quot;resource.labels.container_name&quot;</span>: <span class="s2">&quot;&quot;</span>,
+        <span class="s2">&quot;resource.labels.instance_id&quot;</span>: <span class="s2">&quot;gke-my-kube-cluster-69201eb2-dvdg&quot;</span>,
+        <span class="s2">&quot;resource.labels.namespace_id&quot;</span>: <span class="s2">&quot;default&quot;</span>,
+        <span class="s2">&quot;resource.labels.pod_id&quot;</span>: <span class="s2">&quot;custom-metrics-kafka-exporter-56764bbbc9-p5xqb&quot;</span>,
+        <span class="s2">&quot;resource.labels.zone&quot;</span>: <span class="s2">&quot;us-central1-b&quot;</span>,
+        <span class="s2">&quot;resource.type&quot;</span>: <span class="s2">&quot;gke_container&quot;</span>
+      <span class="o">}</span>,
+      <span class="s2">&quot;timestamp&quot;</span>: <span class="s2">&quot;2018-12-25T12:56:46Z&quot;</span>,
+      <span class="s2">&quot;value&quot;</span>: <span class="s2">&quot;2&quot;</span>
+    <span class="o">}</span>
+  <span class="o">]</span>
+<span class="o">}</span>
+</pre></div>
+
+
+<hr>
+<p><br></p>
+<h3>4. Deploy a sample application written in golang to test autoscaling.</h3>
+<p>Till now, we went through all the sophisticated stuffs which will help exposing our metrics to HPA. From this onwards, we run some basic ops that we usually do in kubernetes.</p>
+<p>To simulate the autoscaling, I have deployed a sample application written in golang which will act as kafka client ( producer and consumer ) for kafka topics.</p>
+<blockquote>
+<p>Code for reference : <a href="https://github.com/sunnykrGupta/k8s-hpa-custom-autoscaling-kafka-metrics/tree/master/go-kafka">k8s-hpa-custom-autoscaling-kafka-metrics/go-kafka</a></p>
+</blockquote>
+<div class="highlight"><pre><span></span>$ kubectl get deploy -llang<span class="o">=</span>golang
+NAME                       DESIRED   CURRENT   UP-TO-DATE   AVAILABLE   AGE
+consumer-kafka-go-client   <span class="m">1</span>         <span class="m">1</span>         <span class="m">1</span>            <span class="m">1</span>           25m
+producer-kafka-go-client   <span class="m">1</span>         <span class="m">1</span>         <span class="m">1</span>            <span class="m">1</span>           30m
+
+<span class="c1"># lets scale our producer app to build a consumer lag</span>
+$ kubectl scale --replicas<span class="o">=</span><span class="m">2</span> deployment/producer-kafka-go-client
+</pre></div>
+
+
+<p>I have scaled my producer so that it will push enough messages to build lag for my consumer clients and we will test our HPA on consumer deployment.</p>
+<hr>
+<p><br></p>
+<h3>5. Write a custom metrics based HPA to scale application.</h3>
+<p>Now, I have scaled my kafka producer, there should be lag build up. We have prepared HPA to read from external metrics coming from stackdriver through our newly registered APIs. All the hardwork above is for this moment.</p>
+<p>Below is my HPA manifest file, which is going to help scale our kafka consumer :</p>
+<div class="highlight"><pre><span></span># kafka-custom-metrics-hpa.yaml
+apiVersion: autoscaling/v2beta1
+kind: HorizontalPodAutoscaler
+metadata:
+  name: consumer-kafka-go-client
+spec:
+  minReplicas: 1
+  maxReplicas: 5
+  metrics:
+  - type: External
+    external:
+      # which metrics to read from stackdriver
+      metricName: custom.googleapis.com|kafka-exporter|kafka_consumergroup_lag_sum
+      metricSelector:
+        matchLabels:
+          # define labels to target
+          metric.labels.consumergroup: golang-consumer
+      # scale +1 whenever it crosses multiples of mentioned value
+      targetAverageValue: &quot;1000&quot;
+  # define deployment to control
+  scaleTargetRef:
+    apiVersion: extensions/v1beta1
+    kind: Deployment
+    name: consumer-kafka-go-client
+</pre></div>
+
+
+<div class="highlight"><pre><span></span>$ kubectl apply -f kafka-custom-metrics-hpa.yaml
+horizontalpodautoscaler.autoscaling <span class="s2">&quot;consumer-kafka-go-client&quot;</span> configured
+</pre></div>
+
+
+<p>Lets query our kafka_consumer_lag to see what are current stats.</p>
+<div class="highlight"><pre><span></span> kubectl get --raw &quot;/apis/external.metrics.k8s.io/v1beta1/namespaces/default/custom.googleapis.com|kafka-exporter|kafka_consumergroup_lag_sum&quot; | jq
+
+{
+  &quot;kind&quot;: &quot;ExternalMetricValueList&quot;,
+  &quot;apiVersion&quot;: &quot;external.metrics.k8s.io/v1beta1&quot;,
+  &quot;metadata&quot;: {
+    &quot;selfLink&quot;: &quot;/apis/external.metrics.k8s.io/v1beta1/namespaces/default/custom.googleapis.com%7Ckafka-exporter%7Ckafka_consumergroup_lag_sum&quot;
+  },
+  &quot;items&quot;: [
+    {
+      &quot;metricName&quot;: &quot;custom.googleapis.com|kafka-exporter|kafka_consumergroup_lag_sum&quot;,
+      &quot;metricLabels&quot;: {
+        &quot;metric.labels.consumergroup&quot;: &quot;golang-consumer&quot;,
+        &quot;metric.labels.topic&quot;: &quot;custom-topic&quot;,
+        &quot;resource.labels.container_name&quot;: &quot;&quot;,
+        &quot;resource.labels.namespace_id&quot;: &quot;default&quot;,
+        &quot;resource.labels.pod_id&quot;: &quot;custom-metrics-kafka-exporter-547c7f4d5c-tqtw8&quot;,
+        &quot;resource.labels.zone&quot;: &quot;us-central1-b&quot;,
+        &quot;resource.type&quot;: &quot;gke_container&quot;
+      },
+      &quot;timestamp&quot;: &quot;2018-12-25T18:46:54Z&quot;,
+      &quot;value&quot;: &quot;732&quot;
+    }
+  ]
+}
+</pre></div>
+
+
+<p>After polling some stats for a while, I see autoscale trigger after sometime. Yey!!  In this case, it scaled the app to 4 replicas based on number it found on stackdriver.</p>
+<div class="highlight"><pre><span></span>$ kubectl get hpa
+NAME                       REFERENCE                             TARGETS        MINPODS   MAXPODS   REPLICAS   AGE
+consumer-kafka-go-client   Deployment/consumer-kafka-go-client   <span class="m">732</span>/1k <span class="o">(</span>avg<span class="o">)</span>   <span class="m">1</span>         <span class="m">5</span>         <span class="m">1</span>          4m
+
+$ kubectl get hpa
+NAME                       REFERENCE                             TARGETS         MINPODS   MAXPODS   REPLICAS   AGE
+consumer-kafka-go-client   Deployment/consumer-kafka-go-client   <span class="m">4032</span>/1k <span class="o">(</span>avg<span class="o">)</span>   <span class="m">1</span>         <span class="m">5</span>         <span class="m">1</span>          12m
+
+$ kubectl get hpa
+NAME                       REFERENCE                             TARGETS         MINPODS   MAXPODS   REPLICAS   AGE
+consumer-kafka-go-client   Deployment/consumer-kafka-go-client   <span class="m">1008</span>/1k <span class="o">(</span>avg<span class="o">)</span>   <span class="m">1</span>         <span class="m">5</span>         <span class="m">4</span>          13m
+</pre></div>
+
+
+<p><img alt="consumer-lag-graph" src="/images/k8s-hpa-kafka/consumer-lag.png"></p>
+<hr>
+<p>Custom autoscaling is very useful feature, when you wanted to scale your workloads based on complexicity of your works deployed in your production. It could be disk size, networking, Loadbalancers connections etc.</p>
+<p>Hope you enjoyed this guide. Give thumps up and ask question in comments.</p>
+<p><br></p>
+<hr>
+<p><strong>Github : <a href="https://github.com/sunnykrGupta/k8s-hpa-custom-autoscaling-kafka-metrics">https://github.com/sunnykrGupta/k8s-hpa-custom-autoscaling-kafka-metrics</a></strong></p>
+<hr>
+<h4>Resources :</h4>
+<ul>
+<li><a href="https://kubernetes.io/docs/tasks/run-application/horizontal-pod-autoscale">run-application/horizontal-pod-autoscale</a></li>
+<li><a href="https://github.com/GoogleCloudPlatform/k8s-stackdriver/tree/master/custom-metrics-stackdriver-adapter">custom-metrics-stackdriver-adapter</a></li>
+<li><a href="https://github.com/GoogleCloudPlatform/k8s-stackdriver/tree/master/prometheus-to-sd">prometheus-to-sd</a></li>
+<li><a href="https://github.com/danielqsj/kafka_exporter">kafka_exporter</a></li>
+<li><a href="https://cloud.google.com/kubernetes-engine/docs/tutorials/external-metrics-autoscaling">https://cloud.google.com/kubernetes-engine/docs/tutorials/external-metrics-autoscaling</a></li>
+<li><a href="https://kubernetes.io/docs/concepts/extend-kubernetes/api-extension/apiserver-aggregation/">https://kubernetes.io/docs/concepts/extend-kubernetes/api-extension/apiserver-aggregation/</a></li>
+<li><a href="https://kubernetes.io/docs/tasks/run-application/horizontal-pod-autoscale-walkthrough/#autoscaling-on-metrics-not-related-to-kubernetes-objects">autoscaling-on-metrics-not-related-to-kubernetes-objects</a></li>
+</ul>
+<p><br></p>
+<hr>
+  </div>
+  <div class="article_meta">
+    <p>Posted on: Tue 25 December 2018</p>
+    <p>Category: <a href="https://sunnykrGupta.github.io/category/blog.html">Blog</a>
+ &ndash; Tags:
+      <a href="https://sunnykrGupta.github.io/tag/kubernetes.html">Kubernetes</a>,      <a href="https://sunnykrGupta.github.io/tag/kafka.html">Kafka</a>,      <a href="https://sunnykrGupta.github.io/tag/autoscaling.html">Autoscaling</a>,      <a href="https://sunnykrGupta.github.io/tag/stackdriver.html">Stackdriver</a>    </p>
+  </div>
+
+  <div id="article_comments">
+    <div id="disqus_thread"></div>
+    <script type="text/javascript">
+        var disqus_identifier = "drafts/kubernetes-hpa-autoscaling-with-kafka-metrics.html";
+        (function() {
+             var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+             dsq.src = 'https://sunnydaemon.disqus.com/embed.js';
+             (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+         })();
+    </script>
+  </div>
+
+</article>
+
+
+    <div id="ending_message">
+      <p>&copy; Sunny Kumar. Built using <a href="http://getpelican.com" target="_blank">Pelican</a>. Theme by Sunny Kumar on <a href="https://github.com/sunnykrgupta/pelican-svbhack-responsive" target="_blank">github</a>. </p>
+    </div>
+  </main>
+
+  <div id="right-feed">
+    <!--
+    <a class="twitter-timeline" href="" data-widget-id="605800181926199296">Tweets by </a>
+    <script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0],p=/^http:/.test(d.location)?'http':'https';if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src=p+"://platform.twitter.com/widgets.js";fjs.parentNode.insertBefore(js,fjs);}}(document,"script","twitter-wjs");</script>
+    -->
+
+    <a class="twitter-timeline" data-lang="en" data-width="230" data-height="700" data-theme="dark" href="https://twitter.com/Sunny_KrGupta?ref_src=twsrc%5Etfw">Tweets by Sunny_KrGupta</a>
+    <script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>
+
+  </div>
+</body>
+</html>
