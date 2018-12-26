@@ -1,6 +1,6 @@
 Title: Projects
 Date: 2015-06-02 16:46
-Status: draft
+Status: unpublished
 
 
 These are some projects that i have worked on in the past.
