@@ -125,7 +125,7 @@
 <p>Let's begin the demonstration.</p>
 <p><br></p>
 <h3>1. Enable cluster monitoring for Stackdriver</h3>
-<p>GCP helper docs : <a href="https://cloud.google.com/Kubernetes-engine/docs/how-to/monitoring?hl=en_US&amp;_ga=2.29581119.1015060579.1544466619-656343144.1541144893#enabling_monitoring_for_an_existing_cluster">https://cloud.google.com/Kubernetes-engine/docs/how-to/monitoring</a></p>
+<p>GCP helper docs : <a href="https://cloud.google.com/kubernetes-engine/docs/how-to/monitoring#enabling_monitoring_for_an_existing_cluster">https://cloud.google.com/Kubernetes-engine/docs/how-to/monitoring</a></p>
 <p>Monitoring scope should be enabled on cluster nodes. It is enabled by default, so you need not do anything. If you have an older version, upgrade it to the latest version and then update your node version as well. The scope will enable write permission to stackdriver which is important for writing metrics.</p>
 <div class="highlight"><pre><span></span>$ gcloud container clusters list
 NAME                 LOCATION       MASTER_VERSION  MASTER_IP       MACHINE_TYPE   NODE_VERSION   NUM_NODES  STATUS
@@ -441,7 +441,7 @@ consumer-kafka-go-client   Deployment/consumer-kafka-go-client   <span class="m"
 <li><a href="https://github.com/danielqsj/kafka_exporter">kafka_exporter</a></li>
 <li><a href="https://Kubernetes.io/docs/tasks/run-application/horizontal-pod-autoscale">run-application/horizontal-pod-autoscale</a></li>
 <li><a href="https://github.com/GoogleCloudPlatform/k8s-stackdriver/tree/master/custom-metrics-stackdriver-adapter">custom-metrics-stackdriver-adapter</a></li>
-<li><a href="https://cloud.google.com/Kubernetes-engine/docs/tutorials/external-metrics-autoscaling">https://cloud.google.com/Kubernetes-engine/docs/tutorials/external-metrics-autoscaling</a></li>
+<li><a href="https://cloud.google.com/kubernetes-engine/docs/tutorials/external-metrics-autoscaling">https://cloud.google.com/Kubernetes-engine/docs/tutorials/external-metrics-autoscaling</a></li>
 <li><a href="https://Kubernetes.io/docs/concepts/extend-Kubernetes/api-extension/apiserver-aggregation/">https://Kubernetes.io/docs/concepts/extend-Kubernetes/api-extension/apiserver-aggregation/</a></li>
 <li><a href="https://Kubernetes.io/docs/tasks/run-application/horizontal-pod-autoscale-walkthrough/#autoscaling-on-metrics-not-related-to-Kubernetes-objects">autoscaling-on-metrics-not-related-to-Kubernetes-objects</a></li>
 </ul>
