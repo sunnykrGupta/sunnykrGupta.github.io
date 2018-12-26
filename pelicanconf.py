@@ -11,7 +11,9 @@ SITEURL = 'https://sunnykrGupta.github.io'
 #Devel Mode, always give absolute URL
 #SITEURL = 'http://localhost:8000'
 
-THEME = "/home/daemonsl/Dropbox/boxSpace/CodeCave/pelican-svbhack-responsive"
+#THEME = "/home/daemonsl/Dropbox/boxSpace/CodeCave/pelican-svbhack-responsive"
+THEME = "/home/daemonsl/Yandex.Disk/Ydx-Space/CodeCave/pelican-svbhack-responsive"
+
 
 TIMEZONE = 'Asia/Calcutta'
 DEFAULT_LANG = u'en'
@@ -27,7 +29,7 @@ DEFAULT_METADATA = {
 
 #We are using share_post plugin to enable share feature in blog
 # Download : https://github.com/getpelican/pelican-plugins
-PLUGIN_PATHS = ['/home/daemonsl/Dropbox/boxSpace/CodeCave/pelican-plugins']
+PLUGIN_PATHS = ['/home/daemonsl/Yandex.Disk/Ydx-Space/CodeCave/pelican-plugins']
 PLUGINS = ['share_post']
 
 DELETE_OUTPUT_DIRECTORY = "True"
