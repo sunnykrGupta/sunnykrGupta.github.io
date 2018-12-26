@@ -87,7 +87,7 @@
 <li>Step 1: Enable cluster monitoring for Stackdriver.</li>
 <li>Step 2: Deploy a custom API server and register it to the aggregator layer.</li>
 <li>Step 3: Deploy metrics exporter and write to Stackdriver.</li>
-<li>Step 4: Deploy a sample application written in golang to test the autoscaling.</li>
+<li>Step 4: Deploy a sample application written in Golang to test the autoscaling.</li>
 <li>Step 5: Write a custom metrics based HPA to scale application.</li>
 </ul>
 <p>We need to cover some concepts which are good to know before we move forward to the demonstration.</p>
@@ -95,8 +95,8 @@
 <hr>
 <p><br></p>
 <h3>How Kubernetes HPA works?</h3>
-<p>The Horizontal Pod Autoscaler is implemented as a Kubernetes API resource and a controller. The resource determines the behavior of the controller. The controller periodically adjusts the number of replicas in a replication controller or deployment.</p>
-<p>The HorizontalPodAutoscaler normally fetches metrics from a series of aggregated APIs (<code>metrics.k8s.io</code>, <code>custom.metrics.k8s.io</code>, and <code>external.metrics.k8s.io</code>). The <code>metrics.k8s.io</code> API is usually provided by <strong>metrics-server</strong>, which needs to be launched separately. The HorizontalPodAutoscaler can also fetch metrics directly from Heapster.</p>
+<p>The Horizontal Pod Autoscaler is implemented as a Kubernetes API resource and a controller. The resource determines the behaviour of the controller. The controller periodically adjusts the number of replicas in a replication controller or deployment.</p>
+<p>The HorizontalPodAutoscaler normally fetches metrics from a series of aggregated APIs (<code>metrics.k8s.io</code>, <code>custom.metrics.k8s.io</code> and <code>external.metrics.k8s.io</code>). The <code>metrics.k8s.io</code> API is usually provided by <strong>metrics-server</strong>, which needs to be launched separately. The HorizontalPodAutoscaler can also fetch metrics directly from Heapster.</p>
 <p>Here, in this guide, we will deploy our HPA reading from <code>external.metrics.k8s.io</code> as our kafka metrics will be exposed to that API.</p>
 <p><br></p>
 <hr>
@@ -105,7 +105,7 @@
 <p>Kubernetes allows us to deploy your own metrics solutions. By default, <strong>metrics-server</strong> and <strong>heapster</strong> act as core metrics backend.</p>
 <p>Kubernetes has extended the support to allow custom APIs to expose other metrics provider. Few adapters are written by the third party to implement custom APIs which can be used to expose these metrics to Kubernetes resources such like HPA.</p>
 <p><br></p>
-<p>Current Implementations : <a href="https://github.com/Kubernetes/metrics/blob/master/IMPLEMENTATIONS.md">github.com/Kubernetes/IMPLEMENTATIONS.md</a></p>
+<p>Current Implementations: <a href="https://github.com/Kubernetes/metrics/blob/master/IMPLEMENTATIONS.md">github.com/Kubernetes/IMPLEMENTATIONS.md</a></p>
 <hr>
 <p><br></p>
 <h3>How custom API server and HPA ties together ?</h3>
@@ -122,7 +122,7 @@
 <p><br></p>
 <hr>
 <p><br></p>
-<p>Lets begin the demonstration.</p>
+<p>Let's begin the demonstration.</p>
 <p><br></p>
 <h3>1. Enable cluster monitoring for Stackdriver</h3>
 <p>GCP helper docs : <a href="https://cloud.google.com/Kubernetes-engine/docs/how-to/monitoring?hl=en_US&amp;_ga=2.29581119.1015060579.1544466619-656343144.1541144893#enabling_monitoring_for_an_existing_cluster">https://cloud.google.com/Kubernetes-engine/docs/how-to/monitoring</a></p>
@@ -217,7 +217,7 @@ external.metrics.k8s.io/v1beta1 # for external metrics
 </pre></div>
 
 
-<p>Lets query our new APIs which just came online.</p>
+<p>Now, query our new APIs which just came online.</p>
 <div class="highlight"><pre><span></span>$ kubectl get --raw <span class="s2">&quot;/apis/external.metrics.k8s.io/v1beta1&quot;</span> <span class="p">|</span> jq
 $ kubectl get --raw <span class="s2">&quot;/apis/custom.metrics.k8s.io/v1beta1&quot;</span> <span class="p">|</span> jq
 </pre></div>
@@ -229,7 +229,7 @@ $ kubectl get --raw <span class="s2">&quot;/apis/custom.metrics.k8s.io/v1beta1&q
 <hr>
 <p><br></p>
 <h3>3. Deploy metrics exporter and write to stackdriver.</h3>
-<p>We are using <a href="https://github.com/danielqsj/kafka_exporter">kafka exporter</a> which will read my kafka cluster and expose metrics in <a href="https://prometheus.io/docs/instrumenting/exposition_formats/">prometheus format</a> and we combine our deployment with this <a href="https://github.com/GoogleCloudPlatform/k8s-stackdriver/tree/master/prometheus-to-sd">k8s-stackdriver/prometheus-to-sd</a> sidecar container. Kafka-exporter will read the kafka cluster and expose the metrics on particular web-url and our sidecar container will read those and write to stackdriver. Easy enough, let's do it.</p>
+<p>We are using <a href="https://github.com/danielqsj/kafka_exporter">Kafka exporter</a> which will read my kafka cluster and expose metrics in <a href="https://prometheus.io/docs/instrumenting/exposition_formats/">prometheus format</a> and we combine our deployment with this <a href="https://github.com/GoogleCloudPlatform/k8s-stackdriver/tree/master/prometheus-to-sd">k8s-stackdriver/prometheus-to-sd</a> sidecar container. Kafka-exporter will read the Kafka cluster and expose the metrics on particular web-URL and our sidecar container will read those and write to stackdriver. Easy enough, let's do it.</p>
 <div class="highlight"><pre><span></span><span class="c"># prometheus-to-sd-custom-metrics-kafka-exporter.yaml</span>
 <span class="nf">apiVersion</span><span class="o">:</span> <span class="n">extensions</span>/<span class="n">v</span>1<span class="n">beta</span>1
 <span class="nf">kind</span><span class="o">:</span> <span class="n">Deployment</span>
@@ -329,8 +329,8 @@ $ kubectl get --raw <span class="s2">&quot;/apis/custom.metrics.k8s.io/v1beta1&q
 <hr>
 <p><br></p>
 <h3>4. Deploy a sample application written in golang to test autoscaling.</h3>
-<p>Till now, we went through all the sophisticated stuffs which will help to expose our metrics to HPA. From now on, we will run some basic ops that we usually do in Kubernetes.</p>
-<p>To simulate the autoscaling, I have deployed a sample application written in golang which will act as kafka client ( producer and consumer ) for kafka topics.</p>
+<p>Till now, we went through all the sophisticated pieces of stuff which will help to expose our metrics to HPA. From now on, we will run some basic ops that we usually do in Kubernetes.</p>
+<p>To simulate the autoscaling, I have deployed a sample application written in golang which will act as Kafka client ( producer and consumer ) for Kafka topics.</p>
 <blockquote>
 <p>Code for reference : <a href="https://github.com/sunnykrGupta/k8s-hpa-custom-autoscaling-kafka-metrics/tree/master/go-kafka">k8s-hpa-custom-autoscaling-kafka-metrics/go-kafka</a></p>
 </blockquote>
@@ -339,7 +339,7 @@ NAME                       DESIRED   CURRENT   UP-TO-DATE   AVAILABLE   AGE
 consumer-kafka-go-client   <span class="m">1</span>         <span class="m">1</span>         <span class="m">1</span>            <span class="m">1</span>           25m
 producer-kafka-go-client   <span class="m">1</span>         <span class="m">1</span>         <span class="m">1</span>            <span class="m">1</span>           30m
 
-<span class="c1"># lets scale our producer app to build a consumer lag</span>
+<span class="c1"># scaling the producer app to build a consumer lag on kafka topic</span>
 $ kubectl scale --replicas<span class="o">=</span><span class="m">2</span> deployment/producer-kafka-go-client
 </pre></div>
 
@@ -348,8 +348,8 @@ $ kubectl scale --replicas<span class="o">=</span><span class="m">2</span> deplo
 <hr>
 <p><br></p>
 <h3>5. Write a custom metrics based HPA to scale application.</h3>
-<p>Now that I have scaled my kafka producer, there should be a consumer lag build up in the kafka topic. We have prepared HPA to read from external metrics coming from stackdriver through our newly registered APIs. All the hard work above is for this moment.</p>
-<p>Below is my HPA manifest file, which is going to help scale our kafka consumer :</p>
+<p>Now that I have scaled my Kafka producer, there should be a consumer lag build up in the Kafka topic. We have prepared HPA to read from external metrics coming from stackdriver through our newly registered APIs. All the hard work above is for this moment.</p>
+<p>Below is my HPA manifest file, which is going to help scale our Kafka consumer :</p>
 <div class="highlight"><pre><span></span># kafka-custom-metrics-hpa.yaml
 apiVersion: autoscaling/v2beta1
 kind: HorizontalPodAutoscaler
@@ -382,7 +382,7 @@ horizontalpodautoscaler.autoscaling <span class="s2">&quot;consumer-kafka-go-cli
 </pre></div>
 
 
-<p>Lets query our kafka_consumer_lag to see what are current stats.</p>
+<p>Let's query our kafka_consumer_lag to see what are the current stats.</p>
 <div class="highlight"><pre><span></span> kubectl get --raw &quot;/apis/external.metrics.k8s.io/v1beta1/namespaces/default/custom.googleapis.com|kafka-exporter|kafka_consumergroup_lag_sum&quot; | jq
 
 {
@@ -411,7 +411,7 @@ horizontalpodautoscaler.autoscaling <span class="s2">&quot;consumer-kafka-go-cli
 </pre></div>
 
 
-<p>After polling some stats for a while, I saw auto scale trigger after sometime. Yey!!  In this case, it scaled the app to 4 replicas based on the numbers found on stackdriver.</p>
+<p>After polling some stats for a while, I saw auto scale trigger after some time. Yey!! In this case, it scaled the app to 4 replicas based on the numbers found on stackdriver.</p>
 <div class="highlight"><pre><span></span>$ kubectl get hpa
 NAME                       REFERENCE                             TARGETS        MINPODS   MAXPODS   REPLICAS   AGE
 consumer-kafka-go-client   Deployment/consumer-kafka-go-client   <span class="m">732</span>/1k <span class="o">(</span>avg<span class="o">)</span>   <span class="m">1</span>         <span class="m">5</span>         <span class="m">1</span>          4m
@@ -429,18 +429,18 @@ consumer-kafka-go-client   Deployment/consumer-kafka-go-client   <span class="m"
 <p><img alt="consumer-lag-graph" src="/images/k8s-hpa-kafka/consumer-lag.png">
 <div style="text-align: right"><sub>Kafka consumer lags metrics</sub></div></p>
 <hr>
-<p>Custom autoscaling is a very useful feature when you wanted to scale your workloads based on complexity of your works deployed in your production. It could be disk size, networking, Loadbalancers connections etc.</p>
-<p>Hope you enjoyed this guide. Give thumbs up and ask question in the comments.</p>
+<p>Custom autoscaling is a very useful feature when you wanted to scale your workloads based on the complexity of your works deployed in your production. It could be disk size, networking, Loadbalancers connections etc.</p>
+<p>Hope you enjoyed this guide. Give thumbs up and ask questions in the comments.</p>
 <p><br></p>
 <hr>
 <p><strong>Github : <a href="https://github.com/sunnykrGupta/k8s-hpa-custom-autoscaling-kafka-metrics">https://github.com/sunnykrGupta/k8s-hpa-custom-autoscaling-kafka-metrics</a></strong></p>
 <hr>
 <h4>Resources :</h4>
 <ul>
-<li><a href="https://Kubernetes.io/docs/tasks/run-application/horizontal-pod-autoscale">run-application/horizontal-pod-autoscale</a></li>
-<li><a href="https://github.com/GoogleCloudPlatform/k8s-stackdriver/tree/master/custom-metrics-stackdriver-adapter">custom-metrics-stackdriver-adapter</a></li>
 <li><a href="https://github.com/GoogleCloudPlatform/k8s-stackdriver/tree/master/prometheus-to-sd">prometheus-to-sd</a></li>
 <li><a href="https://github.com/danielqsj/kafka_exporter">kafka_exporter</a></li>
+<li><a href="https://Kubernetes.io/docs/tasks/run-application/horizontal-pod-autoscale">run-application/horizontal-pod-autoscale</a></li>
+<li><a href="https://github.com/GoogleCloudPlatform/k8s-stackdriver/tree/master/custom-metrics-stackdriver-adapter">custom-metrics-stackdriver-adapter</a></li>
 <li><a href="https://cloud.google.com/Kubernetes-engine/docs/tutorials/external-metrics-autoscaling">https://cloud.google.com/Kubernetes-engine/docs/tutorials/external-metrics-autoscaling</a></li>
 <li><a href="https://Kubernetes.io/docs/concepts/extend-Kubernetes/api-extension/apiserver-aggregation/">https://Kubernetes.io/docs/concepts/extend-Kubernetes/api-extension/apiserver-aggregation/</a></li>
 <li><a href="https://Kubernetes.io/docs/tasks/run-application/horizontal-pod-autoscale-walkthrough/#autoscaling-on-metrics-not-related-to-Kubernetes-objects">autoscaling-on-metrics-not-related-to-Kubernetes-objects</a></li>
