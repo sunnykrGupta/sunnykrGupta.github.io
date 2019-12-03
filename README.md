@@ -26,7 +26,12 @@ https://cryptography.io/en/latest/installation/
 pip install ghp-import
 ```
 
-#Run to publish changes, before that change SITEURL to proper domain.
+## Run locally, before that change SITEURL to proper domain.
+```
+pkill -f SimpleHTTPServer | fab build && fab serve
+```
+
+# Run to publish changes, before that change SITEURL to proper domain.
 ```
 fab publish
 ```
