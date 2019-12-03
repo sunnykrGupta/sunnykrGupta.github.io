@@ -1,13 +1,17 @@
 Title: About Me
-Date: 2018-12-04 14:40
+Date: 2019-12-03 17:40
 Status: published
 
-Former ```DevOps``` and ```Cloud``` infrastructure Lead in Bangalore based Startup, [Shieldsquare](https://www.shieldsquare.com/) where my work includes managing cloud infra., driving a cloud-based decision, maintaining data pipeline and building data warehouses.
 
-Since 2016, I was leading a small team of cloud developers. As a developer, I prefer writing compute instructions in ```python```, ```golang``` to bet on performance and as an operation person, packaging apps in ```Docker``` and have extensive experience of running production on ```Kubernetes``` system that is designed for deploying, scaling & managing containerized applications. Along with this, I have managed & used different cloud services across ```Google Cloud Platform``` <sup>(majorly)</sup>, IBM Softlayer, AWS and other public cloud providers.
+I'm a Software Engineer, whose main interest is in Computer Science applications particularly in data engineering and cloud operations.
 
-Now, As a DevOps consultant, I work along with the technical teams to improve the experience to customers. Growing traffic @Billions every month and the challenges comes around it which involves data engineering excites me.
+I prefer writing instructions in ```python```, sometimes ```golang``` to bet on performance. I have extensive experience of running production on ```Kubernetes``` which is designed for deploying, scaling & managing containerized applications. Also, I have worked extensively with different public cloud services across ```Google Cloud Platform, Amazon Web Services``` & IBM Softlayer.
 
-If you have problems which share common interests, we can get in touch via email, I will be happy to help.
+
+Previously in 2015, I joined a small startup team in Bangaluru named [Shieldsquare](https://www.shieldsquare.com/) as ```DevOps``` and ```Cloud infrastructure Lead``` where I managed hybrid cloud & drove decisions, optimizing data pipelines and building different data warehouses. Also, I work along with different teams to improve the experience of customers across the globe. I experienced a unique journey in scaling traffic growing @Billions every month and solving challenges comes around it which involves data engineering principles.
+
+Besides this, I follow football very closely and support Arsenal FC. I also like mountains, exploring distant places and always ready for a backpacking trip. :)
+
+Currently, I am looking for new projects and available to join any ambitious team across the globe.
 
 -------------

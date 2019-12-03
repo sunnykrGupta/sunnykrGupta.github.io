@@ -52,7 +52,7 @@ STATIC_PATHS = ['images']
 USER_LOGO_URL=SITEURL+'/images/logo.jpg'
 
 # some text rendered right below the logo
-TAGLINE="Data Engineer, Programmer, DevOps on Kubernetes, Football Lover :D"
+TAGLINE="Little wisdom of coding &Phi;  &#9679; Cloud Engineer, DevOps &Xi;  &#9679;  Football Lover &infin; &#9679; "
 
 # set this to True if you want to enable the Internet Defense League code
 INTERNET_DEFENSE_LEAGUE=False
