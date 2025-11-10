@@ -1,5 +1,5 @@
-PY=python
-PELICAN=pelican
+PY=python3
+PELICAN=$(VENV)/bin/pelican
 PELICANOPTS=
 
 BASEDIR=$(CURDIR)
@@ -27,37 +27,39 @@ ifeq ($(DEBUG), 1)
 	PELICANOPTS += -D
 endif
 
+.PHONY: help venv install html clean regenerate serve devserver stopserver publish ssh_upload rsync_upload dropbox_upload ftp_upload s3_upload github
+
 help:
-	@echo 'Makefile for a pelican Web site                                        '
-	@echo '                                                                       '
-	@echo 'Usage:                                                                 '
+	@echo 'Makefile for a pelican Web site'
+	@echo ''
+	@echo 'Usage:'
 	@echo '   make venv                        create a Python virtual environment'
-	@echo '   make install                     install dependencies in venv       '
-	@echo '   make html                        (re)generate the web site          '
-	@echo '   make clean                       remove the generated files         '
-	@echo '   make regenerate                  regenerate files upon modification '
-	@echo '   make publish                     generate using production settings '
+	@echo '   make install                     install dependencies in venv'
+	@echo '   make html                        (re)generate the web site'
+	@echo '   make clean                       remove the generated files'
+	@echo '   make regenerate                  regenerate files upon modification'
+	@echo '   make publish                     generate using production settings'
 	@echo '   make serve [PORT=8000]           serve site at http://localhost:8000'
-	@echo '   make devserver [PORT=8000]       start/restart develop_server.sh    '
-	@echo '   make stopserver                  stop local server                  '
-	@echo '   make ssh_upload                  upload the web site via SSH        '
-	@echo '   make rsync_upload                upload the web site via rsync+ssh  '
-	@echo '   make dropbox_upload              upload the web site via Dropbox    '
-	@echo '   make ftp_upload                  upload the web site via FTP        '
-	@echo '   make s3_upload                   upload the web site via S3         '
-	@echo '   make github                      upload the web site via gh-pages   '
-	@echo '                                                                       '
+	@echo '   make devserver [PORT=8000]       start/restart develop_server.sh'
+	@echo '   make stopserver                  stop local server'
+	@echo '   make ssh_upload                  upload the web site via SSH'
+	@echo '   make rsync_upload                upload the web site via rsync+ssh'
+	@echo '   make dropbox_upload              upload the web site via Dropbox'
+	@echo '   make ftp_upload                  upload the web site via FTP'
+	@echo '   make s3_upload                   upload the web site via S3'
+	@echo '   make github                      upload the web site via gh-pages'
+	@echo ''
 	@echo 'Set the DEBUG variable to 1 to enable debugging, e.g. make DEBUG=1 html'
-	@echo '                                                                       '
+	@echo ''
 
 venv:
 	$(PY) -m venv $(VENV)
 
 install: venv
-	$(VENV)/bin/pip install --upgrade pip
+	$(VENV)/bin/pip install --upgrade pip setuptools wheel
 	$(VENV)/bin/pip install -r requirements.txt
 
-html:
+html: $(VENV)
 	$(PELICAN) $(INPUTDIR) -o $(OUTPUTDIR) -s $(CONFFILE) $(PELICANOPTS)
 
 clean:
@@ -66,11 +68,11 @@ clean:
 regenerate:
 	$(PELICAN) -r $(INPUTDIR) -o $(OUTPUTDIR) -s $(CONFFILE) $(PELICANOPTS)
 
-serve:
+serve: html
 ifdef PORT
-	cd $(OUTPUTDIR) && $(PY) -m pelican.server $(PORT)
+	cd $(OUTPUTDIR) && $(VENV)/bin/python -m http.server $(PORT)
 else
-	cd $(OUTPUTDIR) && $(PY) -m pelican.server
+	cd $(OUTPUTDIR) && $(VENV)/bin/python -m http.server
 endif
 
 devserver:
@@ -106,5 +108,3 @@ s3_upload: publish
 github: publish
 	ghp-import $(OUTPUTDIR)
 	git push origin gh-pages
-
-.PHONY: html help clean regenerate serve devserver publish ssh_upload rsync_upload dropbox_upload ftp_upload s3_upload github venv install

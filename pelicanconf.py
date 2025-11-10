@@ -6,13 +6,13 @@ AUTHOR = u'Sunny Kumar'
 SITENAME = u'Daemon Blog'
 
 #Production Mode
-SITEURL = 'https://sunnykrGupta.github.io'
+# SITEURL = 'https://sunnykrGupta.github.io'
 
 #Devel Mode, always give absolute URL
-#SITEURL = 'http://localhost:8000'
+SITEURL = 'http://localhost:8000'
 
-#THEME = "/home/daemonsl/Dropbox/boxSpace/CodeCave/pelican-svbhack-responsive"
-THEME = "/home/daemonsl/Yandex.Disk/Ydx-Space/CodeCave/pelican-svbhack-responsive"
+THEME = "./pelican-svbhack-responsive"
+#THEME = "/home/daemonsl/Yandex.Disk/Ydx-Space/CodeCave/pelican-svbhack-responsive"
 
 
 TIMEZONE = 'Asia/Calcutta'
@@ -29,8 +29,8 @@ DEFAULT_METADATA = {
 
 #We are using share_post plugin to enable share feature in blog
 # Download : https://github.com/getpelican/pelican-plugins
-PLUGIN_PATHS = ['/home/daemonsl/Yandex.Disk/Ydx-Space/CodeCave/pelican-plugins']
-PLUGINS = ['share_post']
+#PLUGIN_PATHS = ['/home/daemonsl/Yandex.Disk/Ydx-Space/CodeCave/pelican-plugins']
+#PLUGINS = ['share_post']
 
 DELETE_OUTPUT_DIRECTORY = "True"
 
@@ -42,9 +42,9 @@ TRANSLATION_FEED_ATOM = None
 #to use Google Analytics, set this var to your UA-XYZ code
 GOOGLE_ANALYTICS = "UA-63834161-1"
 
-# Set this to your Disqus sitename to enable disqus comments in articles
-# Set the disqus Sitename here. Goto
-DISQUS_SITENAME='sunnydaemon'
+# # Set this to your Disqus sitename to enable disqus comments in articles
+# # Set the disqus Sitename here. Goto
+# DISQUS_SITENAME='sunnydaemon'
 
 STATIC_PATHS = ['images']
 
@@ -52,21 +52,21 @@ STATIC_PATHS = ['images']
 USER_LOGO_URL=SITEURL+'/images/logo.jpg'
 
 # some text rendered right below the logo
-TAGLINE="Little wisdom of coding &Phi;  &#9679; Cloud Engineer, DevOps &Xi;  &#9679;  Football Lover &infin; &#9679; "
+TAGLINE="Little wisdom of coding &Phi;  &#9679; Platform Engineer &Xi;  &#9679;  Football Lover &infin; &#9679; "
 
 # set this to True if you want to enable the Internet Defense League code
 INTERNET_DEFENSE_LEAGUE=False
 
-#Twitter Widget
-widget_profile_url = "https://twitter.com/Sunny_KrGupta"
-widget_profile_name = "@Sunny_KrGupta"
-widget_id_int = "605800181926199296"
+# #Twitter Widget
+# widget_profile_url = "https://twitter.com/Sunny_KrGupta"
+# widget_profile_name = "@Sunny_KrGupta"
+# widget_id_int = "605800181926199296"
 
 # Social widget
 SOCIAL = (
+            ('linkedin', 'https://www.linkedin.com/in/sunnykrgupta/'),
             ('github', 'https://github.com/sunnykrGupta'),
             ('twitter', 'https://twitter.com/Sunny_KrGupta'),
-            ('linkedin', 'https://www.linkedin.com/in/sunnykrgupta/'),
             ('medium', 'https://medium.com/@sunnykrgupta/'),
             ('mail', 'mailto:sunnygupta.kr@yandex.com'),
         )
