@@ -1,17 +1,18 @@
 Title: About Me
-Date: 2019-12-03 17:40
+Date: 2025-11-04 17:40
 Status: published
 
 
-I'm a Software Engineer, whose main interest lies in computer science applications particularly in data engineering and cloud operations.
+I'm a Platform Engineer, whose main interest lies in computer science applications particularly in cloud operations, security, and observability.
 
-I prefer writing instructions in ```python```, sometimes ```golang``` to bet on performance. I have extensive experience of running production on ```Kubernetes``` which is designed for deploying, scaling & managing containerized applications. Also, I have worked extensively with different public cloud services across ```Google Cloud Platform, Amazon Web Services``` & IBM Softlayer.
+With extensive experience running production workloads on `Kubernetes`, I specialize in deploying, scaling, and managing containerized applications, emphasizing system reliability, security, and developer experience. I have worked extensively with public cloud platforms including `Google Cloud Platform`, `Amazon Web Services`, integrating observability tools to maintain robust monitoring and incident response.
 
+Since 2020, I have contributed at [OneFootball Gmbh](https://company.onefootball.com/) by leading the migration of over 100 microservices supporting 5 million DAU from an in-house Kubernetes platform to Amazon EKS. I architected `GitOps` workflows, enhanced cluster security posture, established comprehensive observability stacks with Prometheus and Grafana, and maintained 99% uptime. I automated cloud provisioning through pull-request-driven `Terraform` workflows, improving developer productivity and reducing review overhead by 75%, implementing a `shift-left` strategy to embed security and compliance checks early in the development cycle.
 
-In 2015, I joined [Shieldsquare](https://www.shieldsquare.com/), a small startup based in Bengaluru as ```DevOps``` and ```Cloud infrastructure Lead``` where I managed hybrid cloud, optimized data pipelines and built different data warehouses. I worked along with different teams to improve the experience of customers across the globe. In my journey of 4 years, I experienced challenges in scaling services to support traffic growing @Billions per month and solved problems around it using data engineering principles.
+I started my career at [Shieldsquare](https://www.shieldsquare.com/), a small startup as ```DevOps``` and leading ```Cloud infrastructure``` decisions. I managed hybrid cloud environments, optimized large-scale data pipelines, built data warehouses, and solved scaling challenges for billions of monthly requests through data engineering principles. Later in 2018, Shieldsquare was acquired by [Radware](https://www.radware.com/products/bot-manager/), where I worked on advanced scaling challenges to protect web applications against automated threats.
 
-Besides this, I follow football very closely and support Arsenal FC. I like mountains, exploring distant places and always ready for a backpacking trip. :)
+Besides this, I follow football very closely and support `Arsenal FC`. I like , exploring distant places and always ready for a backpacking trip. :)
 
-Currently, I am looking for new projects and available to join any ambitious team across the globe.
+Currently, I am open to new challenges and eager to bring my expertise in cloud infrastructure, security, observability, and developer experience to innovative teams worldwide.
 
 -------------
