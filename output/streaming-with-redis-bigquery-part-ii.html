@@ -1,0 +1,480 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <!-- ## for client-side less
+  <link rel="stylesheet/less" type="text/css" href="http://localhost:8000/theme/css/style.less">
+  <script src="http://cdnjs.cloudflare.com/ajax/libs/less.js/1.7.3/less.min.js" type="text/javascript"></script>
+  -->
+        <link
+            rel="stylesheet"
+            type="text/css"
+            href="http://localhost:8000/theme/css/style.css"
+        />
+        <link
+            rel="stylesheet"
+            type="text/css"
+            href="http://localhost:8000/theme/css/pygments.css"
+        />
+        <link
+            rel="stylesheet"
+            type="text/css"
+            href="//fonts.googleapis.com/css?family=PT+Sans|PT+Serif|PT+Mono"
+        />
+
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <meta name="author" content="Sunny Kumar" />
+        <meta name="description" content="Posts and writings by Sunny Kumar" />
+
+  <meta name="keywords" content="Google BigQuery, GCP, Redis, Google Cloud Platform">
+
+        <title>Daemon Blog &ndash; Streaming with Redis - BigQuery Part-II</title>
+
+<script type="text/javascript">
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-63834161-1', 'auto');
+  ga('send', 'pageview');
+
+</script>
+    </head>
+
+    <body>
+        <aside>
+            <div id="user_meta">
+                <a id="user_meta_logo" href="http://localhost:8000">
+                    <img src="http://localhost:8000/images/logo.jpg" alt="logo" />
+                </a>
+                <h3><a href="http://localhost:8000">Sunny Kumar</a></h3>
+                <p>Bits of Cloud Wisdom &Phi;  &#9679; Platform Engineer &Xi;  &#9679; Football Enthusiast &infin; &#9679; </p>
+
+                <hr />
+
+                <nav>
+                    <h4>
+                        <a href="http://localhost:8000/pages/about-me.html">About</a>
+                    </h4>
+                </nav>
+            </div>
+        </aside>
+
+        <main>
+            <header>
+                <nav>
+                    <a id="linkedin" href="https://www.linkedin.com/in/sunnykrgupta/" target="_blank"
+                        ><img
+                            src="http://localhost:8000/theme/images/Mono/webicon-linkedin.png"
+                            alt="linkedin"
+                    /></a>
+                    <a id="github" href="https://github.com/sunnykrGupta" target="_blank"
+                        ><img
+                            src="http://localhost:8000/theme/images/Mono/webicon-github.png"
+                            alt="github"
+                    /></a>
+                    <a id="twitter" href="https://twitter.com/Sunny_KrGupta" target="_blank"
+                        ><img
+                            src="http://localhost:8000/theme/images/Mono/webicon-twitter.png"
+                            alt="twitter"
+                    /></a>
+                    <a id="medium" href="https://medium.com/@sunnykrgupta/" target="_blank"
+                        ><img
+                            src="http://localhost:8000/theme/images/Mono/webicon-medium.png"
+                            alt="medium"
+                    /></a>
+                    <a id="mail" href="mailto:sunnygupta.kr@yandex.com" target="_blank"
+                        ><img
+                            src="http://localhost:8000/theme/images/Mono/webicon-mail.png"
+                            alt="mail"
+                    /></a>
+                </nav>
+                <br />
+                <p>
+                    <a href="http://localhost:8000/index.html">Index</a> &nbsp;&nbsp;
+                    &brvbar;
+                    <a href="http://localhost:8000/archives.html"
+                        >&nbsp;&nbsp;Archives</a
+                    >
+                   </p>
+            </header>
+
+<article>
+  <div class="article_title">
+    <h3><a href="http://localhost:8000/streaming-with-redis-bigquery-part-ii.html">Streaming with Redis - BigQuery Part-II</a></h3>
+  </div>
+  <div class="article_text">
+    <p><img alt="Google BigQuery" src="/images/bq-series/part2/bq-stream.png"></p>
+<p>This post is 2nd part of 3-post series. In the earlier post, we understood the fundamentals of BigQuery Load Jobs <strong><a href="https://sunnykrgupta.github.io/export-load-job-with-mongodb-bigquery-part-i.html">Export &amp; Load Job with MongoDB - BigQuery Part-I</a></strong>. In this post, we are going to dive into Streaming feature of BigQuery.</p>
+<p><br></p>
+<h3><a href="https://cloud.google.com/bigquery/streaming-data-into-bigquery">Streaming</a></h3>
+<p><strong>Why ?</strong> - Streaming helps in pushing our data into BigQuery (short for BQ) and helps in making data available for query without delay of running load jobs.</p>
+<blockquote>
+<p>There are some trade-offs to choose Streaming. A few are belows :</p>
+</blockquote>
+<ul>
+<li>We need to follow a few quotas like http body size, maximum rows / request etc while making streaming API calls.</li>
+<li>Written data in tables are not instantly available for copy or for export jobs in bigquery, it will take upto 90 minutes to be made available while load based tables are available instantly.</li>
+<li>At the time of writing this post, charges incurred in streaming whereas load jobs were free.</li>
+</ul>
+<p>Keeping above in mind, we need to choose streaming vs load jobs in BigQuery.</p>
+<p><strong>Quotas :</strong> <a href="https://cloud.google.com/bigquery/quotas#streaminginserts">https://cloud.google.com/bigquery/quotas#streaminginserts</a></p>
+<p><br></p>
+<hr>
+<p><br></p>
+<h3>Streaming Data into BigQuery</h3>
+<p>In this article, we are going to use a <a href="https://redis.io">redis server</a> as a message broker to hold our data.</p>
+<p>We are going to prepare data and the skeleton of data is going to be basic information of any person (username, name, birthdate, sex, address, email). As per this information, we need schema and table in bigquery to be created in advance before streaming. Post table creation, we are going to run streaming program to ingest our data in bulk which will be read from redis and same will be written to bigquery table in real time.
+We are going to use <code>python</code> as our programming language.</p>
+<p><br></p>
+<h4>1. Prepare data in Redis</h4>
+<p><img alt="Redis" src="/images/bq-series/part2/redis.png"></p>
+<p>We are going to write a small python script to preapare data in <a href="https://redis.io/topics/data-types">redis List</a>.</p>
+<p><strong>Redis Installation :</strong> <a href="https://redis.io/download">https://redis.io/download</a></p>
+<p>If you have docker running, run redis inside container with simple command</p>
+<div class="highlight"><pre><span></span><code>docker run -d --name redis-streaming -p 6379:6379 redis
+</code></pre></div>
+
+<p>Script is going to execute <a href="https://redis.io/commands/lpush">LPUSH command</a> in redis to insert data into list named as <code>redisList</code> . With the help of <code>Faker</code> library we are going to generate some fake profile as our data.</p>
+<p><strong>Faker :</strong> <a href="https://github.com/joke2k/faker">https://github.com/joke2k/faker</a></p>
+<div class="highlight"><pre><span></span><code><span class="ch">#!/usr/bin/env python</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">redis</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">json</span><span class="o">,</span><span class="w"> </span><span class="nn">time</span>
+<span class="c1">#Faker : https://github.com/joke2k/faker</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">faker</span><span class="w"> </span><span class="kn">import</span><span class="w"> </span><span class="n">Faker</span>
+
+<span class="n">streamRedis</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">redis</span><span class="o">.</span><span class="n">Redis</span><span class="p">(</span><span class="n">host</span><span class="o">=</span><span class="s1">&#39;127.0.0.1&#39;</span><span class="p">,</span>
+<span class="w">             </span><span class="n">port</span><span class="o">=</span><span class="s1">&#39;6379&#39;</span><span class="p">,</span>
+<span class="w">            </span><span class="n">password</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">)</span>
+
+<span class="n">fake</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Faker</span><span class="p">()</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">profile_generator</span><span class="p">():</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">fake</span><span class="o">.</span><span class="n">simple_profile</span><span class="p">(</span><span class="n">sex</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">main</span><span class="p">():</span>
+<span class="w">    </span><span class="k">while</span><span class="w"> </span><span class="kc">True</span><span class="p">:</span>
+<span class="w">        </span><span class="n">streamRedis</span><span class="o">.</span><span class="n">lpush</span><span class="p">(</span><span class="s2">&quot;redisList&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">profile_generator</span><span class="p">())</span><span class="w"> </span><span class="p">)</span>
+<span class="w">        </span><span class="c1">#sleep 200ms</span>
+<span class="w">        </span><span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mf">0.2</span><span class="p">)</span>
+
+<span class="k">if</span><span class="w"> </span><span class="vm">__name__</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+<span class="w">    </span><span class="n">main</span><span class="p">()</span>
+</code></pre></div>
+
+<p><br></p>
+<hr>
+<p><br></p>
+<h4>2. Inspect data and prepare schema for Table</h4>
+<blockquote>
+<p>Our data looks like :</p>
+</blockquote>
+<div class="highlight"><pre><span></span><code><span class="p">{</span>
+<span class="w">    </span><span class="err">&#39;</span><span class="nx">username</span><span class="err">&#39;</span><span class="p">:</span><span class="w"> </span><span class="nx">u</span><span class="err">&#39;</span><span class="nx">tarawade</span><span class="err">&#39;</span><span class="p">,</span>
+<span class="w">    </span><span class="err">&#39;</span><span class="nx">name</span><span class="err">&#39;</span><span class="p">:</span><span class="w"> </span><span class="nx">u</span><span class="err">&#39;</span><span class="nx">Jennifer</span><span class="w"> </span><span class="nx">Lewis</span><span class="err">&#39;</span><span class="p">,</span>
+<span class="w">    </span><span class="err">&#39;</span><span class="nx">birthdate</span><span class="err">&#39;</span><span class="p">:</span><span class="w"> </span><span class="err">&#39;</span><span class="mi">2005</span><span class="o">-</span><span class="mi">06</span><span class="o">-</span><span class="mi">14</span><span class="err">&#39;</span><span class="p">,</span>
+<span class="w">    </span><span class="err">&#39;</span><span class="nx">sex</span><span class="err">&#39;</span><span class="p">:</span><span class="w"> </span><span class="sc">&#39;F&#39;</span><span class="p">,</span>
+<span class="w">    </span><span class="err">&#39;</span><span class="nx">address</span><span class="err">&#39;</span><span class="p">:</span><span class="w"> </span><span class="nx">u</span><span class="err">&#39;</span><span class="mi">7134</span><span class="w"> </span><span class="nx">Robinson</span><span class="w"> </span><span class="nx">Club</span><span class="w"> </span><span class="nx">Apt</span><span class="p">.</span><span class="w"> </span><span class="mi">530</span><span class="err">\</span><span class="nx">nPort</span><span class="w"> </span><span class="nx">Andreachester</span><span class="p">,</span><span class="w"> </span><span class="nx">GA</span><span class="w"> </span><span class="mi">19011</span><span class="o">-</span><span class="mi">6162</span><span class="err">&#39;</span><span class="p">,</span>
+<span class="w">    </span><span class="err">&#39;</span><span class="nx">mail</span><span class="err">&#39;</span><span class="p">:</span><span class="w"> </span><span class="nx">u</span><span class="err">&#39;</span><span class="nx">tmorgan</span><span class="err">@</span><span class="nx">yahoo</span><span class="p">.</span><span class="nx">com</span><span class="err">&#39;</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<blockquote>
+<p>For the above formatted data, below schema is going to work :</p>
+</blockquote>
+<div class="highlight"><pre><span></span><code><span class="p">[</span>
+<span class="w">    </span><span class="p">{</span>
+<span class="w">        </span><span class="s">&quot;name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;username&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;STRING&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;mode&quot;</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;NULLABLE&quot;</span>
+<span class="w">    </span><span class="p">},</span>
+<span class="w">    </span><span class="p">{</span>
+<span class="w">        </span><span class="s">&quot;name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;name&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;STRING&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;mode&quot;</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;NULLABLE&quot;</span>
+<span class="w">    </span><span class="p">},</span>
+<span class="w">    </span><span class="p">{</span>
+<span class="w">        </span><span class="s">&quot;name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;birthdate&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;STRING&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;mode&quot;</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;NULLABLE&quot;</span>
+<span class="w">    </span><span class="p">},</span>
+<span class="w">    </span><span class="p">{</span>
+<span class="w">        </span><span class="s">&quot;name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;sex&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;STRING&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;mode&quot;</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;NULLABLE&quot;</span>
+<span class="w">    </span><span class="p">},</span>
+<span class="w">    </span><span class="p">{</span>
+<span class="w">        </span><span class="s">&quot;name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;address&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;STRING&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;mode&quot;</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;NULLABLE&quot;</span>
+<span class="w">    </span><span class="p">},</span>
+<span class="w">    </span><span class="p">{</span>
+<span class="w">        </span><span class="s">&quot;name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;mail&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;STRING&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;mode&quot;</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;NULLABLE&quot;</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="p">]</span>
+</code></pre></div>
+
+<hr>
+<p><br></p>
+<h4>3. Create a table in BigQuery</h4>
+<p>We are going to create two python file, ie, <strong><code>createConfig.py</code></strong> that will keep schema configuration and <strong><code>tableCreate.py</code></strong> that will execute the table creation API call to bigquery. We are going to use <strong><code>Google Application Default Credentials</code></strong> to authorize our python application to talk to bigquery APIs.</p>
+<div class="highlight"><pre><span></span><code>$<span class="w"> </span>cat<span class="w"> </span>createConfig.py
+
+<span class="nv">TableObject</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="o">{</span>
+<span class="w">    </span><span class="s2">&quot;tableReference&quot;</span>:<span class="w"> </span><span class="o">{</span>
+<span class="w">      </span><span class="s2">&quot;projectId&quot;</span>:<span class="w"> </span><span class="s2">&quot;mimetic-slate&quot;</span>,
+<span class="w">      </span><span class="s2">&quot;tableId&quot;</span>:<span class="w"> </span><span class="s2">&quot;StreamTable&quot;</span>,
+<span class="w">      </span><span class="s2">&quot;datasetId&quot;</span>:<span class="w"> </span><span class="s2">&quot;BQ_Dataset&quot;</span>,
+<span class="w">    </span><span class="o">}</span>,
+
+<span class="w">    </span><span class="s2">&quot;schema&quot;</span>:<span class="w"> </span><span class="o">{</span>
+<span class="w">      </span><span class="s2">&quot;fields&quot;</span>:<span class="w"> </span><span class="o">[</span>
+<span class="w">          </span><span class="o">{</span>
+<span class="w">              </span><span class="s2">&quot;name&quot;</span>:<span class="w"> </span><span class="s2">&quot;username&quot;</span>,
+<span class="w">              </span><span class="s2">&quot;type&quot;</span>:<span class="w"> </span><span class="s2">&quot;STRING&quot;</span>,
+<span class="w">              </span><span class="s2">&quot;mode&quot;</span>:<span class="w"> </span><span class="s2">&quot;NULLABLE&quot;</span>
+<span class="w">          </span><span class="o">}</span>,
+<span class="w">          </span><span class="o">{</span>
+<span class="w">              </span><span class="s2">&quot;name&quot;</span>:<span class="w"> </span><span class="s2">&quot;name&quot;</span>,
+<span class="w">              </span><span class="s2">&quot;type&quot;</span>:<span class="w"> </span><span class="s2">&quot;STRING&quot;</span>,
+<span class="w">              </span><span class="s2">&quot;mode&quot;</span>:<span class="w"> </span><span class="s2">&quot;NULLABLE&quot;</span>
+<span class="w">          </span><span class="o">}</span>,
+<span class="w">          </span><span class="o">{</span>
+<span class="w">              </span><span class="s2">&quot;name&quot;</span>:<span class="w"> </span><span class="s2">&quot;birthdate&quot;</span>,
+<span class="w">              </span><span class="s2">&quot;type&quot;</span>:<span class="w"> </span><span class="s2">&quot;STRING&quot;</span>,
+<span class="w">              </span><span class="s2">&quot;mode&quot;</span>:<span class="w"> </span><span class="s2">&quot;NULLABLE&quot;</span>
+<span class="w">          </span><span class="o">}</span>,
+<span class="w">          </span><span class="o">{</span>
+<span class="w">              </span><span class="s2">&quot;name&quot;</span>:<span class="w"> </span><span class="s2">&quot;sex&quot;</span>,
+<span class="w">              </span><span class="s2">&quot;type&quot;</span>:<span class="w"> </span><span class="s2">&quot;STRING&quot;</span>,
+<span class="w">              </span><span class="s2">&quot;mode&quot;</span>:<span class="w"> </span><span class="s2">&quot;NULLABLE&quot;</span>
+<span class="w">          </span><span class="o">}</span>,
+<span class="w">          </span><span class="o">{</span>
+<span class="w">              </span><span class="s2">&quot;name&quot;</span>:<span class="w"> </span><span class="s2">&quot;address&quot;</span>,
+<span class="w">              </span><span class="s2">&quot;type&quot;</span>:<span class="w"> </span><span class="s2">&quot;STRING&quot;</span>,
+<span class="w">              </span><span class="s2">&quot;mode&quot;</span>:<span class="w"> </span><span class="s2">&quot;NULLABLE&quot;</span>
+<span class="w">          </span><span class="o">}</span>,
+<span class="w">          </span><span class="o">{</span>
+<span class="w">              </span><span class="s2">&quot;name&quot;</span>:<span class="w"> </span><span class="s2">&quot;mail&quot;</span>,
+<span class="w">              </span><span class="s2">&quot;type&quot;</span>:<span class="w"> </span><span class="s2">&quot;STRING&quot;</span>,
+<span class="w">              </span><span class="s2">&quot;mode&quot;</span>:<span class="w"> </span><span class="s2">&quot;NULLABLE&quot;</span>
+<span class="w">          </span><span class="o">}</span>
+<span class="w">      </span><span class="o">]</span>,
+<span class="w">  </span><span class="o">}</span>,
+<span class="o">}</span>
+</code></pre></div>
+
+<p>We are going to use ** <a href="https://developers.google.com/api-client-library/python/">google-api-python-client</a>** library for interacting to our bigquery APIs.</p>
+<p>We are building service object by calling our API name and version supported by API. In this case we are using <strong><code>bigquery</code></strong> with version <strong><code>v2</code></strong>. This service object will be used to make tables related operation.  As of now we are going to use <strong><code>insert</code></strong> function to make table.</p>
+<p><strong><code>GoogleCredentials.get_application_default()</code></strong> will read the credentials stored in my system. Either you need to export a variable mentioned in reference with service account key or you setup an google SDK which will store default credentials inside your home directory.</p>
+<div class="highlight"><pre><span></span><code>ls ~/.config/gcloud/*.json
+~/.config/gcloud/application_default_credentials.json
+</code></pre></div>
+
+<div class="highlight"><pre><span></span><code><span class="ch">#!/usr/bin/env python</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">googleapiclient</span><span class="w"> </span><span class="kn">import</span><span class="w"> </span><span class="n">discovery</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">oauth2client.client</span><span class="w"> </span><span class="kn">import</span><span class="w"> </span><span class="n">GoogleCredentials</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">tableCreate</span><span class="w"> </span><span class="kn">import</span><span class="w"> </span><span class="n">TableObject</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">createTable</span><span class="p">(</span><span class="n">bigquery</span><span class="p">):</span>
+<span class="w">    </span><span class="n">tables</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">bigquery</span><span class="o">.</span><span class="n">tables</span><span class="p">()</span>
+
+<span class="w">    </span><span class="c1">#insert utility make call to BQ API with payload \</span>
+<span class="w">    </span><span class="c1">#(TableObject) contains schema and table-name information</span>
+<span class="w">    </span><span class="n">tableStatusObject</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">tables</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="w"> </span><span class="n">projectId</span><span class="o">=</span><span class="s1">&#39;mimetic-slate&#39;</span><span class="p">,</span><span class="w"> \</span>
+<span class="w">     </span><span class="n">datasetId</span><span class="o">=</span><span class="s1">&#39;BQ_Dataset&#39;</span><span class="p">,</span><span class="w"> </span><span class="n">body</span><span class="o">=</span><span class="n">TableObject</span><span class="p">)</span><span class="o">.</span><span class="n">execute</span><span class="p">()</span>
+<span class="c1"># [END]</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">main</span><span class="p">():</span>
+<span class="w">    </span><span class="c1">#to get credentials from my laptop</span>
+<span class="w">    </span><span class="n">credentials</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">GoogleCredentials</span><span class="o">.</span><span class="n">get_application_default</span><span class="p">()</span>
+<span class="w">    </span><span class="c1"># Construct the service object for interacting with the BigQuery API.</span>
+<span class="w">    </span><span class="n">bigquery</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">discovery</span><span class="o">.</span><span class="n">build</span><span class="p">(</span><span class="s1">&#39;bigquery&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;v2&#39;</span><span class="p">,</span><span class="w"> </span><span class="n">credentials</span><span class="o">=</span><span class="n">credentials</span><span class="p">)</span>
+<span class="w">    </span><span class="n">createTable</span><span class="p">(</span><span class="n">bigquery</span><span class="p">)</span>
+
+<span class="k">if</span><span class="w"> </span><span class="vm">__name__</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="s1">&#39;__main__&#39;</span><span class="p">:</span>
+<span class="w">    </span><span class="n">main</span><span class="p">()</span>
+<span class="w">    </span><span class="nb">print</span><span class="w"> </span><span class="s2">&quot;BQ Table Creator !!&quot;</span>
+</code></pre></div>
+
+<p>Run above to program to create table with name <strong>StreamTable</strong> in bigquery dataset <strong><code>BQ_Dataset</code></strong>. Make sure you have created dataset already.</p>
+<p>You can verify the table created by visiting bigquery UI. Visit : <a href="https://bigquery.cloud.google.com">https://bigquery.cloud.google.com</a></p>
+<p>You can also verify table creation by running <code>bq</code> CLI commands</p>
+<div class="highlight"><pre><span></span><code>$<span class="w"> </span>bq<span class="w"> </span>ls<span class="w"> </span>BQ_Dataset<span class="w">    </span>
+<span class="w">    </span>tableId<span class="w">     </span>Type<span class="w">    </span>Labels<span class="w">   </span>Time<span class="w"> </span>Partitioning<span class="w">  </span>
+<span class="w"> </span>-------------<span class="w"> </span>-------<span class="w"> </span>--------<span class="w"> </span>-------------------
+<span class="w">  </span>StreamTable<span class="w">   </span>TABLE<span class="w">                               </span>
+</code></pre></div>
+
+<p><img alt="bq show " src="/images/bq-series/part2/bq-show-2.png"></p>
+<p>**Reference ** :</p>
+<ul>
+<li>
+<p>**Table Creation : ** <a href="https://developers.google.com/resources/api-libraries/documentation/bigquery/v2/python/latest/bigquery_v2.tables.html">https://developers.google.com/resources/api-libraries/documentation/bigquery/v2/python/latest/bigquery_v2.tables.html</a></p>
+</li>
+<li>
+<p><strong>Google Application Default Credentials :</strong> <a href="https://developers.google.com/identity/protocols/application-default-credentials">https://developers.google.com/identity/protocols/application-default-credentials</a></p>
+</li>
+<li>
+<p><strong>Build the service object :</strong> <a href="https://developers.google.com/api-client-library/python/start/get_started#build-the-service-object">https://developers.google.com/api-client-library/python/start/get_started#build-the-service-object</a></p>
+</li>
+</ul>
+<p><br></p>
+<hr>
+<p><br></p>
+<h4>4. Streaming into Bigquery</h4>
+<p>Now, we have table created and data queued into redis list, We are ready to stream right away by running a python script, lets call this script <strong><code>bq-streamer.py</code></strong></p>
+<div class="highlight"><pre><span></span><code><span class="ch">#!/usr/bin/env python</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">googleapiclient</span><span class="w"> </span><span class="kn">import</span><span class="w"> </span><span class="n">discovery</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">oauth2client.client</span><span class="w"> </span><span class="kn">import</span><span class="w"> </span><span class="n">GoogleCredentials</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">json</span><span class="o">,</span><span class="w"> </span><span class="nn">time</span><span class="o">,</span><span class="w"> </span><span class="nn">copy</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">redis</span>
+
+
+<span class="n">batchCount</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">100</span>
+
+<span class="n">redisStream</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">redis</span><span class="o">.</span><span class="n">Redis</span><span class="p">(</span><span class="n">host</span><span class="o">=</span><span class="s1">&#39;127.0.0.1&#39;</span><span class="p">,</span>
+<span class="w">             </span><span class="n">port</span><span class="o">=</span><span class="s1">&#39;6379&#39;</span><span class="p">,</span>
+<span class="w">            </span><span class="n">password</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">)</span>
+
+<span class="n">streamObject</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="s2">&quot;rows&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">      </span><span class="c1">#{ &quot;json&quot;: {# Represents a single JSON object. } }</span>
+<span class="w">    </span><span class="p">],</span>
+<span class="w"> </span><span class="p">}</span>
+
+<span class="c1">#[START Streaming batcher]</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">streamBuilder</span><span class="p">():</span>
+<span class="w">    </span><span class="c1">#Every API needs a refresh copy of dict</span>
+<span class="w">    </span><span class="n">newStreamObject</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span><span class="n">streamObject</span><span class="p">)</span>
+
+<span class="w">    </span><span class="n">currentCounter</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span>
+<span class="w">    </span><span class="k">while</span><span class="w"> </span><span class="n">currentCounter</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">batchCount</span><span class="p">:</span>
+<span class="w">        </span><span class="n">packet</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">redisStream</span><span class="o">.</span><span class="n">brpop</span><span class="p">(</span><span class="s2">&quot;redisList&quot;</span><span class="p">,</span><span class="w">  </span><span class="n">timeout</span><span class="o">=</span><span class="mi">0</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span>
+<span class="w">        </span><span class="n">newStreamObject</span><span class="p">[</span><span class="s2">&quot;rows&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">({</span><span class="s2">&quot;json&quot;</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">packet</span><span class="p">)</span><span class="w"> </span><span class="p">})</span>
+<span class="w">        </span><span class="n">currentCounter</span><span class="w"> </span><span class="o">+=</span><span class="w">  </span><span class="mi">1</span>
+
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">newStreamObject</span>
+<span class="c1">#[END]</span>
+
+
+<span class="c1"># [START Streaming Utility]</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">streamUtils</span><span class="p">(</span><span class="n">bigquery</span><span class="p">):</span>
+<span class="w">    </span><span class="n">tabledata</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">bigquery</span><span class="o">.</span><span class="n">tabledata</span><span class="p">()</span>
+
+<span class="w">    </span><span class="c1">#Run infinitely</span>
+<span class="w">    </span><span class="k">while</span><span class="w"> </span><span class="kc">True</span><span class="p">:</span>
+<span class="w">        </span><span class="n">streamBuildBatch</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">streamBuilder</span><span class="p">()</span>
+
+<span class="w">        </span><span class="c1">#BQ API to insert bulk data into table</span>
+<span class="w">        </span><span class="n">insertStatusObject</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">tabledata</span><span class="o">.</span><span class="n">insertAll</span><span class="p">(</span><span class="n">projectId</span><span class="o">=</span><span class="s1">&#39;mimetic-slate&#39;</span><span class="p">,</span><span class="w"> \</span>
+<span class="w">        </span><span class="n">datasetId</span><span class="o">=</span><span class="s1">&#39;BQ_Dataset&#39;</span><span class="p">,</span><span class="w"> </span><span class="n">tableId</span><span class="o">=</span><span class="s1">&#39;StreamTable&#39;</span><span class="p">,</span><span class="w"> \</span>
+<span class="w">        </span><span class="n">body</span><span class="o">=</span><span class="n">streamBuildBatch</span><span class="p">)</span><span class="o">.</span><span class="n">execute</span><span class="p">()</span>
+
+
+<span class="c1"># [ MAIN]</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">main</span><span class="p">():</span>
+<span class="w">    </span><span class="n">credentials</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">GoogleCredentials</span><span class="o">.</span><span class="n">get_application_default</span><span class="p">()</span>
+<span class="w">    </span><span class="c1"># Construct the service object for interacting with the BigQuery API.</span>
+<span class="w">    </span><span class="n">bigquery</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">discovery</span><span class="o">.</span><span class="n">build</span><span class="p">(</span><span class="s1">&#39;bigquery&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;v2&#39;</span><span class="p">,</span><span class="w"> </span><span class="n">credentials</span><span class="o">=</span><span class="n">credentials</span><span class="p">)</span>
+
+<span class="w">    </span><span class="c1">#Stream utility</span>
+<span class="w">    </span><span class="n">streamUtils</span><span class="p">(</span><span class="n">bigquery</span><span class="p">)</span>
+<span class="c1"># [END]</span>
+
+
+<span class="k">if</span><span class="w"> </span><span class="vm">__name__</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="s1">&#39;__main__&#39;</span><span class="p">:</span>
+<span class="w">    </span><span class="n">main</span><span class="p">()</span>
+</code></pre></div>
+
+<p>Above program is going to read redis running on <code>127.0.0.1:6379</code> from list name <strong><code>redisList</code></strong> and build a dict object <strong><code>streamObject</code></strong> that is accepted by bq streaming API. We are calling <strong><code>insertAll</code></strong> utility to submit our streaming request to bigquery API.</p>
+<p><strong><code>insertAll</code></strong> takes <strong><code>projectId, datasetId, tableId</code></strong> as an argument and <strong><code>body</code></strong> which contains your data to be streamed.</p>
+<p>Script has been configured to <a href="https://redis.io/commands/brpop">pop</a> <code>100 entries</code> from redis list and prepare it to be pushed into table. Run <strong><code>bq-streamer.py</code></strong> script to start streaming data into bigquery table.</p>
+<div class="highlight"><pre><span></span><code><span class="c1">#when bulk data is prepared, JSON payload in body argument would look like</span>
+<span class="p">{</span>
+<span class="w">    </span><span class="s2">&quot;rows&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">        </span><span class="p">{</span>
+<span class="w">            </span><span class="s2">&quot;json&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">                </span><span class="s2">&quot;username&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;nicholaswagner&quot;</span><span class="p">,</span>
+<span class="w">                </span><span class="s2">&quot;name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Laura Scott&quot;</span><span class="p">,</span>
+<span class="w">                </span><span class="s2">&quot;birthdate&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;1970-11-30&quot;</span><span class="p">,</span>
+<span class="w">                </span><span class="s2">&quot;sex&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;F&quot;</span><span class="p">,</span>
+<span class="w">                </span><span class="s2">&quot;address&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;788 Faulkner Locks Suite 687</span><span class="se">\n</span><span class="s2">Sanfordside, FL 50804-6818&quot;</span><span class="p">,</span>
+<span class="w">                </span><span class="s2">&quot;mail&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;austinnathaniel@yahoo.com&quot;</span>
+<span class="w">            </span><span class="p">}</span>
+<span class="w">        </span><span class="p">},</span>
+<span class="w">        </span><span class="p">{</span>
+<span class="w">           </span><span class="s2">&quot;json&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">               </span><span class="s2">&quot;username&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;david27&quot;</span><span class="p">,</span>
+<span class="w">               </span><span class="s2">&quot;name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Aaron Silva&quot;</span><span class="p">,</span>
+<span class="w">               </span><span class="s2">&quot;birthdate&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;2003-09-17&quot;</span><span class="p">,</span>
+<span class="w">               </span><span class="s2">&quot;sex&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;M&quot;</span><span class="p">,</span>
+<span class="w">               </span><span class="s2">&quot;address&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;57976 Collins Loaf Apt. 843</span><span class="se">\n</span><span class="s2">Michaelfort, VA 79233&quot;</span><span class="p">,</span>
+<span class="w">               </span><span class="s2">&quot;mail&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;dbeck@hotmail.com&quot;</span>
+<span class="w">           </span><span class="p">}</span>
+<span class="w">        </span><span class="p">},</span>
+<span class="w">        </span><span class="o">.....</span>
+<span class="w">        </span><span class="n">more</span><span class="w"> </span><span class="n">data</span>
+<span class="w">        </span><span class="o">.....</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<p><strong>Reference</strong> :</p>
+<ul>
+<li><strong>Streaming insertAll :</strong> <a href="https://developers.google.com/resources/api-libraries/documentation/bigquery/v2/python/latest/bigquery_v2.tabledata.html">https://developers.google.com/resources/api-libraries/documentation/bigquery/v2/python/latest/bigquery_v2.tabledata.html</a></li>
+</ul>
+<p><br></p>
+<hr>
+<p><br></p>
+<h4>5. Verify the data in BigQuery Table</h4>
+<p>After running streaming, you will start seeing something similar as shown below when you click table info. Clicking on preview will not show you any streamed data, it will take a while to appear but it will be in buffer to be available for query instantly.</p>
+<div style="text-align: center"><u><b>Buffer Statistics</b></u></div>
+
+<p><img alt="streaming-1" src="/images/bq-series/part2/stream.png"></p>
+<div style="text-align: center"><u><b>Table Preview</b></u></div>
+
+<p><img alt="streaming-2" src="/images/bq-series/part2/preview-none.png"></p>
+<p><br></p>
+<hr>
+<p><br></p>
+<h3>SQL Query in BQ Table</h3>
+<p>We are going to run a simple query to show the output that shows your streamed data.</p>
+<div class="highlight"><pre><span></span><code>SELECT * FROM [mimetic-slate:BQ_Dataset.StreamTable]
+</code></pre></div>
+
+<div style="text-align: center"><u><b>Query Result</u></b></div>
+
+<p><img alt="query" src="/images/bq-series/part2/query-2.png"></p>
+<p><br></p>
+<hr>
+<p><br></p>
+<p><strong>Github reference</strong> : <a href="https://github.com/sunnykrGupta/Bigquery-series">https://github.com/sunnykrGupta/Bigquery-series</a></p>
+<p><br></p>
+<hr>
+<p><br></p>
+<h3>Conclusion</h3>
+<p>That's all from this <strong>series Part-II</strong>. Hope you will get basic understanding of Streaming in BigQuery from this post. Streaming is helpful in cases when you want your data to be instantly available for query, helps in scenario where have a requirement of building real time analysis.</p>
+<p>I would appreciate feedback via comments. In next blog which is part of this series, I will be covering <strong>Patching and Updating table schema in Bigquery</strong> which is important when you want to add fields in table.</p>
+<hr>
+  </div>
+  <div class="article_meta">
+    <p>Posted on: Wed 01 November 2017</p>
+    <p>Category: <a href="http://localhost:8000/category/blog-series.html">Blog, Series</a>
+ &ndash; Tags:
+      <a href="http://localhost:8000/tag/google-bigquery.html">Google BigQuery</a>,      <a href="http://localhost:8000/tag/gcp.html">GCP</a>,      <a href="http://localhost:8000/tag/redis.html">Redis</a>,      <a href="http://localhost:8000/tag/google-cloud-platform.html">Google Cloud Platform</a>    </p>
+  </div>
+
+
+</article>
+  
+            <div id="ending_message">
+                <p>
+                    &copy; Sunny Kumar. Built using
+                    <a href="http://getpelican.com" target="_blank">Pelican</a>.
+                    Theme by Sunny Kumar on
+                    <a
+                        href="https://github.com/sunnykrgupta/pelican-svbhack-responsive"
+                        target="_blank"
+                        >github</a
+                    >.                 </p>
+            </div>
+        </main>
+
+    </body>
+</html>
