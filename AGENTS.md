@@ -2,10 +2,10 @@
 
 ## Build & Serve Commands
 
-- **Build**: `make html` or `fab build` - Generates static HTML from markdown content
-- **Development Server**: `make devserver` or `fab serve` - Runs local HTTP server on port 8000
-- **Regenerate**: `make regenerate` or `fab regenerate` - Watches for changes and rebuilds
-- **Publish**: `make publish` or `fab publish` - Builds and deploys to GitHub Pages
+- **Build**: `make html` - Generates static HTML from markdown content
+- **Development Server**: `make serve` - Runs local HTTP server on port 8000
+- **Regenerate**: `make regenerate` - Watches for changes and rebuilds
+- **Publish**: `make publish` - Builds and deploys to GitHub Pages
 - **Clean**: `make clean` - Removes generated output directory
 
 ## Architecture & Structure
@@ -18,14 +18,13 @@
 - `pelican-svbhack-responsive/` - Custom theme
 - `pelicanconf.py` - Development config (localhost:8000)
 - `publishconf.py` - Production config
-- `fabfile.py` - Fabric deployment tasks
+- `Makefile` - Build automation tasks
 
 ## Code Style & Conventions
 
 **Python**:
 - Python 3 with UTF-8 encoding (`#!/usr/bin/env python`, `# -*- coding: utf-8 -*-`)
-- Fabric tasks for common operations
-- Import conventions: `from fabric.api import *`
+- Makefile for build automation
 
 **Markdown Content**:
 - Default metadata: `status: draft` (use `published` or `unpublished`)
