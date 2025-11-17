@@ -1,0 +1,368 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <!-- ## for client-side less
+  <link rel="stylesheet/less" type="text/css" href="http://localhost:8000/theme/css/style.less">
+  <script src="http://cdnjs.cloudflare.com/ajax/libs/less.js/1.7.3/less.min.js" type="text/javascript"></script>
+  -->
+        <link
+            rel="stylesheet"
+            type="text/css"
+            href="http://localhost:8000/theme/css/style.css"
+        />
+        <link
+            rel="stylesheet"
+            type="text/css"
+            href="http://localhost:8000/theme/css/pygments.css"
+        />
+        <link
+            rel="stylesheet"
+            type="text/css"
+            href="//fonts.googleapis.com/css?family=PT+Sans|PT+Serif|PT+Mono"
+        />
+
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <meta name="author" content="Sunny Kumar" />
+        <meta name="description" content="Posts and writings by Sunny Kumar" />
+
+  <meta name="keywords" content="Google BigQuery, GCP, MongoDB, Cloud Storage, Google Cloud Platform">
+
+        <title>Daemon Blog &ndash; Export & Load Job with MongoDB - BigQuery Part-I</title>
+
+<script type="text/javascript">
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-63834161-1', 'auto');
+  ga('send', 'pageview');
+
+</script>
+    </head>
+
+    <body>
+        <aside>
+            <div id="user_meta">
+                <a id="user_meta_logo" href="http://localhost:8000">
+                    <img src="http://localhost:8000/images/logo.jpg" alt="logo" />
+                </a>
+                <h3><a href="http://localhost:8000">Sunny Kumar</a></h3>
+                <p>Bits of Cloud Wisdom &Phi;  &#9679; Platform Engineer &Xi;  &#9679; Football Enthusiast &infin; &#9679; </p>
+
+                <hr />
+
+                <nav>
+                    <h4>
+                        <a href="http://localhost:8000/pages/about-me.html">About</a>
+                    </h4>
+                </nav>
+            </div>
+        </aside>
+
+        <main>
+            <header>
+                <nav>
+                    <a id="linkedin" href="https://www.linkedin.com/in/sunnykrgupta/" target="_blank"
+                        ><img
+                            src="http://localhost:8000/theme/images/Mono/webicon-linkedin.png"
+                            alt="linkedin"
+                    /></a>
+                    <a id="github" href="https://github.com/sunnykrGupta" target="_blank"
+                        ><img
+                            src="http://localhost:8000/theme/images/Mono/webicon-github.png"
+                            alt="github"
+                    /></a>
+                    <a id="twitter" href="https://twitter.com/Sunny_KrGupta" target="_blank"
+                        ><img
+                            src="http://localhost:8000/theme/images/Mono/webicon-twitter.png"
+                            alt="twitter"
+                    /></a>
+                    <a id="medium" href="https://medium.com/@sunnykrgupta/" target="_blank"
+                        ><img
+                            src="http://localhost:8000/theme/images/Mono/webicon-medium.png"
+                            alt="medium"
+                    /></a>
+                    <a id="mail" href="mailto:sunnygupta.kr@yandex.com" target="_blank"
+                        ><img
+                            src="http://localhost:8000/theme/images/Mono/webicon-mail.png"
+                            alt="mail"
+                    /></a>
+                </nav>
+                <br />
+                <p>
+                    <a href="http://localhost:8000/index.html">Index</a> &nbsp;&nbsp;
+                    &brvbar;
+                    <a href="http://localhost:8000/archives.html"
+                        >&nbsp;&nbsp;Archives</a
+                    >
+                   </p>
+            </header>
+
+<article>
+  <div class="article_title">
+    <h3><a href="http://localhost:8000/export-load-job-with-mongodb-bigquery-part-i.html">Export & Load Job with MongoDB - BigQuery Part-I</a></h3>
+  </div>
+  <div class="article_text">
+    <p><img alt="Google BigQuery" src="/images/bq-series/part1/bquery.svg"></p>
+<p>This blog is intended for audience who wanted to get into fundamentals of BigQuery (short for BQ) and related jobs needed to get your data inside BigQuery system.</p>
+<h3><a href="https://cloud.google.com/bigquery/what-is-bigquery">Google BigQuery</a></h3>
+<p><strong>What ?</strong> - BigQuery is Google's fully managed, petabyte scale, low cost analytics data warehouse.</p>
+<p><strong>Why ?</strong> - BigQuery is NoOps—there is no infrastructure to manage and you don't need a database administrator—so you can focus on analyzing data to find meaningful insights, use familiar SQL, and take advantage of our pay-as-you-go model.</p>
+<p><strong>How ?</strong> - Signup to <a href="https://bigquery.cloud.google.com/">Google Cloud platform - GCP</a> using your google account, start loading your data and leverage the power of this NoOps system.</p>
+<hr>
+<p><br></p>
+<h3>Terminology in BigQuery</h3>
+<p><strong>Dataset</strong></p>
+<p>A dataset is contained within a specific project. Datasets enable you to organize and control access to your tables. A table must belong to a dataset, so you need to create at least one dataset before loading data into BigQuery.</p>
+<p><strong>Tables</strong></p>
+<p>A BigQuery table contains individual records organized in rows, and a data type assigned to each column (also called a field).</p>
+<p><strong>Schema</strong></p>
+<p>Each Every table is defined by a schema that describes field names, types, and other information. You can specify the schema of a table during the initial table creation request, or you can create a table without a schema and declare the schema in the query or load job that first populates the table. If you need to change the schema later, you can update the schema.</p>
+<hr>
+<p><br></p>
+<h3>Loading Data into BigQuery</h3>
+<p>In this post, we are going to use a mongoDB server to export our data and going to import into BQ. There are several other ways to import data into BQ.</p>
+<p><br></p>
+<h4>1. Export data from MongoDB</h4>
+<p><img alt="MongoDB" src="/images/bq-series/part1/mongo-db-blog.jpeg"></p>
+<p>In this example, i have a database in mongoDB server with name <code>restaurantdb</code> with collection name <code>restaurantCollection</code>. We are going to export using <code>mongoexport</code> binary available with mongodb server tools.</p>
+<p><img alt="MongoDB server" src="/images/bq-series/part1/mongoexport.png"></p>
+<div class="highlight"><pre><span></span><code>$<span class="w"> </span>mongoexport<span class="w"> </span>-d<span class="w"> </span>restaurantdb<span class="w"> </span>-c<span class="w"> </span>restaurantCollection<span class="w"> </span>-o<span class="w"> </span>restaurant.json
+</code></pre></div>
+
+<p>Once export is done, we can see content of <code>restaurant.json</code> file</p>
+<div class="highlight"><pre><span></span><code>$<span class="w"> </span>head<span class="w"> </span>-n<span class="w"> </span><span class="m">1</span><span class="w"> </span>restaurant.json
+
+<span class="o">{</span><span class="w"> </span><span class="s2">&quot;_id&quot;</span><span class="w"> </span>:<span class="w"> </span><span class="o">{</span><span class="w"> </span><span class="s2">&quot;</span><span class="nv">$oid</span><span class="s2">&quot;</span><span class="w"> </span>:<span class="w"> </span><span class="s2">&quot;55f14312c7447c3da7051b26&quot;</span><span class="w"> </span><span class="o">}</span>,<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span><span class="s2">&quot;URL&quot;</span><span class="w"> </span>:<span class="w"> </span><span class="s2">&quot;http://www.just-eat.co.uk/restaurants-cn-chinese-cardiff/menu&quot;</span>,<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span><span class="s2">&quot;address&quot;</span><span class="w"> </span>:<span class="w"> </span><span class="s2">&quot;228 City Road&quot;</span>,<span class="w"> </span><span class="s2">&quot;name&quot;</span><span class="w"> </span>:<span class="w"> </span><span class="s2">&quot;.CN Chinese&quot;</span>,<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span><span class="s2">&quot;outcode&quot;</span><span class="w"> </span>:<span class="w"> </span><span class="s2">&quot;CF24&quot;</span>,<span class="w"> </span><span class="s2">&quot;postcode&quot;</span><span class="w"> </span>:<span class="w"> </span><span class="s2">&quot;3JH&quot;</span>,<span class="w"> </span><span class="s2">&quot;type_of_food&quot;</span><span class="w"> </span>:<span class="w"> </span><span class="s2">&quot;Chinese&quot;</span><span class="w"> </span><span class="o">}</span>
+
+//pretty<span class="w"> </span>json
+<span class="o">{</span>
+<span class="w">    </span><span class="s2">&quot;name&quot;</span>:<span class="w"> </span><span class="s2">&quot;.CN Chinese&quot;</span>,
+<span class="w">    </span><span class="s2">&quot;URL&quot;</span>:<span class="w"> </span><span class="s2">&quot;http://www.just-eat.co.uk/restaurants-cn-chinese-cardiff/menu&quot;</span>,
+<span class="w">    </span><span class="s2">&quot;outcode&quot;</span>:<span class="w"> </span><span class="s2">&quot;CF24&quot;</span>,
+<span class="w">    </span><span class="s2">&quot;postcode&quot;</span>:<span class="w"> </span><span class="s2">&quot;3JH&quot;</span>,
+<span class="w">    </span><span class="s2">&quot;address&quot;</span>:<span class="w"> </span><span class="s2">&quot;228 City Road&quot;</span>,
+<span class="w">    </span><span class="s2">&quot;_id&quot;</span>:<span class="w"> </span><span class="o">{</span>
+<span class="w">        </span><span class="s2">&quot;</span><span class="nv">$oid</span><span class="s2">&quot;</span>:<span class="w"> </span><span class="s2">&quot;55f14312c7447c3da7051b26&quot;</span>
+<span class="w">    </span><span class="o">}</span>,
+<span class="w">    </span><span class="s2">&quot;type_of_food&quot;</span>:<span class="w"> </span><span class="s2">&quot;Chinese&quot;</span>
+<span class="o">}</span>
+</code></pre></div>
+
+<hr>
+<p><br></p>
+<h4>2. Prepare schema for Table</h4>
+<p>Now we have our data ready in json format to be imported into BQ table. We need schema to design in order to import these records. Schema is skeleton of each field with datatype and the field not described in schema will not be imported. We have given all fields as <strong>NULLABLE</strong> ie, if field didn't came in any records BQ will define null value.</p>
+<div class="highlight"><pre><span></span><code>$<span class="w"> </span>cat<span class="w"> </span>restaurantSchema.json
+</code></pre></div>
+
+<div class="highlight"><pre><span></span><code><span class="p">[</span>
+<span class="w">    </span><span class="p">{</span>
+<span class="w">        </span><span class="s">&quot;name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;name&quot;</span><span class="p">,</span>
+<span class="w">        </span><span class="s">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;STRING&quot;</span><span class="p">,</span>
+<span class="w">        </span><span class="s">&quot;mode&quot;</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;NULLABLE&quot;</span>
+<span class="w">    </span><span class="p">},</span>
+<span class="w">    </span><span class="p">{</span>
+<span class="w">        </span><span class="s">&quot;name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;URL&quot;</span><span class="p">,</span>
+<span class="w">        </span><span class="s">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;STRING&quot;</span><span class="p">,</span>
+<span class="w">        </span><span class="s">&quot;mode&quot;</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;NULLABLE&quot;</span>
+<span class="w">    </span><span class="p">},</span>
+<span class="w">    </span><span class="p">{</span>
+<span class="w">        </span><span class="s">&quot;name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;address&quot;</span><span class="p">,</span>
+<span class="w">        </span><span class="s">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;STRING&quot;</span><span class="p">,</span>
+<span class="w">        </span><span class="s">&quot;mode&quot;</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;NULLABLE&quot;</span>
+<span class="w">    </span><span class="p">},</span>
+<span class="w">    </span><span class="p">{</span>
+<span class="w">        </span><span class="s">&quot;name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;outcode&quot;</span><span class="p">,</span>
+<span class="w">        </span><span class="s">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;STRING&quot;</span><span class="p">,</span>
+<span class="w">        </span><span class="s">&quot;mode&quot;</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;NULLABLE&quot;</span>
+<span class="w">    </span><span class="p">},</span>
+<span class="w">    </span><span class="p">{</span>
+<span class="w">        </span><span class="s">&quot;name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;postcode&quot;</span><span class="p">,</span>
+<span class="w">        </span><span class="s">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;STRING&quot;</span><span class="p">,</span>
+<span class="w">        </span><span class="s">&quot;mode&quot;</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;NULLABLE&quot;</span>
+<span class="w">    </span><span class="p">},</span>
+<span class="w">    </span><span class="p">{</span>
+<span class="w">        </span><span class="s">&quot;name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;type_of_food&quot;</span><span class="p">,</span>
+<span class="w">        </span><span class="s">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;STRING&quot;</span><span class="p">,</span>
+<span class="w">        </span><span class="s">&quot;mode&quot;</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;NULLABLE&quot;</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="p">]</span>
+</code></pre></div>
+
+<p>Reference for schema : <a href="https://cloud.google.com/bigquery/docs/schemas">https://cloud.google.com/bigquery/docs/schemas</a></p>
+<hr>
+<p><br></p>
+<h4>3. Google Cloud SDK Installation</h4>
+<p>We have schema, data ready to be imported in BQ, but in order to talk to APIs of GCP services, we need Cloud SDK to be installed in our system. We are going to use <code>gcloud</code> CLI tools in order to interact with our Cloud services running in GCP.</p>
+<p>**Installation : ** <a href="https://cloud.google.com/sdk/">https://cloud.google.com/sdk/</a></p>
+<p>Once installation is done, run following command to verify account setup.</p>
+<div class="highlight"><pre><span></span><code>$<span class="w"> </span>gcloud<span class="w"> </span>auth<span class="w"> </span>list
+
+$<span class="w"> </span>gcloud<span class="w"> </span>config<span class="w"> </span>list
+</code></pre></div>
+
+<hr>
+<p><br></p>
+<h4>4. Create BigQuery Dataset</h4>
+<p>Go to your BigQuery in google console. <a href="https://bigquery.cloud.google.com">https://bigquery.cloud.google.com</a></p>
+<p>Follow below instruction to create dataset.</p>
+<blockquote>
+<p><strong>Step 1:</strong></p>
+</blockquote>
+<p><img alt="Create Dataset Step 1" src="/images/bq-series/part1/create-ds-1.png"></p>
+<blockquote>
+<p><strong>Step 2:</strong></p>
+</blockquote>
+<p><img alt="Create Dataset Step 2" src="/images/bq-series/part1/create-ds-2.png"></p>
+<p><br></p>
+<blockquote>
+<p>To create dataset through <code>bq</code> command line interface.</p>
+</blockquote>
+<div class="highlight"><pre><span></span><code>$<span class="w"> </span>bq<span class="w"> </span>mk<span class="w"> </span>-d<span class="w"> </span>--data_location<span class="o">=</span>US<span class="w">   </span>BQ_Dataset
+
+//<span class="w"> </span>Verify<span class="w"> </span>your<span class="w"> </span>dataset<span class="w"> </span>creation
+$<span class="w"> </span>bq<span class="w"> </span>ls
+
+<span class="w">    </span>datasetId
+<span class="w"> </span>----------------
+<span class="w">  </span>BQ_Dataset
+</code></pre></div>
+
+<p><strong>Read :</strong> <a href="https://cloud.google.com/bigquery/docs/datasets#create-dataset">https://cloud.google.com/bigquery/docs/datasets#create-dataset</a></p>
+<hr>
+<p><br></p>
+<h4>5. Load data into BigQuery</h4>
+<p>Now, my directory consists two files ie, data and schema.</p>
+<div class="highlight"><pre><span></span><code>$<span class="w"> </span>tree
+.
+├──<span class="w"> </span>restaurant.json
+└──<span class="w"> </span>restaurantSchema.json
+
+<span class="m">0</span><span class="w"> </span>directories,<span class="w"> </span><span class="m">2</span><span class="w"> </span>files
+</code></pre></div>
+
+<p>Run command to load data into BQ.  Once you submit load job, it will take seconds to minute depends on size of data you are importing into BQ table.</p>
+<div class="highlight"><pre><span></span><code><span class="n">Ex</span><span class="p">:</span><span class="w"> </span><span class="n">bq</span><span class="w"> </span><span class="nb">load</span><span class="w"> </span><span class="o">--</span><span class="n">project_id</span><span class="o">=&lt;</span><span class="n">PROJECT</span><span class="o">-</span><span class="n">ID</span><span class="o">&gt;</span><span class="w"> </span><span class="o">--</span><span class="n">source_format</span><span class="o">=</span><span class="n">NEWLINE_DELIMITED_JSON</span><span class="w"> </span>\
+<span class="w">    </span><span class="n">mydataset</span><span class="o">.</span><span class="n">mytable</span><span class="w"> </span><span class="o">./</span><span class="n">myfile</span><span class="o">.</span><span class="n">json</span><span class="w"> </span><span class="o">./</span><span class="n">myschema</span><span class="o">.</span><span class="n">json</span>
+
+<span class="o">$</span><span class="w"> </span><span class="n">bq</span><span class="w"> </span><span class="nb">load</span><span class="w"> </span><span class="o">--</span><span class="n">project_id</span><span class="o">=</span><span class="n">mimetic</span><span class="o">-</span><span class="n">slate</span><span class="w">   </span>\
+<span class="w">    </span><span class="o">--</span><span class="n">source_format</span><span class="o">=</span><span class="n">NEWLINE_DELIMITED_JSON</span><span class="w"> </span><span class="o">--</span><span class="n">max_bad_records</span><span class="w"> </span><span class="mi">10</span><span class="w"> </span>\
+<span class="w">    </span><span class="n">BQ_Dataset</span><span class="o">.</span><span class="n">Restaurant</span><span class="w"> </span><span class="o">./</span><span class="n">restaurant</span><span class="o">.</span><span class="n">json</span><span class="w">  </span><span class="o">./</span><span class="n">restaurantSchema</span><span class="o">.</span><span class="n">json</span>
+</code></pre></div>
+
+<p><code>--max_bad_records 10</code> are additional flags to allow 10 bad records while importing your job, exceeding this value will result in import failure.</p>
+<p><br></p>
+<p><strong>Import through Cloud Storage</strong></p>
+<p><img alt="Cloud Storage" src="/images/bq-series/part1/google-cloud-storage.png"></p>
+<blockquote>
+<p>Another methods to import the data through <code>Cloud Storage</code>, this method is lot faster compared to above one.</p>
+</blockquote>
+<p>**Read : ** <a href="https://cloud.google.com/storage/docs/creating-buckets">https://cloud.google.com/storage/docs/creating-buckets</a></p>
+<div class="highlight"><pre><span></span><code><span class="c1">//to create Cloud storage bucket for this example.</span>
+$<span class="w"> </span><span class="n">gsutil</span><span class="w"> </span><span class="n">mb</span><span class="w">  </span><span class="n">gs</span><span class="p">:</span><span class="c1">//bq-storage</span>
+
+<span class="c1">//to verify bucket creation</span>
+$<span class="w"> </span><span class="n">gsutil</span><span class="w"> </span><span class="nb">ls</span>
+<span class="n">gs</span><span class="p">:</span><span class="c1">//bq-storage/</span>
+</code></pre></div>
+
+<p>Now , we will upload our data <code>restaurant.json</code> to storage in bucket <code>gs://bq-storage/</code></p>
+<div class="highlight"><pre><span></span><code><span class="o">//</span><span class="n">Run</span><span class="w"> </span><span class="n">command</span><span class="w"> </span><span class="n">to</span><span class="w"> </span><span class="n">upload</span>
+<span class="o">$</span><span class="w"> </span><span class="n">gsutil</span><span class="w"> </span><span class="n">cp</span><span class="w"> </span><span class="n">restaurant</span><span class="o">.</span><span class="n">json</span><span class="w"> </span><span class="n">gs</span><span class="p">:</span><span class="o">//</span><span class="n">bq</span><span class="o">-</span><span class="n">storage</span><span class="o">/</span><span class="n">restaurant</span><span class="o">.</span><span class="n">json</span>
+</code></pre></div>
+
+<p>Now, we can use storage path of object to import into BQ tables.</p>
+<div class="highlight"><pre><span></span><code><span class="o">$</span><span class="w"> </span><span class="n">bq</span><span class="w"> </span><span class="nb">load</span><span class="w"> </span><span class="o">--</span><span class="n">project_id</span><span class="o">=</span><span class="n">mimetic</span><span class="o">-</span><span class="n">slate</span><span class="w">  </span>\
+<span class="w">    </span><span class="o">--</span><span class="n">source_format</span><span class="o">=</span><span class="n">NEWLINE_DELIMITED_JSON</span><span class="w"> </span><span class="o">--</span><span class="n">max_bad_records</span><span class="w"> </span><span class="mi">10</span><span class="w">  </span>\
+<span class="w">    </span><span class="n">BQ_Dataset</span><span class="o">.</span><span class="n">Restaurant</span><span class="w"> </span>\
+<span class="w">    </span><span class="n">gs</span><span class="p">:</span><span class="o">//</span><span class="n">bq</span><span class="o">-</span><span class="n">storage</span><span class="o">/</span><span class="n">restaurant</span><span class="o">.</span><span class="n">json</span><span class="w"> </span><span class="o">./</span><span class="n">restaurantSchema</span><span class="o">.</span><span class="n">json</span>
+</code></pre></div>
+
+<p><br>
+<br></p>
+<p>After <code>bq load</code> finished, run following command to verify the table creation.</p>
+<div class="highlight"><pre><span></span><code>$<span class="w"> </span>bq<span class="w"> </span>show<span class="w"> </span>BQ_Dataset.Restaurant
+</code></pre></div>
+
+<blockquote>
+<p><strong>Output will be similar to this :</strong></p>
+</blockquote>
+<p><img alt="bq show" src="/images/bq-series/part1/bq-show.png"></p>
+<p>You can also verify in bigQuery UI after hitting refresh. Visit to table and click <em>preview</em>. You will start seeing records in table.</p>
+<p><img alt="bq show" src="/images/bq-series/part1/table-preview.png"></p>
+<p><strong>More into bq CLI :</strong> <a href="https://cloud.google.com/storage/docs/creating-buckets">https://cloud.google.com/bigquery/bq-command-line-tool</a></p>
+<p><strong>More into gsutil CLI :</strong> <a href="https://cloud.google.com/storage/docs/quickstart-gsutil">https://cloud.google.com/storage/docs/quickstart-gsutil</a></p>
+<hr>
+<p><br>
+<br></p>
+<h3>SQL Query in BQ Table</h3>
+<p>We are going to run a simple query to show the output.</p>
+<div class="highlight"><pre><span></span><code><span class="nx">SELECT</span>
+<span class="w">  </span><span class="nx">name</span><span class="p">,</span>
+<span class="w">  </span><span class="nx">address</span>
+<span class="nx">FROM</span>
+<span class="w">  </span><span class="p">[</span><span class="nx">mimetic</span><span class="o">-</span><span class="nx">slate</span><span class="p">:</span><span class="nx">BQ_Dataset</span><span class="p">.</span><span class="nx">Restaurant</span><span class="p">]</span>
+<span class="nx">WHERE</span>
+<span class="w">  </span><span class="nx">type_of_food</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="err">&#39;</span><span class="nx">Thai</span><span class="err">&#39;</span>
+<span class="nx">GROUP</span><span class="w"> </span><span class="nx">BY</span>
+<span class="w">  </span><span class="nx">name</span><span class="p">,</span><span class="w"> </span><span class="nx">address</span>
+</code></pre></div>
+
+<p><img alt="query" src="/images/bq-series/part1/query.png"></p>
+<hr>
+<p><strong>Github reference</strong> : <a href="https://github.com/sunnykrGupta/Bigquery-series">https://github.com/sunnykrGupta/Bigquery-series</a></p>
+<hr>
+<p><br></p>
+<h3>Conclusion</h3>
+<ul>
+<li>BigQuery is a query service that allows you to run SQL-like queries against
+multiple terabytes of data in a matter of seconds. The technology is one of the Google’s core technologies, like MapReduce and Bigtable, and has been used
+by Google internally for various analytic tasks since 2006.</li>
+<li>While MapReduce is suitable for long-running batch processes such as data
+mining, BigQuery is the best choice for ad hoc OLAP/BI queries that require
+results as fast as possible.</li>
+<li>Wildcard can also be applied into Bigquery tables to expand your computations to multiple tables.</li>
+<li>BigQuery is the cloud-powered massively parallel
+query database that provides extremely high full-scan query performance
+and cost effectiveness compared to traditional data warehouse solutions
+and appliances</li>
+</ul>
+<blockquote>
+<p><strong>Next from here:</strong> Play around with more <a href="https://cloud.google.com/bigquery/docs/how-to">functionality available in BigQuery</a> and dive into it for more computation hungry jobs.</p>
+</blockquote>
+<hr>
+<p>That's all from this <strong>series Part-I</strong>. Hope you get basic understanding of import jobs, storage and basic outline of BigQuery from this post. I have seen power of BigQuery in my workplace to crunch 100-120 TB of data and getting results in minute or two, its really incredibly awesome. I would appreciate a feedback via comments available below and claps on medium.</p>
+<p>In next blog which is part of this series, i will be covering more into <em>Streaming feature available in Bigquery</em> to push data in BQ tables in real-time to make it available for instant query on changing dataset.</p>
+<h5>Medium Blog : <a href="https://medium.com/@sunnykrgupta/export-load-job-with-mongodb-bigquery-part-i-64a00eb5266b">medium.com/@sunnykrgupta/export-load-job-with-mongodb-bigquery-part-i</a></h5>
+  </div>
+  <div class="article_meta">
+    <p>Posted on: Mon 16 October 2017</p>
+    <p>Category: <a href="http://localhost:8000/category/blog-series.html">Blog, Series</a>
+ &ndash; Tags:
+      <a href="http://localhost:8000/tag/google-bigquery.html">Google BigQuery</a>,      <a href="http://localhost:8000/tag/gcp.html">GCP</a>,      <a href="http://localhost:8000/tag/mongodb.html">MongoDB</a>,      <a href="http://localhost:8000/tag/cloud-storage.html">Cloud Storage</a>,      <a href="http://localhost:8000/tag/google-cloud-platform.html">Google Cloud Platform</a>    </p>
+  </div>
+
+
+</article>
+  
+            <div id="ending_message">
+                <p>
+                    &copy; Sunny Kumar. Built using
+                    <a href="http://getpelican.com" target="_blank">Pelican</a>.
+                    Theme by Sunny Kumar on
+                    <a
+                        href="https://github.com/sunnykrgupta/pelican-svbhack-responsive"
+                        target="_blank"
+                        >github</a
+                    >.                 </p>
+            </div>
+        </main>
+
+    </body>
+</html>

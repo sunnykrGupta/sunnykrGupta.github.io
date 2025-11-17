@@ -1,0 +1,245 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <!-- ## for client-side less
+  <link rel="stylesheet/less" type="text/css" href="http://localhost:8000/theme/css/style.less">
+  <script src="http://cdnjs.cloudflare.com/ajax/libs/less.js/1.7.3/less.min.js" type="text/javascript"></script>
+  -->
+        <link
+            rel="stylesheet"
+            type="text/css"
+            href="http://localhost:8000/theme/css/style.css"
+        />
+        <link
+            rel="stylesheet"
+            type="text/css"
+            href="http://localhost:8000/theme/css/pygments.css"
+        />
+        <link
+            rel="stylesheet"
+            type="text/css"
+            href="//fonts.googleapis.com/css?family=PT+Sans|PT+Serif|PT+Mono"
+        />
+
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <meta name="author" content="Sunny Kumar" />
+        <meta name="description" content="Posts and writings by Sunny Kumar" />
+
+  <meta name="keywords" content="vnc, vncserver, ubuntu, desktop installation">
+
+        <title>Daemon Blog &ndash; Installation of VNC server on Ubuntu</title>
+
+<script type="text/javascript">
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-63834161-1', 'auto');
+  ga('send', 'pageview');
+
+</script>
+    </head>
+
+    <body>
+        <aside>
+            <div id="user_meta">
+                <a id="user_meta_logo" href="http://localhost:8000">
+                    <img src="http://localhost:8000/images/logo.jpg" alt="logo" />
+                </a>
+                <h3><a href="http://localhost:8000">Sunny Kumar</a></h3>
+                <p>Bits of Cloud Wisdom &Phi;  &#9679; Platform Engineer &Xi;  &#9679; Football Enthusiast &infin; &#9679; </p>
+
+                <hr />
+
+                <nav>
+                    <h4>
+                        <a href="http://localhost:8000/pages/about-me.html">About</a>
+                    </h4>
+                </nav>
+            </div>
+        </aside>
+
+        <main>
+            <header>
+                <nav>
+                    <a id="linkedin" href="https://www.linkedin.com/in/sunnykrgupta/" target="_blank"
+                        ><img
+                            src="http://localhost:8000/theme/images/Mono/webicon-linkedin.png"
+                            alt="linkedin"
+                    /></a>
+                    <a id="github" href="https://github.com/sunnykrGupta" target="_blank"
+                        ><img
+                            src="http://localhost:8000/theme/images/Mono/webicon-github.png"
+                            alt="github"
+                    /></a>
+                    <a id="twitter" href="https://twitter.com/Sunny_KrGupta" target="_blank"
+                        ><img
+                            src="http://localhost:8000/theme/images/Mono/webicon-twitter.png"
+                            alt="twitter"
+                    /></a>
+                    <a id="medium" href="https://medium.com/@sunnykrgupta/" target="_blank"
+                        ><img
+                            src="http://localhost:8000/theme/images/Mono/webicon-medium.png"
+                            alt="medium"
+                    /></a>
+                    <a id="mail" href="mailto:sunnygupta.kr@yandex.com" target="_blank"
+                        ><img
+                            src="http://localhost:8000/theme/images/Mono/webicon-mail.png"
+                            alt="mail"
+                    /></a>
+                </nav>
+                <br />
+                <p>
+                    <a href="http://localhost:8000/index.html">Index</a> &nbsp;&nbsp;
+                    &brvbar;
+                    <a href="http://localhost:8000/archives.html"
+                        >&nbsp;&nbsp;Archives</a
+                    >
+                   </p>
+            </header>
+
+<article>
+  <div class="article_title">
+    <h3><a href="http://localhost:8000/installation-of-vnc-server-on-ubuntu.html">Installation of VNC server on Ubuntu</a></h3>
+  </div>
+  <div class="article_text">
+    <p>This blog is intended for people who wanted to install GUI or desktop environment on linux <a href="https://en.wikipedia.org/wiki/Server_(computing)">servers</a> running on <a href="https://en.wikipedia.org/wiki/Cloud_computing">cloud</a> and connect.</p>
+<p>We are going to use VNC (Virtual Network Computing) protocol for accessing our remote desktop server.</p>
+<h4>What is VNC ?</h4>
+<p><a href="https://en.wikipedia.org/wiki/Virtual_Network_Computing">Virtual network computing</a>, or VNC, is a graphical desktop sharing system that allows you to control one computer remotely from another. A VNC server transfers keyboard and mouse events, and displays the remote host’s screen via a network connection, which allows you to operate a full <a href="https://en.wikipedia.org/wiki/Desktop_environment">desktop environment</a>.</p>
+<p>Basically ubuntu server and ubuntu cloud editions does not contains GUI, which needs to be installed before installing VNC server. Please note that server and cloud editions are carefully designed to utilize less hardware resources ( minimal environment ), installing GUI might leads to high hardware utilization.</p>
+<h4>Why I needed desktop environment in remote server ?</h4>
+<p>Just to explain a use case, let me tell me you how I ended up using VNC in first place. I was working on a problem which relates with cloud latency testing. My Friend, <a href="https://www.linkedin.com/in/neekneeraj/">Neeraj</a> <em>(whose work revolves around core JS research &amp; development)</em> developed a javascript code that makes an cross origin <a href="(https://en.wikipedia.org/wiki/Web_API)">HTTP API</a> call to a <a href="https://en.wikipedia.org/wiki/Cloud_load_balancing">loadbalancer</a> near to the geographical location of browser and response will be delivered from loadbalancer in geographic proximity. To test this setup, executing JS code and to use <a href="https://developer.mozilla.org/en/docs/Tools/Browser_Console">developer console</a> to see what's happening under the network layer, we were in need of a browser engine in different geographical location. I could have used some online paid or free service to get browser rented, services like <a href="https://www.browserstack.com/">browserstack</a> or other alternatives but that has free minutes based trial restrictions.</p>
+<hr>
+<h3>Install a Desktop and VNC Server on Ubtunu 14.04</h3>
+<h4>Step 1 - Install Ubuntu desktop</h4>
+<p>Start installing below <em>gnome packages</em> which helps VNC to load properly . These packages are required for all editions including <em>ubuntu desktop</em> .</p>
+<div class="highlight"><pre><span></span><code>$<span class="w"> </span>sudo<span class="w"> </span>apt-get<span class="w"> </span>install<span class="w"> </span>--no-install-recommends<span class="w"> </span>ubuntu-desktop<span class="w"> </span>gnome-panel<span class="w"> </span>gnome-settings-daemon<span class="w"> </span>metacity<span class="w"> </span>nautilus<span class="w"> </span>gnome-terminal<span class="w"> </span>gnome-core
+</code></pre></div>
+
+<h4>Step 2 - Install vnc4server package.</h4>
+<div class="highlight"><pre><span></span><code>$<span class="w"> </span>sudo<span class="w"> </span>apt-get<span class="w"> </span>install<span class="w"> </span>vnc4server
+</code></pre></div>
+
+<h4>Step 3 - Make configuration changes in vncserver</h4>
+<p>Open <code>/usr/bin/vncserver</code> file and edit as follows . Before editing, make a backup copy.</p>
+<div class="highlight"><pre><span></span><code>$<span class="w"> </span>sudo<span class="w"> </span>cp<span class="w"> </span>/usr/bin/vncserver<span class="w"> </span>/usr/bin/vncserver.bkp
+
+$<span class="w"> </span>sudo<span class="w"> </span>vim<span class="w"> </span>/usr/bin/vncserver
+
+<span class="c1">#Find this line &quot;# exec /etc/X11/xinit/xinitrcnn&quot;.</span>
+<span class="c1">#and add these lines like below</span>
+
+<span class="w">    </span><span class="s2">&quot;# exec /etc/X11/xinit/xinitrcnn&quot;</span>.
+<span class="w">       </span><span class="s2">&quot;gnome-panel &amp;n&quot;</span>.
+<span class="w">       </span><span class="s2">&quot;gnome-settings-daemon &amp;n&quot;</span>.
+<span class="w">       </span><span class="s2">&quot;metacity &amp;n&quot;</span>.
+<span class="w">       </span><span class="s2">&quot;nautilus &amp;n&quot;</span>.
+<span class="w">       </span><span class="s2">&quot;gnome-terminal &amp;n&quot;</span>.
+</code></pre></div>
+
+<h4>Step 4 - Start your vncserver</h4>
+<p>Now type the command <code>vncserver</code> to start VNC session. you will be prompted for creating new vnc password.</p>
+<div class="highlight"><pre><span></span><code>$<span class="w"> </span>vncserver
+You<span class="w"> </span>will<span class="w"> </span>require<span class="w"> </span>a<span class="w"> </span>password<span class="w"> </span>to<span class="w"> </span>access<span class="w"> </span>your<span class="w"> </span>desktops<span class="w"> </span>through<span class="w"> </span>VNC<span class="w"> </span>Clients.
+Password:******
+Verify:******
+
+xauth:<span class="w"> </span>file<span class="w"> </span>/root/.Xauthority<span class="w"> </span>does<span class="w"> </span>not<span class="w"> </span>exist
+New<span class="w"> </span><span class="s1">&#39;ubuntu-desktop:1 (root)&#39;</span><span class="w"> </span>desktop<span class="w"> </span>is<span class="w"> </span>ubuntu-desktop:1
+
+Starting<span class="w"> </span>applications<span class="w"> </span>specified<span class="w"> </span><span class="k">in</span><span class="w"> </span>/root/.vnc/xstartup
+Log<span class="w"> </span>file<span class="w"> </span>is<span class="w"> </span>/root/.vnc/ubuntu-desktop:1.log
+</code></pre></div>
+
+<h4>Step 5 - To check VNC server has started, follow</h4>
+<div class="highlight"><pre><span></span><code>$<span class="w"> </span>netstat<span class="w"> </span>-tulpn
+
+Proto<span class="w"> </span>Recv-Q<span class="w"> </span>Send-Q<span class="w"> </span>Local<span class="w"> </span>Address<span class="w">           </span>Foreign<span class="w"> </span>Address<span class="w">         </span>State<span class="w">       </span>PID/Program<span class="w"> </span>name
+tcp<span class="w">        </span><span class="m">0</span><span class="w">      </span><span class="m">0</span><span class="w"> </span><span class="m">0</span>.0.0.0:6001<span class="w">            </span><span class="m">0</span>.0.0.0:*<span class="w">               </span>LISTEN<span class="w">      </span><span class="m">28372</span>/Xvnc4
+tcp6<span class="w">       </span><span class="m">0</span><span class="w">      </span><span class="m">0</span><span class="w"> </span>:::5901<span class="w">                 </span>:::*<span class="w">                    </span>LISTEN<span class="w">      </span><span class="m">28372</span>/Xvnc4
+</code></pre></div>
+
+<blockquote>
+<p>VNC server is running and listening on <strong>5901 port</strong>. Make sure your firewall allows <strong>inbound</strong> TCP connection to this port.</p>
+</blockquote>
+<h4>Step 6 - Configure your Firewall</h4>
+<p>If <strong>firewall</strong> is active, you need to open ports for inbound communication. If no firewall is enabled, you can skip this section.</p>
+<div class="highlight"><pre><span></span><code><span class="c1">#allow SSH</span>
+$<span class="w"> </span>sudo<span class="w"> </span>ufw<span class="w"> </span>allow<span class="w"> </span>OpenSSH
+
+<span class="c1">#allowing single port 5901 port</span>
+$<span class="w"> </span>sudo<span class="w"> </span>ufw<span class="w"> </span>allow<span class="w"> </span><span class="m">5901</span>/tcp
+
+<span class="c1">#To allow series of port 5901 - 5910, follow</span>
+$<span class="w"> </span>sudo<span class="w"> </span>ufw<span class="w"> </span>allow<span class="w"> </span><span class="m">5901</span>:5910/tcp
+
+<span class="c1">#To check firewall rules</span>
+$<span class="w"> </span>sudo<span class="w">  </span>ufw<span class="w"> </span>status<span class="w"> </span>verbose
+
+Status:<span class="w"> </span>active
+Logging:<span class="w"> </span>on<span class="w"> </span><span class="o">(</span>low<span class="o">)</span>
+Default:<span class="w"> </span>deny<span class="w"> </span><span class="o">(</span>incoming<span class="o">)</span>,<span class="w"> </span>allow<span class="w"> </span><span class="o">(</span>outgoing<span class="o">)</span>,<span class="w"> </span>disabled<span class="w"> </span><span class="o">(</span>routed<span class="o">)</span>
+New<span class="w"> </span>profiles:<span class="w"> </span>skip
+
+To<span class="w">                         </span>Action<span class="w">      </span>From
+--<span class="w">                         </span>------<span class="w">      </span>----
+<span class="m">22</span>/tcp<span class="w"> </span><span class="o">(</span>OpenSSH<span class="o">)</span><span class="w">           </span>ALLOW<span class="w"> </span>IN<span class="w">    </span>Anywhere
+<span class="m">5901</span>:5910/tcp<span class="w">              </span>ALLOW<span class="w"> </span>IN<span class="w">    </span>Anywhere
+<span class="m">22</span>/tcp<span class="w"> </span><span class="o">(</span>OpenSSH<span class="w"> </span><span class="o">(</span>v6<span class="o">))</span><span class="w">      </span>ALLOW<span class="w"> </span>IN<span class="w">    </span>Anywhere<span class="w"> </span><span class="o">(</span>v6<span class="o">)</span>
+<span class="m">5901</span>:5910/tcp<span class="w"> </span><span class="o">(</span>v6<span class="o">)</span><span class="w">         </span>ALLOW<span class="w"> </span>IN<span class="w">    </span>Anywhere<span class="w"> </span><span class="o">(</span>v6<span class="o">)</span>WW
+</code></pre></div>
+
+<blockquote>
+<p><strong><a href="https://www.digitalocean.com/community/tutorials/how-to-set-up-a-firewall-with-ufw-on-ubuntu-14-04">Good reads on configuring UFW firewall</a></strong></p>
+</blockquote>
+<h4>Step 7 - Connect to VNC Server</h4>
+<blockquote>
+<p>Use any remote desktop connect client that allow VNC protocol. Use <em><a href="https://en.wikipedia.org/wiki/IP_address">IP address</a></em> of server along with port where VNC server is listening.</p>
+</blockquote>
+<div style="text-align: right"><sub>Connect -Remote Desktop Viewer</sub></div>
+<p><img alt="VNC Connect" src="/images/vnc/vnc-connect.png" title="VNC Connect"></p>
+<blockquote>
+<p>Once connected to your VNC server, you will see screen of remote server where you installed desktop GUI.</p>
+</blockquote>
+<div style="text-align: right"><sub>Launch Firefox from Terminal</sub></div>
+<p><img alt="Launch Firefox" src="/images/vnc/vnc-launch-firefox.png" title="Launch Firefox"></p>
+<blockquote>
+<p>Browser screen running on remote server.</p>
+</blockquote>
+<div style="text-align: right"><sub>Google UK</sub></div>
+<p><img alt="Google UK" src="/images/vnc/vnc-google-uk.png" title="Google UK"></p>
+<p>That’s it, your VNC server is working.</p>
+<blockquote>
+<p>Here I created my linux server in london, UK. I opened firefox through terminal to reach out to URL <em>google.com</em>. It opened google.co.uk domain based on regional search engine. You can do lot of other stuffs on VNC protocol to get things done from remote location.</p>
+</blockquote>
+<hr>
+<h5>Medium Blog : <a href="https://medium.com/@sunnykrgupta/installation-of-vnc-server-on-ubuntu-1cf035370bd3">medium.com/@sunnykrgupta/installation-of-vnc-server-on-ubuntu-1cf035370bd3</a></h5>
+  </div>
+  <div class="article_meta">
+    <p>Posted on: Mon 04 September 2017</p>
+    <p>Category: <a href="http://localhost:8000/category/blog.html">Blog</a>
+ &ndash; Tags:
+      <a href="http://localhost:8000/tag/vnc.html">vnc</a>,      <a href="http://localhost:8000/tag/vncserver.html">vncserver</a>,      <a href="http://localhost:8000/tag/ubuntu.html">ubuntu</a>,      <a href="http://localhost:8000/tag/desktop-installation.html">desktop installation</a>    </p>
+  </div>
+
+
+</article>
+  
+            <div id="ending_message">
+                <p>
+                    &copy; Sunny Kumar. Built using
+                    <a href="http://getpelican.com" target="_blank">Pelican</a>.
+                    Theme by Sunny Kumar on
+                    <a
+                        href="https://github.com/sunnykrgupta/pelican-svbhack-responsive"
+                        target="_blank"
+                        >github</a
+                    >.                 </p>
+            </div>
+        </main>
+
+    </body>
+</html>
