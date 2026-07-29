@@ -1,8 +1,6 @@
-# sunnykrGupta.github.io
+## GitHub Page
 
-A personal blog about Computer Science topics, built with Pelican and hosted on GitHub Pages.
-
-### Pelican Theme
+#### Pelican Theme
 
 The theme is maintained in a separate repository:
 - **Repository**: https://github.com/sunnykrGupta/pelican-svbhack-responsive
