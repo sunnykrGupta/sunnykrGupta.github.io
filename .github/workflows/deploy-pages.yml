@@ -8,8 +8,6 @@ on:
 
 permissions:
   contents: read
-  pages: write
-  id-token: write
 
 concurrency:
   group: pages
@@ -23,10 +21,10 @@ jobs:
         python-version: ['3.13']
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
       - name: Set up Python ${{ matrix.python-version }}
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v6
         with:
           python-version: ${{ matrix.python-version }}
           cache: pip
@@ -49,15 +47,18 @@ jobs:
   build:
     needs: lint
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pages: write
     strategy:
       matrix:
         python-version: ['3.13']
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
       - name: Set up Python ${{ matrix.python-version }}
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v6
         with:
           python-version: ${{ matrix.python-version }}
           cache: pip
@@ -78,18 +79,95 @@ jobs:
           pelican content -o output -s pelicanconf.py
 
       - name: Upload pages artifact
-        uses: actions/upload-pages-artifact@v3
+        uses: actions/upload-pages-artifact@v5
         with:
           path: output
 
   deploy:
     needs: build
     runs-on: ubuntu-latest
+    permissions:
+      pages: write
+      id-token: write
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
+    outputs:
+      page_url: ${{ steps.deployment.outputs.page_url }}
 
     steps:
       - name: Deploy to GitHub Pages
         id: deployment
-        uses: actions/deploy-pages@v4
+        uses: actions/deploy-pages@v5
+
+  # Smoke-check the two newest posts listed on /archives.html (newest-first).
+  # Examples (as of current site):
+  #   https://sunnykrgupta.github.io/kubernetes-hpa-autoscaling-with-kafka-metrics.html
+  #   https://sunnykrgupta.github.io/sharded-mongodb-in-kubernetes-statefulsets-on-gke.html
+  test:
+    name: Test latest blog posts
+    needs: deploy
+    runs-on: ubuntu-latest
+    env:
+      SITE_URL: ${{ needs.deploy.outputs.page_url || 'https://sunnykrgupta.github.io' }}
+
+    steps:
+      - name: Wait for Pages CDN
+        run: sleep 30
+
+      - name: Curl check two latest posts from archives
+        run: |
+          set -euo pipefail
+
+          # Trim trailing slash from deploy output
+          BASE="${SITE_URL%/}"
+          ARCHIVES_URL="${BASE}/archives.html"
+          UA='Mozilla/5.0 (compatible; GitHubActions-post-check/1.0)'
+
+          echo "Fetching archives: ${ARCHIVES_URL}"
+          # Archives list posts newest-first in <dd><a href="...">
+          mapfile -t POSTS < <(
+            curl -sS -L -A "${UA}" --max-time 20 "${ARCHIVES_URL}" \
+              | grep -oE '<dd><a href="[^"]+"' \
+              | sed -E 's/^<dd><a href="//; s/"$//' \
+              | head -n 2
+          )
+
+          if [[ "${#POSTS[@]}" -lt 2 ]]; then
+            echo "::error::Expected 2 latest post URLs from archives, got ${#POSTS[@]}"
+            exit 1
+          fi
+
+          echo "Latest posts:"
+          printf '  %s\n' "${POSTS[@]}"
+
+          failed=0
+          for url in "${POSTS[@]}"; do
+            echo "Checking: ${url}"
+            # Retry briefly — Pages can lag right after deploy
+            ok=0
+            for attempt in 1 2 3 4 5; do
+              code=$(curl -sS -o /dev/null -w '%{http_code}' -L \
+                -A "${UA}" \
+                --max-time 20 \
+                "${url}" || echo "000")
+              if [[ "${code}" == "200" ]]; then
+                echo "  OK (${code}) attempt=${attempt}"
+                ok=1
+                break
+              fi
+              echo "  got ${code}, retrying (${attempt}/5)..."
+              sleep 10
+            done
+            if [[ "${ok}" -ne 1 ]]; then
+              echo "  FAIL: ${url}"
+              failed=1
+            fi
+          done
+
+          if [[ "${failed}" -ne 0 ]]; then
+            echo "::error::One or more latest blog posts failed to load"
+            exit 1
+          fi
+
+          echo "Latest blog posts loaded successfully."
