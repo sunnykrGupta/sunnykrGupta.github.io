@@ -8,6 +8,7 @@ __pycache__/
 #BLOG IGNORES
 venv/
 output/
+pelican-svbhack-responsive
 pelican-svbhack-responsive/
 .DS_Store
 
